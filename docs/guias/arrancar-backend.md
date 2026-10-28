@@ -5,11 +5,12 @@
 > menú Inicio → escribe "PowerShell" → Enter. Copia cada comando, pégalo con
 > clic derecho y pulsa Enter.
 
-Al terminar habrás comprobado cinco cosas: que la base de datos y el correo de
-pruebas arrancan en Docker, que el backend crea las tablas y responde, que
-puedes registrarte e iniciar sesión (bloque B2), que puedes recuperar la
-contraseña, exportar tus datos y eliminar la cuenta (bloque B3) y que las
-pruebas pasan.
+Al terminar habrás comprobado que la base de datos y el correo de pruebas
+arrancan en Docker, que el backend crea las tablas y responde, que puedes
+registrarte e iniciar sesión (bloque B2), que puedes recuperar la contraseña,
+exportar tus datos y eliminar la cuenta (bloque B3), que puedes gestionar el
+catálogo y los empleados (B4), que puedes configurar los horarios y consultar
+las horas libres (B5) y que las pruebas pasan.
 
 ## 1. Traer el código a tu PC
 
@@ -23,7 +24,7 @@ cd C:\Users\josef\Downloads\Proyectos\Aplicaciones\gestion-de-citas
 
   ```powershell
   git fetch origin
-  git switch feature/recuperar-password-rgpd
+  git switch feature/horarios-disponibilidad
   ```
 
 - **Si ya está fusionado en `main`:**
@@ -97,6 +98,8 @@ MAIL_USERNAME=
 MAIL_PASSWORD=
 MAIL_FROM=no-responder@gestiondecitas.local
 APP_WEB_URL=http://localhost:5173
+
+DEMO_PASSWORD=una-clave-para-las-cuentas-de-demo
 ```
 
 - `POSTGRES_PASSWORD`: si ya tenías `.env`, **no la cambies**. Si es nuevo,
@@ -106,6 +109,9 @@ APP_WEB_URL=http://localhost:5173
   o más** y no puede ser muy común (`1234567890`, `contraseña123`...).
 - `MAIL_*` y `APP_WEB_URL`: déjalos tal cual. En local los correos van a
   **Mailpit**, un servidor de correo de pruebas que no envía nada a Internet.
+- `DEMO_PASSWORD` (B5): solo se usa si arrancas con los datos de
+  demostración (apartado 7.10). Es la contraseña de todas las cuentas de demo
+  y sigue las mismas reglas que la del administrador.
 - Usa **solo letras, números y guiones** en las contraseñas (sin espacios,
   `\`, `#`, comillas ni tildes) para evitar problemas.
 
@@ -144,9 +150,9 @@ cd backend
 - Está listo cuando ves una línea parecida a
   `Started GestionDeCitasApplication in 5.3 seconds`.
 - Un poco más arriba verás Flyway aplicando las migraciones:
-  - Si tu base de datos venía del B2: `Successfully applied 1 migration ... now at version v4`
-    (la V4 prepara la eliminación de cuentas del B3).
-  - Si es nueva: `Successfully applied 4 migrations ... now at version v4`.
+  - Si tu base de datos venía del B4: `Successfully applied 1 migration ... now at version v6`
+    (la V6 añade los ajustes de horario del B5).
+  - Si es nueva: `Successfully applied 6 migrations ... now at version v6`.
   - Las siguientes veces dirá que el esquema está al día (`is up to date`).
 - Justo después de `Started` verás
   `Administrador inicial creado (id 1).` Solo sale la primera vez; las
@@ -360,6 +366,79 @@ Inicia sesión como administrador y pulsa **Authorize** con su token (7.1 y 7.2)
    /api/v1/admin/negocio**, cambiar el intervalo a 60 con el Corte de 30
    minutos da **422** con la lista de servicios que habría que cambiar antes.
 
+### 7.9 Horarios y disponibilidad (B5)
+
+Necesitas un servicio y un empleado que lo realice (apartado 7.8). Con el
+token del administrador:
+
+1. **PUT /api/v1/admin/horario-general** → **Try it out**. De lunes (1) a
+   viernes (5) mañana y tarde, y el sábado (6) por la mañana; el domingo, que no
+   aparece, queda cerrado:
+
+   ```json
+   { "dias": [
+     { "diaSemana": 1, "tramos": [ { "inicio": "09:00", "fin": "14:00" }, { "inicio": "16:00", "fin": "20:00" } ] },
+     { "diaSemana": 2, "tramos": [ { "inicio": "09:00", "fin": "14:00" }, { "inicio": "16:00", "fin": "20:00" } ] },
+     { "diaSemana": 3, "tramos": [ { "inicio": "09:00", "fin": "14:00" }, { "inicio": "16:00", "fin": "20:00" } ] },
+     { "diaSemana": 4, "tramos": [ { "inicio": "09:00", "fin": "14:00" }, { "inicio": "16:00", "fin": "20:00" } ] },
+     { "diaSemana": 5, "tramos": [ { "inicio": "09:00", "fin": "14:00" }, { "inicio": "16:00", "fin": "20:00" } ] },
+     { "diaSemana": 6, "tramos": [ { "inicio": "09:00", "fin": "14:00" } ] }
+   ] }
+   ```
+
+   **Execute** → **200** con los 7 días y `"citasAfectadas": []`. Si dos tramos
+   se solapan (09:00-14:00 y 13:00-16:00) → **422**.
+2. **GET /api/v1/disponibilidad** (sin sesión) con `servicioId` y
+   `profesionalId` del 7.8 y una `fecha` de un día laborable próximo
+   (`2026-11-03`) → la lista de `horas` libres: 09:00, 09:30... Con una fecha
+   pasada o a más de 60 días → **422**.
+3. **PUT /api/v1/admin/empleados/{id}/horario** con el id del empleado, para
+   que ese martes (2) solo trabaje de 10:00 a 12:00 y el lunes (1) libre:
+
+   ```json
+   { "dias": [
+     { "diaSemana": 1, "tramos": [] },
+     { "diaSemana": 2, "tramos": [ { "inicio": "10:00", "fin": "12:00" } ] }
+   ] }
+   ```
+
+   La respuesta trae `semanaEfectiva`: lo que trabaja cada día. Repite la
+   consulta del paso 2 para un martes: solo salen 10:00, 10:30, 11:00 y 11:30.
+   Con `{ "dias": [] }` vuelve al horario general.
+4. **POST /api/v1/admin/dias-cierre** con `{ "fecha": "2026-12-08", "motivo":
+   "Festivo" }` (sin `empleadoId` cierra todo el negocio) → **201**. Repetirlo
+   da **409**. La disponibilidad de ese día sale vacía, con
+   `siguienteFechaConHuecos` apuntando al siguiente día con horas.
+5. Cuando existan las citas (B6), si un cambio de horario o un día de cierre
+   deja citas fuera, se guarda igualmente y la respuesta las lista en
+   `citasAfectadas` para que decidas qué hacer con ellas.
+
+### 7.10 Arrancar con datos de demostración (B5)
+
+Para ver la aplicación con datos de una peluquería sin crearlos a mano, usa
+**otra base de datos vacía** (los datos solo se crean si aún no hay ningún
+servicio). Si quieres usar la de siempre y empezar de cero, `docker compose
+down -v` la borra entera.
+
+1. Comprueba que tu `.env` tiene `DEMO_PASSWORD` (apartado 3.2).
+2. Arranca el backend con el perfil `demo`:
+
+   ```powershell
+   cd backend
+   $env:SPRING_PROFILES_ACTIVE = "demo"
+   .\mvnw.cmd spring-boot:run
+   ```
+
+   En el log aparece `Datos de demostración creados: 6 servicios, 3
+   profesionales y el cliente cliente@demo.invalid.`
+3. Ya puedes entrar con `luis@demo.invalid`, `ana@demo.invalid`,
+   `marta@demo.invalid` (empleados) o `cliente@demo.invalid` (cliente), todos
+   con tu `DEMO_PASSWORD`. Hay horario de lunes a sábado, Ana libra los lunes,
+   Marta entra a las 10:00 los sábados, el negocio cierra en Navidad y Año
+   Nuevo y Luis tiene una semana de vacaciones dentro de un mes.
+4. Para volver al modo normal, cierra la ventana de PowerShell o escribe
+   `Remove-Item Env:SPRING_PROFILES_ACTIVE`.
+
 ## 8. Ver las tablas (opcional)
 
 Con una segunda ventana de PowerShell:
@@ -405,7 +484,7 @@ Las pruebas crean su **propio** PostgreSQL temporal con Testcontainers y lo
 destruyen al acabar, así que nunca tocan tus datos. Al final debes ver:
 
 ```
-Tests run: 90, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 173, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
