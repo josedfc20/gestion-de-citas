@@ -24,6 +24,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import com.gestiondecitas.ApiDePrueba;
 import com.gestiondecitas.CorreosDePrueba;
 import com.gestiondecitas.IntegracionTest;
+import com.gestiondecitas.ReservasDePrueba;
+import com.gestiondecitas.shared.security.JwtService;
 
 import tools.jackson.databind.json.JsonMapper;
 
@@ -45,6 +47,9 @@ class DatosPersonalesTest {
 
     @Autowired
     private CorreosDePrueba correos;
+
+    @Autowired
+    private JwtService jwtService;
 
     private ApiDePrueba api;
 
@@ -176,6 +181,43 @@ class DatosPersonalesTest {
 
         // El correo queda libre para registrarse de nuevo.
         api.registrar(email);
+    }
+
+    @Test
+    void exportaYEliminaTambienSusBeneficiariosYSusCitas() throws Exception {
+        var r = new ReservasDePrueba(mockMvc, jsonMapper, jdbc, jwtService);
+        var cliente = r.cliente();
+        long lucia = r.crearBeneficiario(cliente.bearer(), "Lucía", r.hoy.minusYears(8));
+        long futura = r.reservarCorte(cliente, "10:00");
+        long paraLucia = api.leer(r.reservar(cliente.bearer(), r.corte, r.empleado, r.fecha, "11:00", lucia)
+                .andExpect(status().isCreated()).andReturn()).get("id").asLong();
+        long pasada = ApiDePrueba.crearCita(jdbc, cliente.id(), r.empleado, r.corte,
+                Instant.now().minus(java.time.Duration.ofDays(5)));
+
+        mockMvc.perform(get("/api/v1/me/datos").header(HttpHeaders.AUTHORIZATION, cliente.bearer()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.beneficiarios.length()").value(1))
+                .andExpect(jsonPath("$.beneficiarios[0].nombre").value("Lucía"))
+                .andExpect(jsonPath("$.citas.length()").value(3))
+                .andExpect(jsonPath("$.citas[0].id").value(pasada))
+                .andExpect(jsonPath("$.citas[1].id").value(futura))
+                .andExpect(jsonPath("$.citas[1].profesional").value("Luis G."))
+                .andExpect(jsonPath("$.citas[2].beneficiario").value("Lucía"));
+
+        eliminar(cliente.bearer(), ApiDePrueba.PASSWORD).andExpect(status().isNoContent());
+
+        for (long cita : new long[] {futura, paraLucia}) {
+            assertThat(jdbc.queryForMap("SELECT estado, motivo_cancelacion FROM cita WHERE id = ?", cita))
+                    .containsEntry("estado", "CANCELADA")
+                    .containsEntry("motivo_cancelacion", "Cuenta eliminada");
+        }
+        assertThat(jdbc.queryForObject("SELECT estado FROM cita WHERE id = ?", String.class, pasada))
+                .isEqualTo("CONFIRMADA");
+        assertThat(jdbc.queryForMap("SELECT nombre, fecha_nacimiento FROM beneficiario WHERE id = ?", lucia))
+                .containsEntry("nombre", "Beneficiario")
+                .containsEntry("fecha_nacimiento", null);
+        r.disponibilidad(r.corte, r.empleado, r.fecha)
+                .andExpect(jsonPath("$.horas", org.hamcrest.Matchers.hasItems("10:00", "11:00")));
     }
 
     private ResultActions eliminar(String bearer, String password) throws Exception {

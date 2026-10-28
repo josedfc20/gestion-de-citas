@@ -143,7 +143,7 @@ public final class ApiDePrueba {
         return base + " " + UUID.randomUUID().toString().substring(0, 8);
     }
 
-    /** Inserta una cita confirmada directamente en la tabla (la entidad Cita llega en B6). */
+    /** Inserta una cita confirmada de 30 min directamente en la tabla, sin pasar por las reglas de la reserva. */
     public static long crearCita(JdbcTemplate jdbc, long clienteId, long empleadoId, long servicioId,
             Instant inicio) {
         return jdbc.queryForObject("""

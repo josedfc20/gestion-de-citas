@@ -1,5 +1,6 @@
 package com.gestiondecitas.negocio;
 
+import java.time.Duration;
 import java.time.ZoneId;
 
 import jakarta.persistence.Column;
@@ -71,6 +72,11 @@ public class Negocio {
 
     public int getHorasMinCancelacion() {
         return horasMinCancelacion;
+    }
+
+    /** RN-004: hasta cuánto antes del inicio puede cancelar el cliente. */
+    public Duration plazoCancelacion() {
+        return Duration.ofHours(horasMinCancelacion);
     }
 
     /** RN-006: edad mínima para crear una cuenta de cliente. */

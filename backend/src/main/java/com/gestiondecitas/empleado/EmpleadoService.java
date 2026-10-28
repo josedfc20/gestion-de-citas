@@ -224,7 +224,7 @@ public class EmpleadoService {
     }
 
     /** "Luis", "García López" → "Luis G." (RNF-007: lo mínimo para distinguirlos). */
-    static String nombrePublico(String nombre, String apellidos) {
+    public static String nombrePublico(String nombre, String apellidos) {
         String apellido = apellidos == null ? "" : apellidos.trim();
         if (apellido.isEmpty()) {
             return nombre.trim();
