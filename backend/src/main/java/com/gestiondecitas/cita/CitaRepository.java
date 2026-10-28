@@ -9,14 +9,31 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.query.Param;
 
-public interface CitaRepository extends JpaRepository<Cita, Long> {
+public interface CitaRepository extends JpaRepository<Cita, Long>, JpaSpecificationExecutor<Cita> {
 
     /** Lo que se muestra de una cita: servicio, profesional, cliente y beneficiario en una consulta. */
     @EntityGraph(attributePaths = {"servicio", "empleado", "cliente", "beneficiario"})
     Optional<Cita> findConDatosById(Long id);
+
+    /** Listas con filtros del empleado y del administrador ({@link FiltroCitas}). */
+    @Override
+    @EntityGraph(attributePaths = {"servicio", "empleado", "cliente", "beneficiario"})
+    Page<Cita> findAll(Specification<Cita> filtro, Pageable pagina);
+
+    /** CU-013: las citas no canceladas del empleado que empiezan en [desde, hasta). */
+    @EntityGraph(attributePaths = {"servicio", "empleado", "cliente", "beneficiario"})
+    @Query("""
+            SELECT c FROM Cita c
+            WHERE c.empleado.id = :empleadoId AND c.estado <> com.gestiondecitas.cita.EstadoCita.CANCELADA
+              AND c.inicio >= :desde AND c.inicio < :hasta
+            ORDER BY c.inicio""")
+    List<Cita> agenda(@Param("empleadoId") Long empleadoId, @Param("desde") Instant desde,
+            @Param("hasta") Instant hasta);
 
     /** CU-010: próximas, en orden. */
     @EntityGraph(attributePaths = {"servicio", "empleado", "beneficiario"})

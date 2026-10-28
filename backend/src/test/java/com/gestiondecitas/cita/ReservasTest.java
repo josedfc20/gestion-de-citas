@@ -269,7 +269,7 @@ class ReservasTest {
         ExecutorService hilos = Executors.newFixedThreadPool(2);
         try {
             Future<?> primera = hilos.submit(() -> transaccion.executeWithoutResult(estado -> {
-                reservaService.reservar(cliente.id(), datos, cliente.id());
+                reservaService.reservar(cliente.id(), datos);
                 primeraGuardada.countDown();
                 esperar(segundaEmpezada);
                 dormir(1000); // la segunda llega al INSERT y espera a que esta termine
@@ -277,7 +277,7 @@ class ReservasTest {
             primeraGuardada.await(30, TimeUnit.SECONDS);
             Future<?> segunda = hilos.submit((Callable<Object>) () -> {
                 segundaEmpezada.countDown();
-                return reservaService.reservar(otro.id(), datos, otro.id());
+                return reservaService.reservar(otro.id(), datos);
             });
             primera.get(30, TimeUnit.SECONDS);
             assertThatThrownBy(() -> segunda.get(30, TimeUnit.SECONDS))

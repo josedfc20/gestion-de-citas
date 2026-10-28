@@ -95,6 +95,11 @@ public class SecurityConfig {
                                 .access(AuthorizationManagers.allOf(rol("CLIENTE"), conPasswordDefinitiva()))
                         .requestMatchers(HttpMethod.POST, "/api/v1/citas", "/api/v1/citas/*/cancelacion")
                                 .access(AuthorizationManagers.allOf(rol("CLIENTE"), conPasswordDefinitiva()))
+                        // CU-015 y CU-019: cambia el estado el empleado (sus citas) o el administrador.
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/citas/*/estado")
+                                .access(AuthorizationManagers.allOf(
+                                        AuthorizationManagers.anyOf(rol("EMPLEADO"), rol("ADMIN")),
+                                        conPasswordDefinitiva()))
                         .requestMatchers("/api/v1/admin/**")
                                 .access(AuthorizationManagers.allOf(rol("ADMIN"), conPasswordDefinitiva()))
                         .requestMatchers("/api/v1/empleado/**")

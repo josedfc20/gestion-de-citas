@@ -63,10 +63,14 @@ public record CitaResponse(
                 cliente.getApellidos(), cliente.getTelefono(), null), null);
     }
 
-    /** CU-019: el administrador ve también el correo y el historial de cambios. */
-    public static CitaResponse paraAdmin(Cita cita, ZoneId zona, Duration plazoCancelacion, Instant ahora) {
+    /**
+     * CU-019: el administrador ve también el correo y, en el detalle, el historial
+     * de cambios (en las listas no, para no cargarlo cita a cita).
+     */
+    public static CitaResponse paraAdmin(Cita cita, ZoneId zona, Duration plazoCancelacion, Instant ahora,
+            boolean conCambios) {
         Cliente cliente = cita.getCliente();
-        List<Cambio> cambios = cita.getCambios().stream()
+        List<Cambio> cambios = !conCambios ? null : cita.getCambios().stream()
                 .map(c -> new Cambio(c.getEstadoAnterior(), c.getEstadoNuevo(), enZona(c.getFecha(), zona),
                         c.getRealizadoPor()))
                 .toList();
