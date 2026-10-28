@@ -24,7 +24,7 @@ class ArranqueTest {
     @Test
     void flywayAplicaTodasLasMigraciones() {
         assertThat(flyway.info().pending()).isEmpty();
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("3");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("4");
     }
 
     /**

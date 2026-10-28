@@ -54,6 +54,10 @@ public class Usuario {
     @Column(name = "creado_en", nullable = false, updatable = false)
     private Instant creadoEn;
 
+    /** RNF-007: cuándo se eliminó (anonimizó) la cuenta. Vacío si sigue viva. */
+    @Column(name = "eliminado_en")
+    private Instant eliminadoEn;
+
     protected Usuario() {
     }
 
@@ -94,6 +98,25 @@ public class Usuario {
         this.apellidos = apellidos;
         this.email = normalizarEmail(email);
         this.telefono = telefono;
+    }
+
+    /**
+     * RNF-007, paso 2.6: borra los datos personales sin borrar la fila, que las
+     * citas siguen necesitando. El correo queda único y en un dominio
+     * {@code .invalid}, que nunca recibe correo; nadie conoce la contraseña nueva.
+     */
+    public void anonimizar(String passwordHashInutilizable, Instant ahora) {
+        this.nombre = "Usuario";
+        this.apellidos = "eliminado";
+        this.email = "eliminado-" + id + "@anonimo.invalid";
+        this.telefono = null;
+        this.passwordHash = passwordHashInutilizable;
+        this.activo = false;
+        this.eliminadoEn = ahora;
+    }
+
+    public boolean isEliminado() {
+        return eliminadoEn != null;
     }
 
     public Long getId() {

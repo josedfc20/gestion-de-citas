@@ -23,22 +23,29 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.gestiondecitas.auth.dto.CambioPasswordRequest;
 import com.gestiondecitas.auth.dto.LoginRequest;
+import com.gestiondecitas.auth.dto.MensajeResponse;
+import com.gestiondecitas.auth.dto.RecuperarPasswordRequest;
 import com.gestiondecitas.auth.dto.RegistroRequest;
+import com.gestiondecitas.auth.dto.RestablecerPasswordRequest;
 import com.gestiondecitas.auth.dto.SesionResponse;
 import com.gestiondecitas.auth.dto.UsuarioResumen;
 import com.gestiondecitas.shared.error.NoAutenticadoException;
 import com.gestiondecitas.shared.security.CookieRefreshToken;
 
-@Tag(name = "Autenticación", description = "Registro, inicio y cierre de sesión (CU-001 a CU-004)")
+@Tag(name = "Autenticación",
+        description = "Registro, inicio y cierre de sesión y recuperación de contraseña (CU-001 a CU-004, CU-020)")
 @RestController
 @RequestMapping("/api/v1")
 public class AuthController {
 
     private final AuthService authService;
+    private final RecuperacionPasswordService recuperacionService;
     private final CookieRefreshToken cookie;
 
-    public AuthController(AuthService authService, CookieRefreshToken cookie) {
+    public AuthController(AuthService authService, RecuperacionPasswordService recuperacionService,
+            CookieRefreshToken cookie) {
         this.authService = authService;
+        this.recuperacionService = recuperacionService;
         this.cookie = cookie;
     }
 
@@ -78,6 +85,23 @@ public class AuthController {
             @CookieValue(name = CookieRefreshToken.NOMBRE, required = false) String refreshToken) {
         authService.logout(refreshToken);
         return ResponseEntity.noContent().header(HttpHeaders.SET_COOKIE, cookie.borrar().toString()).build();
+    }
+
+    @Operation(summary = "Pedir un enlace para restablecer la contraseña (CU-020)",
+            description = "Responde siempre lo mismo, exista o no la cuenta. El enlace caduca en 30 minutos.")
+    @PostMapping("/auth/recuperar-password")
+    public ResponseEntity<MensajeResponse> recuperarPassword(@Valid @RequestBody RecuperarPasswordRequest datos,
+            HttpServletRequest peticion) {
+        recuperacionService.solicitar(datos.email(), peticion.getRemoteAddr());
+        return ResponseEntity.accepted().body(new MensajeResponse(RecuperacionPasswordService.MENSAJE_SOLICITUD));
+    }
+
+    @Operation(summary = "Elegir una contraseña nueva con el token del enlace (CU-020)",
+            description = "Cierra todas las sesiones abiertas. No inicia sesión: después hay que hacer login.")
+    @PostMapping("/auth/restablecer-password")
+    public ResponseEntity<Void> restablecerPassword(@Valid @RequestBody RestablecerPasswordRequest datos) {
+        recuperacionService.restablecer(datos);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Cambiar mi contraseña (CU-004, RN-005)",
