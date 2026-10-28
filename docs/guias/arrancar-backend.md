@@ -321,6 +321,45 @@ Inicia sesión con Ana y pulsa **Authorize** con su token (7.1 y 7.2).
 4. Solo los **clientes** pueden eliminar su cuenta: con el token del
    administrador, `DELETE /api/v1/me` da **403**.
 
+### 7.8 Catálogo y empleados (B4)
+
+Inicia sesión como administrador y pulsa **Authorize** con su token (7.1 y 7.2).
+
+1. **POST /api/v1/admin/servicios** → **Try it out**:
+
+   ```json
+   { "nombre": "Corte", "descripcion": "Corte y peinado", "duracionMinutos": 30, "precio": 15.00 }
+   ```
+
+   **Execute** → **201**. Con `"duracionMinutos": 45` → **422**: la duración
+   tiene que ser múltiplo del intervalo de reserva (30 minutos, RN-011). Con el
+   mismo nombre en mayúsculas ("CORTE") → **409**.
+2. **GET /api/v1/servicios** (sin sesión, puedes pulsar **Logout** en
+   Authorize) → el servicio aparece en el catálogo público.
+3. **POST /api/v1/admin/empleados** (otra vez con el token del admin), con el
+   `id` del servicio del paso 1:
+
+   ```json
+   { "nombre": "Luis", "apellidos": "García López", "email": "luis@ejemplo.com",
+     "telefono": "611222333", "servicioIds": [1] }
+   ```
+
+   **Execute** → **201** con `"passwordTemporal": "..."`. **Apúntala: solo se
+   muestra esta vez.** Si se pierde, **POST
+   /api/v1/admin/empleados/{id}/password-temporal** genera otra.
+4. **GET /api/v1/profesionales?servicioId=1** → Luis aparece como
+   `"Luis G."`, sin correo ni teléfono.
+5. Inicia sesión con `luis@ejemplo.com` y la contraseña temporal: solo puede
+   usar `GET /me` y `PUT /me/password`. Cámbiala con **PUT /api/v1/me/password**
+   y, con el token nuevo, **GET /api/v1/empleado/servicios** muestra el Corte.
+6. Con el token del admin, **PATCH /api/v1/admin/empleados/{id}/activo** con
+   `{ "activo": false }` → Luis deja de salir en `/profesionales` y ya no puede
+   entrar. Cuando existan las citas (B6), si tiene citas futuras la respuesta
+   será **409** con `citasFuturas`.
+7. **GET /api/v1/admin/negocio** muestra la configuración. En **PUT
+   /api/v1/admin/negocio**, cambiar el intervalo a 60 con el Corte de 30
+   minutos da **422** con la lista de servicios que habría que cambiar antes.
+
 ## 8. Ver las tablas (opcional)
 
 Con una segunda ventana de PowerShell:
