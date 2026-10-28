@@ -73,7 +73,7 @@ avanza a la siguiente.
   - [x] B2 · Autenticación: registro, login, JWT + refresh con rotación, roles, /me, admin inicial (`feature/autenticacion`, `docs/propuestas/4.2-B2-autenticacion.md`)
   - [x] B3 · Cuenta y RGPD: recuperar contraseña por correo, exportar datos y eliminar cuenta con anonimización (`feature/recuperar-password-rgpd`, `docs/propuestas/4.3-B3-cuenta-rgpd.md`)
   - [x] B4 · Catálogo y empleados: servicios, empleados y sus servicios, configuración del negocio, `/servicios` y `/profesionales` (`feature/catalogo-empleados`, `docs/propuestas/4.4-B4-catalogo-empleados.md`)
-  - [ ] B5 · Horarios y disponibilidad (`feature/horarios-disponibilidad`)
+  - [x] B5 · Horarios y disponibilidad: horario general, ajuste por empleado, días de cierre, `GET /disponibilidad` y datos de demo (`feature/horarios-disponibilidad`, `docs/propuestas/4.5-B5-horarios-disponibilidad.md`)
   - [ ] B6 · Citas (`feature/citas`)
   - [ ] B7 · Web: base y zona pública (`feature/web-base`)
   - [ ] B8 · Web: cliente (`feature/web-cliente`)
@@ -122,11 +122,12 @@ avanza a la siguiente.
 - Seguridad: JWT 15 min (HS256, `JWT_SECRET`) + refresh token 7 días en cookie HttpOnly `SameSite=Strict` con ruta `/api/v1/auth` y rotación (en la BD solo su SHA-256; reutilizar uno revocado cierra todas las sesiones); BCrypt coste 12; contraseñas de 10 a 64 caracteres y no comunes; roles por ruta y propiedad en servicios; con contraseña temporal (RN-005) solo `GET /me` y `PUT /me/password`; 5 intentos de login por minuto por IP y por correo (429); nunca registrar contraseñas ni tokens.
 - Cuenta y RGPD (B3): recuperar contraseña con enlace de un solo uso de 30 min (en la BD su SHA-256; token detrás de `#` en el enlace), respuesta 202 idéntica exista o no el correo, correo en segundo plano tras el commit, 3 solicitudes por hora por correo y 10 por IP (429); restablecer cierra todas las sesiones y no inicia sesión. `GET /me/datos` exporta en JSON sin hashes. `DELETE /me` solo para clientes, con la contraseña en el cuerpo: anonimiza (nombre, correo `eliminado-{id}@anonimo.invalid`, teléfono, fecha de nacimiento), desactiva, marca `eliminado_en` y borra sus tokens. Una cuenta eliminada nunca se reactiva.
 - Catálogo y empleados (B4): nombre de servicio único sin distinguir mayúsculas; duración múltiplo del intervalo (RN-011, 422); los servicios y empleados nunca se borran, se desactivan. El alta de empleado genera una contraseña temporal de 12 caracteres que solo se devuelve en esa respuesta (y en `POST /admin/empleados/{id}/password-temporal`). Desactivar un empleado con citas futuras confirmadas → 409 con `citasFuturas`; al desactivarlo se cierran sus sesiones. Quitarle un servicio con citas futuras se permite con un aviso. En público, el profesional solo muestra nombre e inicial del apellido ("Luis G."). El intervalo solo admite 5, 10, 15, 20, 30 o 60 y no cambia si algún servicio dejaría de ser múltiplo (422); la edad mínima va de 14 a 18.
+- Horarios y disponibilidad (B5): tramos `HH:mm` en múltiplos de 5 minutos, como mucho 4 por día, sin solaparse ni tocarse (422). El ajuste de un empleado es por día de la semana (tabla `ajuste_horario`): un día ajustado usa sus tramos (sin tramos = no trabaja) y los demás, el horario general; el ajuste puede salirse del general. Los días de cierre son días completos, del negocio (sin empleado) o de un empleado; no se crean en el pasado (422) ni repetidos (409). Guardar un horario o un cierre nunca cancela citas: la respuesta trae `citasAfectadas`. La disponibilidad calcula "hoy" en la zona del negocio, alinea las horas al reloj según el intervalo, exige que el servicio quepa entero en el tramo, descarta las horas ya empezadas y las que se solapan con citas `CONFIRMADA` o `COMPLETADA`, y si no hay huecos sugiere `siguienteFechaConHuecos`. El cálculo está en `CalculoDisponibilidad`, sin Spring.
 - Correo detrás de la interfaz `EnvioCorreo` (`shared/correo`); en las pruebas, buzón en memoria (`CorreosDePrueba`). El proveedor SMTP real se elige en la fase 7.
 - Configuración técnica y secretos en `application.yml` / variables de entorno, nunca en Git.
 - El backend lee el `.env` de la raíz al arrancar; los valores del negocio están en la tabla `negocio`.
 - Migraciones Flyway en `backend/src/main/resources/db/migration`: una migración aplicada nunca se modifica, los cambios van en una nueva (V3, V4...).
-- Datos iniciales: V2 solo crea el negocio; el primer administrador se crea al arrancar desde `ADMIN_EMAIL` y `ADMIN_PASSWORD`; los datos de demostración van en el perfil `demo`.
+- Datos iniciales: V2 solo crea el negocio; el primer administrador se crea al arrancar desde `ADMIN_EMAIL` y `ADMIN_PASSWORD`; los datos de demostración van en el perfil `demo` (`DatosDemo`: solo si no hay servicios; cuentas con `DEMO_PASSWORD` y correos `@demo.invalid`).
 - Pruebas de integración con `@IntegracionTest` (Testcontainers, PostgreSQL 16 real); los tests nunca usan la base de datos de Docker Compose.
 
 ## 5c. Continuidad entre hilos
@@ -248,7 +249,7 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 
 - Jose hará más adelante una revisión más profunda del diagrama de clases (paso 2.4).
 - **Para el B6 (citas), que deja pendiente el B4:** sustituir `CitasFuturasJdbc` (consulta provisional sobre la tabla `cita`) por una implementación con el repositorio de `Cita`; la interfaz `CitasFuturas` no cambia.
-- **Para el B5:** los datos de demostración (perfil `demo`: servicios, empleados y horario) se añaden en el B5, cuando existan los horarios.
+- **Para el B6 (citas), que deja pendiente el B5:** sustituir igual `OcupacionesProfesionalJdbc` (la interfaz `OcupacionesProfesional` no cambia) y, al reservar, volver a comprobar el hueco con `DisponibilidadService` (RF-007) además de la restricción `no_solape_profesional`.
 - **Para el B6 (citas), que deja pendiente el B3:** añadir beneficiarios y citas a `GET /me/datos`; al eliminar la cuenta (`DatosPersonalesService.eliminarCuenta`), anonimizar sus beneficiarios (datos de menores) y cancelar sus citas futuras confirmadas con el motivo "Cuenta eliminada".
 
 ## 13. Registro de decisiones
@@ -285,3 +286,5 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 | 2026-10-28 | B2 fusionado (PR #3). |
 | 2026-10-28 | B3 aprobado: cuenta y RGPD en `feature/recuperar-password-rgpd`. Migración V4 (`usuario.eliminado_en`, fecha de nacimiento que admite vacío); solo los clientes eliminan su cuenta; al eliminarla, B6 cancelará sus citas futuras; `DELETE /me` con la contraseña en el cuerpo; Mailpit para el correo en local. |
 | 2026-10-28 | B4 aprobado: catálogo y empleados en `feature/catalogo-empleados`. Migración V5; profesionales públicos con nombre e inicial del apellido; 409 al desactivar un empleado con citas futuras; endpoint para otra contraseña temporal; intervalo limitado a divisores de 60; datos de demo en el B5. |
+| 2026-10-28 | B4 fusionado (PR #5). |
+| 2026-10-28 | B5 aprobado: horarios y disponibilidad en `feature/horarios-disponibilidad`. Migración V6 (`ajuste_horario`, cierre único); ajuste por empleado día a día; guardar horarios o cierres con citas afectadas se permite y las lista; horas alineadas al reloj; el ajuste puede salirse del horario general; datos de demo con `DEMO_PASSWORD`. |

@@ -1,0 +1,6 @@
+# Perfil de demostración (B5): crea servicios, profesionales, un cliente y el horario
+# de una peluquería si aún no hay servicios. Arranca con SPRING_PROFILES_ACTIVE=demo.
+app:
+  demo:
+    # Contraseña de todas las cuentas de demostración; llega del .env.
+    password: ${DEMO_PASSWORD:}
