@@ -53,6 +53,28 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return problema(HttpStatus.CONFLICT, "Hueco no disponible", ex.getMessage());
     }
 
+    @ExceptionHandler(DatoDuplicadoException.class)
+    public ProblemDetail datoDuplicado(DatoDuplicadoException ex) {
+        return problema(HttpStatus.CONFLICT, "Dato duplicado", ex.getMessage());
+    }
+
+    @ExceptionHandler(NoAutenticadoException.class)
+    public ProblemDetail noAutenticado(NoAutenticadoException ex) {
+        return problema(HttpStatus.UNAUTHORIZED, "No autenticado", ex.getMessage());
+    }
+
+    @ExceptionHandler(SinPermisoException.class)
+    public ProblemDetail sinPermisoNegocio(SinPermisoException ex) {
+        return problema(HttpStatus.FORBIDDEN, "Sin permiso", ex.getMessage());
+    }
+
+    @ExceptionHandler(DemasiadosIntentosException.class)
+    public ResponseEntity<ProblemDetail> demasiadosIntentos(DemasiadosIntentosException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header(HttpHeaders.RETRY_AFTER, String.valueOf(ex.getSegundosDeEspera()))
+                .body(problema(HttpStatus.TOO_MANY_REQUESTS, "Demasiados intentos", ex.getMessage()));
+    }
+
     @ExceptionHandler(ReglaNegocioException.class)
     public ProblemDetail reglaNegocio(ReglaNegocioException ex) {
         return problema(HttpStatus.UNPROCESSABLE_CONTENT, "Regla de negocio incumplida", ex.getMessage());
