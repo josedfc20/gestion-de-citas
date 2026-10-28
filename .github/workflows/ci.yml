@@ -1,0 +1,36 @@
+# Compila y ejecuta las pruebas en cada push y en cada pull request.
+# El job del frontend se añadirá en el bloque B7.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (Java 21 + Maven)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      # Testcontainers usa el Docker que ya trae el runner de Ubuntu.
+      - name: Compilar y ejecutar las pruebas
+        run: ./mvnw -B verify
