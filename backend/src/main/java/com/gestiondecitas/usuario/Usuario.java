@@ -100,6 +100,18 @@ public class Usuario {
         this.telefono = telefono;
     }
 
+    /** CU-017: una cuenta eliminada (B3) no se reactiva nunca. */
+    public void activar() {
+        if (isEliminado()) {
+            throw new IllegalStateException("Una cuenta eliminada no se puede reactivar.");
+        }
+        this.activo = true;
+    }
+
+    public void desactivar() {
+        this.activo = false;
+    }
+
     /**
      * RNF-007, paso 2.6: borra los datos personales sin borrar la fila, que las
      * citas siguen necesitando. El correo queda único y en un dominio

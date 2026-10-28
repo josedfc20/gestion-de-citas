@@ -3,6 +3,7 @@ package com.gestiondecitas;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
@@ -10,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import jakarta.servlet.http.Cookie;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,12 +19,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import com.gestiondecitas.shared.security.JwtService;
+
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Atajos para las pruebas de integración de la autenticación: registrar,
- * iniciar sesión y crear usuarios directamente en la base de datos. Cada
+ * Atajos para las pruebas de integración: registrar, iniciar sesión, crear
+ * usuarios, servicios y citas directamente. Cada
  * prueba usa correos e IP distintos para no chocar con el límite de intentos.
  */
 public final class ApiDePrueba {
@@ -103,7 +107,40 @@ public final class ApiDePrueba {
         return iniciarSesion(email, PASSWORD);
     }
 
-    /** Inserta un empleado con contraseña temporal (la gestión de empleados llega en B4). */
+    /** Access token del administrador de application-test.yml, sin pasar por el login (y su límite). */
+    public static String bearerAdmin(JwtService jwtService, JdbcTemplate jdbc) {
+        Long id = jdbc.queryForObject("SELECT id FROM usuario WHERE email = 'admin@pruebas.local'", Long.class);
+        return "Bearer " + jwtService.emitir(id, "ADMIN", false);
+    }
+
+    /** Crea un servicio activo con un nombre único y devuelve su id. */
+    public long crearServicio(String bearerAdmin, String nombre, int duracionMinutos, String precio)
+            throws Exception {
+        MvcResult resultado = mockMvc.perform(post("/api/v1/admin/servicios")
+                        .header(HttpHeaders.AUTHORIZATION, bearerAdmin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(aJson(Map.of("nombre", nombre, "duracionMinutos", duracionMinutos,
+                                "precio", new BigDecimal(precio)))))
+                .andExpect(status().isCreated())
+                .andReturn();
+        return leer(resultado).get("id").asLong();
+    }
+
+    public static String nombreUnico(String base) {
+        return base + " " + UUID.randomUUID().toString().substring(0, 8);
+    }
+
+    /** Inserta una cita confirmada directamente en la tabla (la entidad Cita llega en B6). */
+    public static long crearCita(JdbcTemplate jdbc, long clienteId, long empleadoId, long servicioId,
+            Instant inicio) {
+        return jdbc.queryForObject("""
+                INSERT INTO cita (cliente_id, empleado_id, servicio_id, inicio, fin, precio, estado)
+                VALUES (?, ?, ?, ?, ?, 10.00, 'CONFIRMADA') RETURNING id""",
+                Long.class, clienteId, empleadoId, servicioId, java.sql.Timestamp.from(inicio),
+                java.sql.Timestamp.from(inicio.plusSeconds(1800)));
+    }
+
+    /** Inserta un empleado con contraseña temporal sin pasar por la API. */
     public static long crearEmpleado(JdbcTemplate jdbc, PasswordEncoder encoder, String email, String password) {
         Long id = jdbc.queryForObject("""
                 INSERT INTO usuario (rol, nombre, apellidos, email, password_hash, creado_en)

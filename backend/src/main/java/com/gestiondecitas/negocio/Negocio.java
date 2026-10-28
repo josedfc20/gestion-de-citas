@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 
 /**
  * Configuración del negocio (tabla {@code negocio}, una sola fila creada por V2).
- * De momento solo se lee; el administrador podrá cambiarla en B4.
+ * El administrador la cambia en {@code /admin/negocio} (B4).
  */
 @Entity
 @Table(name = "negocio")
@@ -37,6 +37,16 @@ public class Negocio {
     private int edadMinimaCuenta;
 
     protected Negocio() {
+    }
+
+    public void actualizar(String nombre, ZoneId zonaHoraria, int intervaloMinutos, int antelacionMaxDias,
+            int horasMinCancelacion, int edadMinimaCuenta) {
+        this.nombre = nombre;
+        this.zonaHoraria = zonaHoraria.getId();
+        this.intervaloMinutos = intervaloMinutos;
+        this.antelacionMaxDias = antelacionMaxDias;
+        this.horasMinCancelacion = horasMinCancelacion;
+        this.edadMinimaCuenta = edadMinimaCuenta;
     }
 
     public Long getId() {
