@@ -473,6 +473,33 @@ Necesitas el horario y la disponibilidad del 7.9 (o los datos de demo del
 6. Con el token del administrador, **GET /api/v1/citas/{id}** muestra además el
    correo del cliente y el historial de cambios (`cambios`).
 
+### 7.12 Agenda del empleado y gestión de reservas (B6)
+
+**Como empleado** (con los datos de demo, `ana@demo.invalid`; si no, el
+empleado del 7.8 después de cambiar su contraseña temporal):
+
+1. **GET /api/v1/empleado/agenda** → hoy, con sus tramos y sus citas no
+   canceladas. Con `desde` y `hasta` (como mucho 31 días) ves varios días; un
+   día de cierre sale con `"cierre": true`.
+2. **GET /api/v1/empleado/citas** → sus citas de hoy en adelante; se puede
+   filtrar con `estado` (`CONFIRMADA`, `COMPLETADA`, `CANCELADA`,
+   `NO_PRESENTADO`), `desde` y `hasta`.
+3. **PATCH /api/v1/citas/{id}/estado** con `{ "estado": "CANCELADA", "motivo":
+   "Baja del profesional" }` → **200**. Sin motivo → **422**. `COMPLETADA` o
+   `NO_PRESENTADO` antes de la hora de inicio → **422**. Una cita de otro
+   empleado → **404**.
+
+**Como administrador:**
+
+4. **GET /api/v1/admin/clientes?buscar=carmen** → los clientes que coinciden
+   por nombre, correo o teléfono, con sus menores a cargo.
+5. **POST /api/v1/admin/citas** con el `clienteId` y lo mismo que en el 7.11
+   (y `beneficiarioId` si es para un menor) → **201**. Las reglas son las
+   mismas que cuando reserva el cliente.
+6. **GET /api/v1/admin/citas** con filtros (`desde`, `hasta`, `profesionalId`,
+   `estado`, `clienteId`). Para cancelar una cita en cualquier momento, el
+   mismo **PATCH /api/v1/citas/{id}/estado** del paso 3, con motivo.
+
 ## 8. Ver las tablas (opcional)
 
 Con una segunda ventana de PowerShell:

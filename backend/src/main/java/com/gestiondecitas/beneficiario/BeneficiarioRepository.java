@@ -1,5 +1,6 @@
 package com.gestiondecitas.beneficiario;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,6 +12,9 @@ public interface BeneficiarioRepository extends JpaRepository<Beneficiario, Long
     List<Beneficiario> findByClienteIdAndEliminadoEnIsNullOrderByNombreAscApellidosAsc(Long clienteId);
 
     List<Beneficiario> findByClienteIdAndEliminadoEnIsNull(Long clienteId);
+
+    List<Beneficiario> findByClienteIdInAndEliminadoEnIsNullOrderByNombreAscApellidosAsc(
+            Collection<Long> clienteIds);
 
     Optional<Beneficiario> findByIdAndClienteIdAndEliminadoEnIsNull(Long id, Long clienteId);
 }

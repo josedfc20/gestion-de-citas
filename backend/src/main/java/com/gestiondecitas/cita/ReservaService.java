@@ -61,14 +61,28 @@ public class ReservaService {
         this.clock = clock;
     }
 
+    /** CU-008 y CU-009: el cliente reserva para sí mismo o para un menor a su cargo. */
+    @Transactional
+    public CitaResponse reservar(Long clienteId, ReservaRequest datos) {
+        Negocio negocio = negocio();
+        Cita cita = guardar(clienteId, datos, clienteId, negocio);
+        return CitaResponse.de(cita, negocio.getZonaHoraria(), negocio.plazoCancelacion(), cita.getCreadaEn());
+    }
+
+    /** CU-019, alt. 1: el administrador reserva en nombre de un cliente, con las mismas reglas. */
+    @Transactional
+    public CitaResponse reservarComoAdmin(Long adminId, Long clienteId, ReservaRequest datos) {
+        Negocio negocio = negocio();
+        Cita cita = guardar(clienteId, datos, adminId, negocio);
+        return CitaResponse.paraAdmin(cita, negocio.getZonaHoraria(), negocio.plazoCancelacion(),
+                cita.getCreadaEn(), true);
+    }
+
     /**
      * @param clienteId    el titular de la cita
      * @param realizadoPor quien reserva: el propio cliente o el administrador
      */
-    @Transactional
-    public CitaResponse reservar(Long clienteId, ReservaRequest datos, Long realizadoPor) {
-        Negocio negocio = negocios.findFirstByOrderByIdAsc()
-                .orElseThrow(() -> new IllegalStateException("No existe el registro del negocio (migración V2)."));
+    private Cita guardar(Long clienteId, ReservaRequest datos, Long realizadoPor, Negocio negocio) {
         ZoneId zona = negocio.getZonaHoraria();
         Cliente cliente = usuarios.findById(clienteId)
                 .filter(u -> u instanceof Cliente && u.isActivo())
@@ -101,7 +115,12 @@ public class ReservaService {
             }
             throw ex;
         }
-        return CitaResponse.de(cita, zona, negocio.plazoCancelacion(), ahora);
+        return cita;
+    }
+
+    private Negocio negocio() {
+        return negocios.findFirstByOrderByIdAsc()
+                .orElseThrow(() -> new IllegalStateException("No existe el registro del negocio (migración V2)."));
     }
 
     /** Decisión 5 del B6: una misma persona no puede estar en dos citas a la vez. */

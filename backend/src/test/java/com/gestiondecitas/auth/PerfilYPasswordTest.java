@@ -130,9 +130,9 @@ class PerfilYPasswordTest {
                 .andReturn();
         String definitivo = "Bearer " + api.leer(cambio).get("accessToken").asString();
 
-        // Ya pasa la seguridad (el endpoint de la agenda llega en B5).
+        // Ya pasa la seguridad y ve su agenda (B6).
         mockMvc.perform(get("/api/v1/empleado/agenda").header(HttpHeaders.AUTHORIZATION, definitivo))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk());
         assertThat(jdbc.queryForObject("""
                 SELECT e.debe_cambiar_password FROM empleado e JOIN usuario u ON u.id = e.usuario_id
                 WHERE u.email = ?""", Boolean.class, email)).isFalse();

@@ -43,6 +43,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, problema, headers, status, request);
     }
 
+    @ExceptionHandler(PeticionNoValidaException.class)
+    public ProblemDetail peticionNoValida(PeticionNoValidaException ex) {
+        return problema(HttpStatus.BAD_REQUEST, "Petición no válida", ex.getMessage());
+    }
+
     @ExceptionHandler(RecursoNoEncontradoException.class)
     public ProblemDetail recursoNoEncontrado(RecursoNoEncontradoException ex) {
         return problema(HttpStatus.NOT_FOUND, "Recurso no encontrado", ex.getMessage());
