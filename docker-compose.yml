@@ -1,4 +1,4 @@
-# Base de datos local para desarrollo: docker compose up -d
+# Servicios locales para desarrollo: docker compose up -d
 # Lee POSTGRES_DB, POSTGRES_USER y POSTGRES_PASSWORD del archivo .env.
 services:
   postgres:
@@ -19,6 +19,16 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  # Servidor de correo de pruebas (B3): recibe los correos del backend sin
+  # enviarlos a Internet. Bandeja en http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:v1.31
+    container_name: gestion-de-citas-correo
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # bandeja web
 
 volumes:
   datos-postgres:

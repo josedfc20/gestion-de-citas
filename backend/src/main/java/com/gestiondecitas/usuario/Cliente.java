@@ -16,7 +16,8 @@ import jakarta.persistence.Table;
 @DiscriminatorValue("CLIENTE")
 public class Cliente extends Usuario {
 
-    @Column(name = "fecha_nacimiento", nullable = false)
+    /** Vacía solo en las cuentas eliminadas (V4). */
+    @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
 
     /** RNF-007: cuándo aceptó la política de privacidad. */
@@ -36,6 +37,13 @@ public class Cliente extends Usuario {
     @Override
     public Rol getRol() {
         return Rol.CLIENTE;
+    }
+
+    /** Además de lo común, la fecha de nacimiento. El consentimiento se conserva como prueba. */
+    @Override
+    public void anonimizar(String passwordHashInutilizable, Instant ahora) {
+        super.anonimizar(passwordHashInutilizable, ahora);
+        this.fechaNacimiento = null;
     }
 
     public LocalDate getFechaNacimiento() {

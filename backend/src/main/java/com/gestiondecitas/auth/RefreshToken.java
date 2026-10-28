@@ -67,4 +67,12 @@ public class RefreshToken {
     public boolean isRevocado() {
         return revocado;
     }
+
+    public Instant getCreadoEn() {
+        return creadoEn;
+    }
+
+    public Instant getExpiraEn() {
+        return expiraEn;
+    }
 }

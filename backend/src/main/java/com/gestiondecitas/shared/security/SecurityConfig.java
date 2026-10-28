@@ -45,7 +45,9 @@ public class SecurityConfig {
         "/api/v1/auth/registro",
         "/api/v1/auth/login",
         "/api/v1/auth/refresh",
-        "/api/v1/auth/logout"
+        "/api/v1/auth/logout",
+        "/api/v1/auth/recuperar-password",
+        "/api/v1/auth/restablecer-password"
     };
 
     /** Catálogo público: los endpoints llegan en B4 y B5. */
@@ -83,6 +85,9 @@ public class SecurityConfig {
                         // RN-005: con la contraseña temporal solo se puede ver el perfil y cambiarla.
                         .requestMatchers(HttpMethod.GET, "/api/v1/me").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/v1/me/password").authenticated()
+                        // RNF-007: solo los clientes eliminan su cuenta (empleados y admin, no).
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/me")
+                                .access(AuthorizationManagers.allOf(rol("CLIENTE"), conPasswordDefinitiva()))
                         .requestMatchers("/api/v1/admin/**")
                                 .access(AuthorizationManagers.allOf(rol("ADMIN"), conPasswordDefinitiva()))
                         .requestMatchers("/api/v1/empleado/**")

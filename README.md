@@ -53,11 +53,12 @@ Requisitos: JDK 21, Docker Desktop y Git.
 
 ```bash
 cp .env.example .env                    # y cambia contraseñas, JWT_SECRET y ADMIN_*
-docker compose up -d                    # PostgreSQL 16 en el puerto 5433
+docker compose up -d                    # PostgreSQL 16 (puerto 5433) y Mailpit
 cd backend && ./mvnw spring-boot:run    # API en http://localhost:8080
 ```
 
 - Swagger: http://localhost:8080/swagger-ui.html (registro, login y botón *Authorize* con el token)
+- Correos de prueba (Mailpit): http://localhost:8025
 - Estado: http://localhost:8080/actuator/health
 - Pruebas: `./mvnw verify` (necesita Docker para Testcontainers)
 

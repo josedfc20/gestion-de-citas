@@ -5,9 +5,11 @@
 > menú Inicio → escribe "PowerShell" → Enter. Copia cada comando, pégalo con
 > clic derecho y pulsa Enter.
 
-Al terminar habrás comprobado cuatro cosas: que la base de datos arranca en
-Docker, que el backend crea las tablas y responde, que puedes registrarte e
-iniciar sesión (bloque B2) y que las pruebas pasan.
+Al terminar habrás comprobado cinco cosas: que la base de datos y el correo de
+pruebas arrancan en Docker, que el backend crea las tablas y responde, que
+puedes registrarte e iniciar sesión (bloque B2), que puedes recuperar la
+contraseña, exportar tus datos y eliminar la cuenta (bloque B3) y que las
+pruebas pasan.
 
 ## 1. Traer el código a tu PC
 
@@ -21,7 +23,7 @@ cd C:\Users\josef\Downloads\Proyectos\Aplicaciones\gestion-de-citas
 
   ```powershell
   git fetch origin
-  git switch feature/autenticacion
+  git switch feature/recuperar-password-rgpd
   ```
 
 - **Si ya está fusionado en `main`:**
@@ -51,8 +53,9 @@ El `.env` guarda las contraseñas de tu PC. **Nunca se sube a GitHub** (está en
 Copy-Item .env.example .env
 ```
 
-**Si ya lo tienes del B1**, no lo borres (tiene la contraseña con la que se
-creó tu base de datos). Solo hay que añadirle las líneas nuevas del B2.
+**Si ya lo tienes de un bloque anterior**, no lo borres (tiene la contraseña
+con la que se creó tu base de datos). Solo hay que añadirle las líneas nuevas:
+las de `JWT_SECRET` y `ADMIN_*` (B2) y las del correo (B3).
 
 ### 3.1 Generar la clave `JWT_SECRET`
 
@@ -87,6 +90,13 @@ COOKIE_SECURE=true
 ADMIN_EMAIL=tu-correo@ejemplo.com
 ADMIN_PASSWORD=una-clave-para-el-administrador
 ADMIN_NOMBRE=Jose
+
+MAIL_HOST=localhost
+MAIL_PORT=1025
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_FROM=no-responder@gestiondecitas.local
+APP_WEB_URL=http://localhost:5173
 ```
 
 - `POSTGRES_PASSWORD`: si ya tenías `.env`, **no la cambies**. Si es nuevo,
@@ -94,29 +104,32 @@ ADMIN_NOMBRE=Jose
 - `ADMIN_EMAIL` y `ADMIN_PASSWORD`: con ellos se crea el **administrador** la
   primera vez que arranca el backend. La contraseña necesita **10 caracteres
   o más** y no puede ser muy común (`1234567890`, `contraseña123`...).
+- `MAIL_*` y `APP_WEB_URL`: déjalos tal cual. En local los correos van a
+  **Mailpit**, un servidor de correo de pruebas que no envía nada a Internet.
 - Usa **solo letras, números y guiones** en las contraseñas (sin espacios,
   `\`, `#`, comillas ni tildes) para evitar problemas.
 
 Guarda (Ctrl+S) y cierra.
 
-## 4. Arrancar la base de datos
+## 4. Arrancar la base de datos y el correo
 
 ```powershell
 docker compose up -d
 ```
 
-La primera vez descarga la imagen de PostgreSQL 16 (un minuto). Comprueba que
-está en marcha:
+La primera vez descarga las imágenes de PostgreSQL 16 y de Mailpit (un
+minuto). Comprueba que están en marcha:
 
 ```powershell
 docker ps
 ```
 
-Debe aparecer `gestion-de-citas-db` con el estado **Up ... (healthy)**. Si dice
+Deben aparecer `gestion-de-citas-db` con el estado **Up ... (healthy)** y
+`gestion-de-citas-correo` con **Up**. Si la base de datos dice
 `(health: starting)`, espera unos segundos y repite.
 
-La base de datos se queda funcionando en segundo plano; no hace falta tener
-esta ventana abierta.
+Los dos se quedan funcionando en segundo plano; no hace falta tener esta
+ventana abierta.
 
 ## 5. Arrancar el backend
 
@@ -131,9 +144,9 @@ cd backend
 - Está listo cuando ves una línea parecida a
   `Started GestionDeCitasApplication in 5.3 seconds`.
 - Un poco más arriba verás Flyway aplicando las migraciones:
-  - Si tu base de datos venía del B1: `Successfully applied 1 migration ... now at version v3`
-    (la V3 añade un índice para las sesiones).
-  - Si es nueva: `Successfully applied 3 migrations ... now at version v3`.
+  - Si tu base de datos venía del B2: `Successfully applied 1 migration ... now at version v4`
+    (la V4 prepara la eliminación de cuentas del B3).
+  - Si es nueva: `Successfully applied 4 migrations ... now at version v4`.
   - Las siguientes veces dirá que el esquema está al día (`is up to date`).
 - Justo después de `Started` verás
   `Administrador inicial creado (id 1).` Solo sale la primera vez; las
@@ -145,13 +158,14 @@ cd backend
 
 ## 6. Comprobarlo en el navegador
 
-Abre estas tres direcciones:
+Abre estas cuatro direcciones:
 
 | Dirección | Qué debes ver | Qué significa |
 |---|---|---|
 | http://localhost:8080/actuator/health | `{"groups":["liveness","readiness"],"status":"UP"}` | El backend está vivo y conectado a la base de datos. |
 | http://localhost:8080/swagger-ui.html | La página de Swagger "GestionDeCitas API" con los grupos **Autenticación** y **Mi perfil** | La documentación de la API, que además sirve para probarla (sección 7). |
 | http://localhost:8080/api/v1/me | `{"detail":"Hay que iniciar sesión.", ... "status":401, ...}` | Correcto: `/me` necesita sesión, y el error sale en formato Problem Details. |
+| http://localhost:8025 | La bandeja de **Mailpit**, vacía | Aquí llegan los correos que envía el backend (sección 7.6). |
 
 ## 7. Probar el registro y el login con Swagger
 
@@ -249,6 +263,64 @@ Invoke-RestMethod -Uri http://localhost:8080/api/v1/me -Headers @{ Authorization
 El primer comando no muestra nada; el segundo muestra `id`, `nombre`, `rol`
 y `debeCambiarPassword`; el tercero, todos tus datos.
 
+### 7.6 Recuperar la contraseña (B3)
+
+Con el cliente Ana de la sección 7.3:
+
+1. Despliega **POST /api/v1/auth/recuperar-password** → **Try it out**:
+
+   ```json
+   { "email": "ana@ejemplo.com" }
+   ```
+
+   **Execute** → **202** "Si el correo está registrado, recibirás un enlace en
+   unos minutos." Con un correo que no existe la respuesta es **exactamente la
+   misma**: así nadie puede averiguar qué correos tienen cuenta.
+2. Abre http://localhost:8025. Verás el correo **"Restablecer tu contraseña ·
+   Mi negocio"** con un enlace como
+   `http://localhost:5173/restablecer-password#token=2ch0BaY5...`.
+   La página de la web llega en el B8; de momento copia lo que va detrás de
+   `token=`.
+3. Despliega **POST /api/v1/auth/restablecer-password** → **Try it out**:
+
+   ```json
+   {
+     "token": "pega-aquí-el-token",
+     "password": "Otra-clave-larga-2026",
+     "confirmacionPassword": "Otra-clave-larga-2026"
+   }
+   ```
+
+   **Execute** → **204**. Ya puedes iniciar sesión con la contraseña nueva; la
+   antigua da 401 y las sesiones que Ana tuviera abiertas se han cerrado.
+4. Ejecuta lo mismo otra vez → **422** "El enlace no es válido o ha caducado.
+   Solicita uno nuevo." Cada enlace sirve **una sola vez** y caduca a los
+   **30 minutos**.
+5. Si pides el enlace **cuatro veces** en una hora para el mismo correo, la
+   cuarta da **429**. Es el límite contra abusos del paso 3.4.
+
+### 7.7 Exportar mis datos y eliminar la cuenta (B3)
+
+Inicia sesión con Ana y pulsa **Authorize** con su token (7.1 y 7.2).
+
+1. **GET /api/v1/me/datos** → **Execute** → **200** con todos sus datos
+   personales en JSON (cuenta, fecha de nacimiento, cuándo aceptó la
+   privacidad y sesiones abiertas). Swagger muestra un enlace **Download file**:
+   en la web será el botón "Descargar mis datos". Nunca incluye la contraseña.
+2. **DELETE /api/v1/me** → **Try it out**, con la contraseña como confirmación:
+
+   ```json
+   { "password": "Otra-clave-larga-2026" }
+   ```
+
+   Con una contraseña incorrecta → **422**. Con la buena → **204**.
+3. **GET /api/v1/me** con el mismo token (sigue vivo hasta 15 minutos) muestra
+   la cuenta anonimizada: `"nombre": "Usuario"`, `"apellidos": "eliminado"` y
+   un correo `eliminado-…@anonimo.invalid`. El login con el correo de Ana da
+   401 y ese correo queda libre para registrarse otra vez.
+4. Solo los **clientes** pueden eliminar su cuenta: con el token del
+   administrador, `DELETE /api/v1/me` da **403**.
+
 ## 8. Ver las tablas (opcional)
 
 Con una segunda ventana de PowerShell:
@@ -267,7 +339,7 @@ de tu `.env`.
 ## 9. Parar todo
 
 1. En la ventana del backend pulsa **Ctrl+C** (si pregunta, responde `S`).
-2. Para la base de datos (los datos se conservan):
+2. Para la base de datos y Mailpit (los datos se conservan):
 
    ```powershell
    cd ..
@@ -294,7 +366,7 @@ Las pruebas crean su **propio** PostgreSQL temporal con Testcontainers y lo
 destruyen al acabar, así que nunca tocan tus datos. Al final debes ver:
 
 ```
-Tests run: 66, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 90, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -323,6 +395,8 @@ La base de datos de Docker tiene que estar arrancada (paso 4) igual que antes.
 | `password authentication failed for user "gestion_de_citas"` | Cambiaste la contraseña del `.env` después de crear la base de datos (PostgreSQL solo la lee la primera vez). Ejecuta `docker compose down -v` y `docker compose up -d` (borra los datos). |
 | `Port 8080 was already in use` | Ya tienes el backend abierto en otra ventana o IntelliJ. Ciérralo, o pulsa Ctrl+C en esa ventana. |
 | `Bind for 0.0.0.0:5433 failed: port is already allocated` | Otro programa usa el puerto 5433. Avísame y elegimos otro. |
+| `Bind for 0.0.0.0:1025 failed` o `0.0.0.0:8025 failed` | Otro programa (quizá otro Mailpit o MailHog) usa ese puerto. Ciérralo o avísame y elegimos otro. |
+| No llega ningún correo a http://localhost:8025 | Mailpit no está arrancado (`docker ps` no muestra `gestion-de-citas-correo`): ejecuta `docker compose up -d`. En la ventana del backend verás `No se pudo enviar el correo de recuperación`. |
 | `la autentificación password falló` (mensaje en español) | El backend está hablando con **otro** PostgreSQL instalado en Windows, no con el de Docker. Comprueba que tu `.env` tiene `DB_URL=jdbc:postgresql://localhost:5433/gestion_de_citas` (puerto 5433, como `.env.example`). |
 | `Could not find a valid Docker environment` (al ejecutar las pruebas) | Docker Desktop no está abierto o no dice "Engine running". |
 | `Binding to target ... app.security ... failed` con `falta JWT_SECRET` o `JWT_SECRET debe tener al menos 32 caracteres` | Falta la clave en el `.env` o es corta. Repite el paso 3.1. |
