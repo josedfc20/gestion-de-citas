@@ -67,9 +67,8 @@ class SeguridadTest {
 
     @Test
     void lasConsultasDelCatalogoSonPublicas() throws Exception {
-        // Aún no existen (B4): sin seguridad, la respuesta es 404 y no 401.
-        mockMvc.perform(get("/api/v1/servicios"))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/v1/servicios")).andExpect(status().isOk());
+        mockMvc.perform(get("/api/v1/profesionales")).andExpect(status().isOk());
     }
 
     @Test
@@ -87,9 +86,8 @@ class SeguridadTest {
     void elAdministradorEntraEnSusRutas() throws Exception {
         var sesion = api.iniciarSesion("admin@pruebas.local", "Admin-de-pruebas-2026");
 
-        // Pasa la seguridad; el endpoint aún no existe (B4).
         mockMvc.perform(get("/api/v1/admin/servicios").header(HttpHeaders.AUTHORIZATION, sesion.bearer()))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk());
     }
 
     @Test

@@ -58,6 +58,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return problema(HttpStatus.CONFLICT, "Dato duplicado", ex.getMessage());
     }
 
+    @ExceptionHandler(ConflictoException.class)
+    public ProblemDetail conflicto(ConflictoException ex) {
+        ProblemDetail problema = problema(HttpStatus.CONFLICT, "Conflicto", ex.getMessage());
+        ex.getPropiedades().forEach(problema::setProperty);
+        return problema;
+    }
+
     @ExceptionHandler(NoAutenticadoException.class)
     public ProblemDetail noAutenticado(NoAutenticadoException ex) {
         return problema(HttpStatus.UNAUTHORIZED, "No autenticado", ex.getMessage());
