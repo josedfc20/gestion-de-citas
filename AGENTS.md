@@ -67,7 +67,17 @@ avanza a la siguiente.
   - [x] 3.3 Diseño de la API REST (`docs/propuestas/3.3-api-rest.md`)
   - [x] 3.4 Seguridad y autenticación (`docs/propuestas/3.4-seguridad.md`)
   - [x] 3.5 Estructura del repositorio y entorno (`docs/propuestas/3.5-repositorio-y-entorno.md`)
-- [ ] FASE 4: Desarrollo
+- [ ] FASE 4: Desarrollo (plan en `docs/propuestas/4.0-plan-de-bloques.md`)
+  - [x] 4.0 Plan de bloques: backend primero (B1 a B6) y web después (B7 a B9)
+  - [ ] B1 · Esqueleto: Spring Boot, docker-compose, Flyway V1/V2, CI (`feature/esqueleto-backend`, `docs/propuestas/4.1-B1-esqueleto-backend.md`)
+  - [ ] B2 · Autenticación (`feature/autenticacion`)
+  - [ ] B3 · Cuenta y RGPD (`feature/recuperar-password-rgpd`)
+  - [ ] B4 · Catálogo y empleados (`feature/catalogo-empleados`)
+  - [ ] B5 · Horarios y disponibilidad (`feature/horarios-disponibilidad`)
+  - [ ] B6 · Citas (`feature/citas`)
+  - [ ] B7 · Web: base y zona pública (`feature/web-base`)
+  - [ ] B8 · Web: cliente (`feature/web-cliente`)
+  - [ ] B9 · Web: empleado y administrador (`feature/web-empleado-admin`)
 - [ ] FASE 5: Pruebas
 - [ ] FASE 6: Documentación
 - [ ] FASE 7: Despliegue
@@ -83,11 +93,11 @@ avanza a la siguiente.
 - **Objetivo formativo:** aplicar análisis, UML, bases de datos, arquitectura,
   desarrollo y pruebas en un proyecto completo.
 
-## 5. Tecnologías (aprobadas en el paso 3.1)
+## 5. Tecnologías (aprobadas en el paso 3.1; Spring Boot 4.1 desde el 28/10)
 
 | Área                  | Elección |
 |-----------------------|----------|
-| Backend               | Java 21 + Spring Boot 3 (Web, Data JPA, Validation, Security), API REST |
+| Backend               | Java 21 + Spring Boot 4.1 (Web MVC, Data JPA, Validation, Security), API REST |
 | Base de datos         | PostgreSQL 16 + Flyway |
 | Construcción          | Maven |
 | Pruebas backend       | JUnit 5, Mockito, Testcontainers |
@@ -111,6 +121,10 @@ avanza a la siguiente.
 - API: `/api/v1`, rutas por rol (`/auth`, `/me`, públicas, `/empleado`, `/admin`); recursos ajenos → 404; fin y precio los calcula el servidor.
 - Seguridad: JWT 15 min + refresh token 7 días en cookie HttpOnly con rotación; BCrypt; roles por ruta y propiedad en servicios; límites de intentos; nunca registrar contraseñas ni tokens.
 - Configuración técnica y secretos en `application.yml` / variables de entorno, nunca en Git.
+- El backend lee el `.env` de la raíz al arrancar; los valores del negocio están en la tabla `negocio`.
+- Migraciones Flyway en `backend/src/main/resources/db/migration`: una migración aplicada nunca se modifica, los cambios van en una nueva (V3, V4...).
+- Datos iniciales: V2 solo crea el negocio; el primer administrador se crea al arrancar desde `ADMIN_EMAIL` y `ADMIN_PASSWORD`; los datos de demostración van en el perfil `demo`.
+- Pruebas de integración con `@IntegracionTest` (Testcontainers, PostgreSQL 16 real); los tests nunca usan la base de datos de Docker Compose.
 
 ## 5c. Continuidad entre hilos
 
@@ -256,3 +270,7 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 | 2026-10-26 | Paso 3.5 aprobado: monorepo `gestion-de-citas` en GitHub, ramas feature/* con PR, Conventional Commits y CI con GitHub Actions. FASE 3 cerrada; empieza la FASE 4 (Desarrollo). |
 | 2026-10-27 | Entorno instalado en el PC de Jose. Node.js 24 LTS en lugar de 22 (la 22 pasó a mantenimiento). |
 | 2026-10-28 | Repositorio creado en GitHub; la documentación pasa a `docs/`. |
+| 2026-10-28 | Paso 4.0 aprobado: plan de bloques B1 a B9; primero el backend (B1-B6) y después la web (B7-B9). |
+| 2026-10-28 | Spring Boot 4.1 en lugar de 3.x (la 3.5 está al final de su soporte gratuito). |
+| 2026-10-28 | Datos iniciales: V2 solo con el registro de `negocio`; primer administrador desde `ADMIN_EMAIL`/`ADMIN_PASSWORD` al arrancar (B2); datos de demo en el perfil `demo`. |
+| 2026-10-28 | B1 aprobado: esqueleto del backend en `feature/esqueleto-backend`. |

@@ -1,0 +1,40 @@
+# Configuración técnica. Los secretos llegan por variables de entorno o desde el
+# archivo .env de la raíz del repositorio (nunca se escriben aquí).
+spring:
+  application:
+    name: gestion-de-citas
+  config:
+    # Lee ../.env al arrancar desde backend/ (o .env desde la raíz) si existe.
+    import: "optional:file:../.env[.properties],optional:file:.env[.properties]"
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/gestion_de_citas}
+    username: ${POSTGRES_USER:gestion_de_citas}
+    password: ${POSTGRES_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate # las tablas las crea Flyway; Hibernate solo comprueba
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    locations: classpath:db/migration
+
+server:
+  error:
+    include-stacktrace: never
+    include-message: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}

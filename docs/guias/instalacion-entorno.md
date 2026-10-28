@@ -24,10 +24,24 @@ git config --global core.autocrlf true
 
 `core.autocrlf true` evita líos de saltos de línea entre Windows y Linux (CI).
 
+### Si `git clone` o `git push` fallan con un error de SSL/OpenSSL
+
+En algunos Windows, el **Control de aplicaciones** (Smart App Control / WDAC)
+bloquea la librería OpenSSL que trae Git, y `git clone`, `git pull` o `git push`
+fallan con un error de SSL o de OpenSSL. La solución es decirle a Git que use el
+sistema de certificados de Windows (*schannel*) en lugar de OpenSSL:
+
+```powershell
+git config --global http.sslBackend schannel
+```
+
+Compruébalo con `git config --global --get http.sslBackend` (debe decir
+`schannel`). Solo hay que hacerlo una vez por PC.
+
 ## 2. JDK 21 (Temurin) — conviviendo con tu Java 27
 
 Tienes **OpenJDK 27**. No hace falta desinstalarlo, pero el proyecto usa
-**Java 21** porque es LTS (soporte largo) y es la versión que Spring Boot 3,
+**Java 21** porque es LTS (soporte largo) y es la versión que Spring Boot 4.1,
 Maven y las librerías dan por probada. Una versión no LTS tan nueva suele dar
 errores raros de compilación con herramientas que aún no la conocen.
 

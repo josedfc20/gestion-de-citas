@@ -20,7 +20,7 @@ talleres, consultas, etc.
 
 | Área | Tecnología |
 |---|---|
-| Backend | Java 21, Spring Boot 3, Spring Security (JWT), Spring Data JPA |
+| Backend | Java 21, Spring Boot 4.1, Spring Security (JWT), Spring Data JPA |
 | Base de datos | PostgreSQL 16, Flyway |
 | Frontend | React, TypeScript, Vite, TanStack Query, React Hook Form + Zod |
 | Pruebas | JUnit 5, Mockito, Testcontainers, Vitest, Testing Library |
@@ -44,10 +44,25 @@ gestion-de-citas/
 - [`docs/propuestas/`](docs/propuestas/): propuestas aprobadas de cada paso.
 - [`docs/guias/instalacion-entorno.md`](docs/guias/instalacion-entorno.md):
   cómo preparar el entorno de desarrollo.
+- [`docs/guias/arrancar-backend.md`](docs/guias/arrancar-backend.md):
+  cómo arrancar y probar el backend en tu PC.
 
 ## Arrancar en local
 
-Se completará en la fase 4, cuando existan el backend y el frontend.
+Requisitos: JDK 21, Docker Desktop y Git.
+
+```bash
+cp .env.example .env                    # y cambia la contraseña
+docker compose up -d                    # PostgreSQL 16 en el puerto 5432
+cd backend && ./mvnw spring-boot:run    # API en http://localhost:8080
+```
+
+- Swagger: http://localhost:8080/swagger-ui.html
+- Estado: http://localhost:8080/actuator/health
+- Pruebas: `./mvnw verify` (necesita Docker para Testcontainers)
+
+Guía detallada para Windows: [`docs/guias/arrancar-backend.md`](docs/guias/arrancar-backend.md).
+El frontend se añadirá en el bloque B7.
 
 ## Autor
 
