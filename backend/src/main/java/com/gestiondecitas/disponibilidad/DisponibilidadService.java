@@ -29,8 +29,8 @@ import com.gestiondecitas.usuario.Empleado;
 
 /**
  * CU-007: carga el horario, los cierres y las citas del profesional y deja el
- * cálculo a {@link CalculoDisponibilidad}. B6 lo usará para volver a comprobar
- * el hueco al reservar (RF-007).
+ * cálculo a {@link CalculoDisponibilidad}. La reserva lo usa para volver a
+ * comprobar el hueco (RF-007).
  */
 @Service
 public class DisponibilidadService {
@@ -57,6 +57,24 @@ public class DisponibilidadService {
 
     @Transactional(readOnly = true)
     public DisponibilidadResponse consultar(Long servicioId, Long profesionalId, LocalDate fecha) {
+        Consulta consulta = preparar(servicioId, profesionalId, fecha);
+        List<LocalTime> horas = horasDe(consulta);
+        LocalDate siguiente = horas.isEmpty() ? siguienteConHuecos(consulta) : null;
+        return new DisponibilidadResponse(fecha, consulta.zona().getId(),
+                horas.stream().map(HH_MM::format).toList(), siguiente);
+    }
+
+    /**
+     * RF-007: las horas libres de ese día, con las mismas reglas y errores que
+     * {@link #consultar}. La usa la reserva para volver a comprobar el hueco.
+     */
+    @Transactional(readOnly = true)
+    public List<LocalTime> horasLibres(Long servicioId, Long profesionalId, LocalDate fecha) {
+        return horasDe(preparar(servicioId, profesionalId, fecha));
+    }
+
+    /** Valida la petición y carga lo necesario para calcular las horas de ese día. */
+    private Consulta preparar(Long servicioId, Long profesionalId, LocalDate fecha) {
         Negocio negocio = negocios.findFirstByOrderByIdAsc()
                 .orElseThrow(() -> new IllegalStateException("No existe el registro del negocio (migración V2)."));
         ZoneId zona = negocio.getZonaHoraria();
@@ -77,19 +95,24 @@ public class DisponibilidadService {
         if (profesional.getServicios().stream().noneMatch(s -> s.getId().equals(servicioId))) {
             throw new ReglaNegocioException("Ese profesional no realiza este servicio.");
         }
-
         Dia dia = new Dia(new CalculoDisponibilidad(negocio.getIntervaloMinutos(), zona, clock.instant()),
                 horarios.deEmpleado(profesionalId), horarios.cierres(profesionalId, fecha, ultimo),
                 servicio.getDuracionMinutos());
-        List<LocalTime> horas = dia.horas(fecha, ocupacionesEntre(profesionalId, fecha, fecha, zona));
-        LocalDate siguiente = horas.isEmpty() ? siguienteConHuecos(dia, profesionalId, fecha, ultimo, zona) : null;
-        return new DisponibilidadResponse(fecha, zona.getId(), horas.stream().map(HH_MM::format).toList(),
-                siguiente);
+        return new Consulta(dia, profesionalId, fecha, ultimo, zona);
+    }
+
+    private List<LocalTime> horasDe(Consulta consulta) {
+        return consulta.dia().horas(consulta.fecha(),
+                ocupacionesEntre(consulta.profesionalId(), consulta.fecha(), consulta.fecha(), consulta.zona()));
     }
 
     /** CU-007, alt. 2: se cargan de una vez las citas de todo el rango, sin una consulta por día. */
-    private LocalDate siguienteConHuecos(Dia dia, Long profesionalId, LocalDate fecha, LocalDate ultimo,
-            ZoneId zona) {
+    private LocalDate siguienteConHuecos(Consulta consulta) {
+        Dia dia = consulta.dia();
+        Long profesionalId = consulta.profesionalId();
+        LocalDate fecha = consulta.fecha();
+        LocalDate ultimo = consulta.ultimo();
+        ZoneId zona = consulta.zona();
         if (!fecha.isBefore(ultimo)) {
             return null;
         }
@@ -112,6 +135,10 @@ public class DisponibilidadService {
 
     private static Ocupacion aOcupacion(CitaOcupada cita) {
         return new Ocupacion(cita.inicio(), cita.fin());
+    }
+
+    /** Una consulta ya validada: el día pedido y el último reservable. */
+    private record Consulta(Dia dia, Long profesionalId, LocalDate fecha, LocalDate ultimo, ZoneId zona) {
     }
 
     /** Lo que no cambia de un día a otro para el mismo profesional y servicio. */

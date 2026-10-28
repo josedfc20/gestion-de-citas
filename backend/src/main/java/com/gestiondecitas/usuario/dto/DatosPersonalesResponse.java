@@ -11,7 +11,6 @@ import com.gestiondecitas.usuario.Rol;
 /**
  * Exportación de los datos personales ({@code GET /me/datos}, derecho de acceso
  * del RGPD). Nunca lleva el hash de la contraseña ni los de los tokens.
- * {@code beneficiarios} y {@code citas} se rellenan en B6.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record DatosPersonalesResponse(
@@ -19,8 +18,8 @@ public record DatosPersonalesResponse(
         Cuenta cuenta,
         DatosCliente cliente,
         List<Sesion> sesionesAbiertas,
-        List<Object> beneficiarios,
-        List<Object> citas) {
+        List<?> beneficiarios,
+        List<?> citas) {
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
     public record Cuenta(Long id, Rol rol, String nombre, String apellidos, String email, String telefono,

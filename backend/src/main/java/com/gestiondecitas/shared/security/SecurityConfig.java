@@ -88,6 +88,13 @@ public class SecurityConfig {
                         // RNF-007: solo los clientes eliminan su cuenta (empleados y admin, no).
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/me")
                                 .access(AuthorizationManagers.allOf(rol("CLIENTE"), conPasswordDefinitiva()))
+                        // CU-008 a CU-012: lo que reserva y cancela el cliente.
+                        .requestMatchers("/api/v1/me/beneficiarios/**")
+                                .access(AuthorizationManagers.allOf(rol("CLIENTE"), conPasswordDefinitiva()))
+                        .requestMatchers(HttpMethod.GET, "/api/v1/me/citas")
+                                .access(AuthorizationManagers.allOf(rol("CLIENTE"), conPasswordDefinitiva()))
+                        .requestMatchers(HttpMethod.POST, "/api/v1/citas", "/api/v1/citas/*/cancelacion")
+                                .access(AuthorizationManagers.allOf(rol("CLIENTE"), conPasswordDefinitiva()))
                         .requestMatchers("/api/v1/admin/**")
                                 .access(AuthorizationManagers.allOf(rol("ADMIN"), conPasswordDefinitiva()))
                         .requestMatchers("/api/v1/empleado/**")

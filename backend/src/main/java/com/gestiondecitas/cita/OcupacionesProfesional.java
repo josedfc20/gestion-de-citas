@@ -5,8 +5,8 @@ import java.util.List;
 
 /**
  * Citas que ocupan la agenda de los profesionales. La usan la disponibilidad
- * (CU-007) y los horarios (CU-018, alt. 1) antes de que exista la entidad
- * {@code Cita}: B6 la implementará con su repositorio sin cambiar a quien la usa.
+ * (CU-007) y los horarios (CU-018, alt. 1); la implementa
+ * {@code OcupacionesProfesionalJpa}.
  */
 public interface OcupacionesProfesional {
 

@@ -21,6 +21,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gestiondecitas.auth.PoliticaPassword;
+import com.gestiondecitas.beneficiario.Beneficiario;
+import com.gestiondecitas.beneficiario.BeneficiarioRepository;
+import com.gestiondecitas.cita.Cita;
+import com.gestiondecitas.cita.CitaRepository;
 import com.gestiondecitas.empleado.EmpleadoRepository;
 import com.gestiondecitas.horario.AjusteHorario;
 import com.gestiondecitas.horario.AjusteHorarioRepository;
@@ -39,7 +43,8 @@ import com.gestiondecitas.usuario.UsuarioRepository;
 
 /**
  * Datos de demostración de la peluquería (perfil {@code demo}, decisión del 28/10):
- * servicios, tres profesionales, un cliente, el horario y algunos días de cierre.
+ * servicios, tres profesionales, un cliente con una hija menor y dos citas, el
+ * horario y algunos días de cierre.
  * Solo se crean si aún no hay ningún servicio, así reiniciar no duplica nada.
  * Las cuentas usan {@code DEMO_PASSWORD} y nunca se escribe ninguna contraseña.
  */
@@ -51,6 +56,8 @@ public class DatosDemo implements ApplicationRunner {
 
     private static final Tramo MANANA = tramo("09:00", "14:00");
     private static final Tramo TARDE = tramo("16:00", "20:00");
+    private static final Map<MonthDay, String> FESTIVOS =
+            Map.of(MonthDay.of(12, 25), "Navidad", MonthDay.of(1, 1), "Año Nuevo");
 
     private final NegocioRepository negocios;
     private final ServicioRepository servicios;
@@ -59,13 +66,16 @@ public class DatosDemo implements ApplicationRunner {
     private final TramoHorarioRepository tramos;
     private final AjusteHorarioRepository ajustes;
     private final DiaCierreRepository diasCierre;
+    private final BeneficiarioRepository beneficiarios;
+    private final CitaRepository citas;
     private final PasswordEncoder passwordEncoder;
     private final Clock clock;
     private final String password;
 
     public DatosDemo(NegocioRepository negocios, ServicioRepository servicios, EmpleadoRepository empleados,
             UsuarioRepository usuarios, TramoHorarioRepository tramos, AjusteHorarioRepository ajustes,
-            DiaCierreRepository diasCierre, PasswordEncoder passwordEncoder, Clock clock,
+            DiaCierreRepository diasCierre, BeneficiarioRepository beneficiarios, CitaRepository citas,
+            PasswordEncoder passwordEncoder, Clock clock,
             @Value("${app.demo.password:}") String password) {
         this.negocios = negocios;
         this.servicios = servicios;
@@ -74,6 +84,8 @@ public class DatosDemo implements ApplicationRunner {
         this.tramos = tramos;
         this.ajustes = ajustes;
         this.diasCierre = diasCierre;
+        this.beneficiarios = beneficiarios;
+        this.citas = citas;
         this.passwordEncoder = passwordEncoder;
         this.clock = clock;
         this.password = password;
@@ -110,7 +122,7 @@ public class DatosDemo implements ApplicationRunner {
         Empleado ana = empleado("Ana", "Martín Ruiz", "ana@demo.invalid",
                 List.of(corte, infantil, peinado, tinte, mechas));
         Empleado marta = empleado("Marta", "López Sanz", "marta@demo.invalid", List.of(peinado, tinte, mechas));
-        usuarios.save(new Cliente("Carmen", "Pérez Gil", "cliente@demo.invalid", "600000000",
+        Cliente carmen = usuarios.save(new Cliente("Carmen", "Pérez Gil", "cliente@demo.invalid", "600000000",
                 passwordEncoder.encode(password), LocalDate.of(1990, 3, 15), clock.instant()));
 
         // Horario general: de lunes a viernes mañana y tarde; sábado por la mañana; domingo cerrado.
@@ -129,13 +141,29 @@ public class DatosDemo implements ApplicationRunner {
 
         // Días de cierre: los próximos Navidad y Año Nuevo, y una semana de vacaciones de Luis.
         LocalDate hoy = LocalDate.now(clock.withZone(negocio.getZonaHoraria()));
-        Map.of(MonthDay.of(12, 25), "Navidad", MonthDay.of(1, 1), "Año Nuevo").forEach((dia, motivo) ->
+        FESTIVOS.forEach((dia, motivo) ->
                 diasCierre.save(new DiaCierre(negocioId, null, siguiente(dia, hoy), motivo)));
         LocalDate vacaciones = hoy.plusDays(30);
         for (int i = 0; i < 7; i++) {
             diasCierre.save(new DiaCierre(negocioId, luis.getId(), vacaciones.plusDays(i), "Vacaciones"));
         }
-        log.info("Datos de demostración creados: 6 servicios, 3 profesionales y el cliente cliente@demo.invalid.");
+
+        // Una hija menor de Carmen (CU-009) y una cita para cada una, en el primer día laborable
+        // a partir de pasado mañana que no sea festivo (Ana libra los lunes).
+        Beneficiario lucia = beneficiarios.save(new Beneficiario(carmen.getId(), "Lucía", "Pérez Gil",
+                hoy.minusYears(8)));
+        LocalDate diaCitas = hoy.plusDays(2);
+        while (diaCitas.getDayOfWeek() == DayOfWeek.MONDAY || diaCitas.getDayOfWeek().getValue() > 5
+                || FESTIVOS.containsKey(MonthDay.from(diaCitas))) {
+            diaCitas = diaCitas.plusDays(1);
+        }
+        var zona = negocio.getZonaHoraria();
+        citas.save(Cita.reservar(carmen, marta, peinado, null,
+                diaCitas.atTime(10, 0).atZone(zona).toInstant(), carmen.getId(), clock.instant()));
+        citas.save(Cita.reservar(carmen, ana, infantil, lucia,
+                diaCitas.atTime(11, 0).atZone(zona).toInstant(), carmen.getId(), clock.instant()));
+        log.info("Datos de demostración creados: 6 servicios, 3 profesionales, el cliente cliente@demo.invalid "
+                + "y 2 citas.");
     }
 
     private Servicio servicio(String nombre, String descripcion, int minutos, String precio) {

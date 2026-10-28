@@ -3,6 +3,8 @@ package com.gestiondecitas.usuario;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,7 +19,8 @@ import com.gestiondecitas.usuario.dto.DatosPersonalesResponse;
 
 /**
  * RNF-007 (RGPD): exportar los datos personales del usuario y eliminar la cuenta
- * anonimizándola (paso 2.6). B6 añadirá los beneficiarios y las citas a ambas.
+ * anonimizándola (paso 2.6). Los beneficiarios y las citas los aportan sus
+ * paquetes con {@link AportaDatosPersonales}.
  */
 @Service
 public class DatosPersonalesService {
@@ -26,14 +29,17 @@ public class DatosPersonalesService {
     private final RefreshTokenRepository refreshTokens;
     private final TokenRecuperacionRepository tokensRecuperacion;
     private final PasswordEncoder passwordEncoder;
+    private final List<AportaDatosPersonales> otrosDatos;
     private final Clock clock;
 
     public DatosPersonalesService(UsuarioRepository usuarios, RefreshTokenRepository refreshTokens,
-            TokenRecuperacionRepository tokensRecuperacion, PasswordEncoder passwordEncoder, Clock clock) {
+            TokenRecuperacionRepository tokensRecuperacion, PasswordEncoder passwordEncoder,
+            List<AportaDatosPersonales> otrosDatos, Clock clock) {
         this.usuarios = usuarios;
         this.refreshTokens = refreshTokens;
         this.tokensRecuperacion = tokensRecuperacion;
         this.passwordEncoder = passwordEncoder;
+        this.otrosDatos = otrosDatos;
         this.clock = clock;
     }
 
@@ -49,13 +55,19 @@ public class DatosPersonalesService {
         var sesiones = refreshTokens.sesionesAbiertas(usuarioId, ahora).stream()
                 .map(t -> new DatosPersonalesResponse.Sesion(t.getCreadoEn(), t.getExpiraEn()))
                 .toList();
-        return new DatosPersonalesResponse(ahora, cuenta, cliente, sesiones, List.of(), List.of());
+        Map<String, List<?>> apartados = usuario instanceof Cliente
+                ? otrosDatos.stream()
+                        .collect(Collectors.toMap(AportaDatosPersonales::apartado, o -> o.exportar(usuarioId)))
+                : Map.of();
+        return new DatosPersonalesResponse(ahora, cuenta, cliente, sesiones,
+                apartados.getOrDefault("beneficiarios", List.of()), apartados.getOrDefault("citas", List.of()));
     }
 
     /**
      * CU-004, flujo alternativo 3. Pide la contraseña como confirmación, anonimiza
-     * la cuenta y borra sus sesiones y enlaces de recuperación. Solo para clientes
-     * (lo comprueba la seguridad por ruta).
+     * la cuenta y borra sus sesiones y enlaces de recuperación. Sus beneficiarios se
+     * anonimizan y sus citas futuras confirmadas se cancelan con el motivo "Cuenta
+     * eliminada". Solo para clientes (lo comprueba la seguridad por ruta).
      */
     @Transactional
     public void eliminarCuenta(Long usuarioId, String password) {
@@ -65,8 +77,10 @@ public class DatosPersonalesService {
         }
         refreshTokens.borrarDeUsuario(usuarioId);
         tokensRecuperacion.borrarDeUsuario(usuarioId);
+        Instant ahora = clock.instant();
+        otrosDatos.forEach(o -> o.alEliminarCuenta(usuarioId, ahora));
         // Una contraseña aleatoria que nadie conoce: la cuenta ya no puede iniciar sesión.
-        usuario.anonimizar(passwordEncoder.encode(UUID.randomUUID().toString()), clock.instant());
+        usuario.anonimizar(passwordEncoder.encode(UUID.randomUUID().toString()), ahora);
     }
 
     private Usuario buscar(Long usuarioId) {

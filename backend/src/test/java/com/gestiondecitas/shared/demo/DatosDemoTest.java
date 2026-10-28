@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
@@ -80,11 +81,27 @@ class DatosDemoTest {
     }
 
     @Test
+    void elClienteTieneUnaHijaMenorYDosCitas() throws Exception {
+        var sesion = api.iniciarSesion("cliente@demo.invalid", PASSWORD);
+
+        mockMvc.perform(get("/api/v1/me/beneficiarios").header(HttpHeaders.AUTHORIZATION, sesion.bearer()))
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].nombre").value("Lucía"));
+        mockMvc.perform(get("/api/v1/me/citas").header(HttpHeaders.AUTHORIZATION, sesion.bearer()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElementos").value(2))
+                .andExpect(jsonPath("$.contenido[0].servicio.nombre").value("Lavar y peinar"))
+                .andExpect(jsonPath("$.contenido[1].beneficiario.nombre").value("Lucía"))
+                .andExpect(jsonPath("$.contenido[1].puedeCancelar").value(true));
+    }
+
+    @Test
     void unSegundoArranqueNoDuplicaNada() throws Exception {
         datosDemo.run(null);
 
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM servicio", Integer.class)).isEqualTo(6);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM empleado", Integer.class)).isEqualTo(3);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM cita", Integer.class)).isEqualTo(2);
     }
 
     @Test

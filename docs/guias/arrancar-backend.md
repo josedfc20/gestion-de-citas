@@ -409,9 +409,9 @@ token del administrador:
    "Festivo" }` (sin `empleadoId` cierra todo el negocio) → **201**. Repetirlo
    da **409**. La disponibilidad de ese día sale vacía, con
    `siguienteFechaConHuecos` apuntando al siguiente día con horas.
-5. Cuando existan las citas (B6), si un cambio de horario o un día de cierre
-   deja citas fuera, se guarda igualmente y la respuesta las lista en
-   `citasAfectadas` para que decidas qué hacer con ellas.
+5. Si un cambio de horario o un día de cierre deja citas fuera, se guarda
+   igualmente y la respuesta las lista en `citasAfectadas` para que decidas qué
+   hacer con ellas.
 
 ### 7.10 Arrancar con datos de demostración (B5)
 
@@ -430,14 +430,48 @@ down -v` la borra entera.
    ```
 
    En el log aparece `Datos de demostración creados: 6 servicios, 3
-   profesionales y el cliente cliente@demo.invalid.`
+   profesionales, el cliente cliente@demo.invalid y 2 citas.`
 3. Ya puedes entrar con `luis@demo.invalid`, `ana@demo.invalid`,
    `marta@demo.invalid` (empleados) o `cliente@demo.invalid` (cliente), todos
    con tu `DEMO_PASSWORD`. Hay horario de lunes a sábado, Ana libra los lunes,
    Marta entra a las 10:00 los sábados, el negocio cierra en Navidad y Año
-   Nuevo y Luis tiene una semana de vacaciones dentro de un mes.
+   Nuevo y Luis tiene una semana de vacaciones dentro de un mes. La cliente,
+   Carmen, tiene una hija menor (Lucía) y una cita para cada una en el primer
+   día laborable a partir de pasado mañana.
 4. Para volver al modo normal, cierra la ventana de PowerShell o escribe
    `Remove-Item Env:SPRING_PROFILES_ACTIVE`.
+
+### 7.11 Reservar y cancelar citas (B6)
+
+Necesitas el horario y la disponibilidad del 7.9 (o los datos de demo del
+7.10). Inicia sesión como **cliente** (7.3, o `cliente@demo.invalid`) y pulsa
+**Authorize** con su token.
+
+1. **GET /api/v1/disponibilidad** con el servicio, el profesional y una fecha
+   próxima: elige una de las `horas`, por ejemplo `10:00`.
+2. **POST /api/v1/citas**. La hora va con la fecha y el desfase de Madrid
+   (`+01:00` en invierno, `+02:00` en verano):
+
+   ```json
+   { "servicioId": 1, "profesionalId": 2, "inicio": "2026-11-03T10:00:00+01:00" }
+   ```
+
+   **201** con `"estado": "CONFIRMADA"`, el `fin` y el `precio` calculados por
+   el servidor y `puedeCancelar`. Repite la consulta del paso 1: las 10:00 ya no
+   salen. Si repites la reserva (o la hace otro cliente) → **409** "Ese horario
+   ya no está disponible". Una hora que no está en la lista también es **409**.
+3. **Para un menor a cargo:** **POST /api/v1/me/beneficiarios** con
+   `{ "nombre": "Lucía", "apellidos": "Pérez", "fechaNacimiento": "2018-05-10" }`
+   → **201** con su `id`. Reserva igual que en el paso 2 añadiendo
+   `"beneficiarioId"`. Con 14 años o más → **422** (debe crear su propia
+   cuenta). Una misma persona no puede tener dos citas a la vez (**422**).
+4. **GET /api/v1/me/citas** → las próximas, en orden. Con `pasadas=true`, el
+   historial. **GET /api/v1/citas/{id}** → el detalle.
+5. **POST /api/v1/citas/{id}/cancelacion** con `{ "motivo": "No puedo ir" }`
+   (opcional) → **200** con `"estado": "CANCELADA"` y la hora vuelve a estar
+   libre. Si faltan menos de 24 horas → **422** "Contacta con el negocio".
+6. Con el token del administrador, **GET /api/v1/citas/{id}** muestra además el
+   correo del cliente y el historial de cambios (`cambios`).
 
 ## 8. Ver las tablas (opcional)
 
