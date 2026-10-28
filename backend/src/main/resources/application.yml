@@ -38,3 +38,14 @@ management:
 app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  security:
+    jwt-secret: ${JWT_SECRET:}
+    access-token-duracion: 15m
+    refresh-token-duracion: 7d
+    cookie-secure: ${COOKIE_SECURE:true}
+    intentos-login-por-minuto: 5
+  # Primer administrador: se crea al arrancar si el correo aún no existe (B2).
+  admin:
+    email: ${ADMIN_EMAIL:}
+    password: ${ADMIN_PASSWORD:}
+    nombre: ${ADMIN_NOMBRE:Administrador}

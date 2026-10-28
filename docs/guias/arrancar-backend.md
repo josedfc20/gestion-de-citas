@@ -5,8 +5,9 @@
 > menú Inicio → escribe "PowerShell" → Enter. Copia cada comando, pégalo con
 > clic derecho y pulsa Enter.
 
-Al terminar habrás comprobado tres cosas: que la base de datos arranca en
-Docker, que el backend crea las tablas y responde, y que las pruebas pasan.
+Al terminar habrás comprobado cuatro cosas: que la base de datos arranca en
+Docker, que el backend crea las tablas y responde, que puedes registrarte e
+iniciar sesión (bloque B2) y que las pruebas pasan.
 
 ## 1. Traer el código a tu PC
 
@@ -20,7 +21,7 @@ cd C:\Users\josef\Downloads\Proyectos\Aplicaciones\gestion-de-citas
 
   ```powershell
   git fetch origin
-  git switch feature/esqueleto-backend
+  git switch feature/autenticacion
   ```
 
 - **Si ya está fusionado en `main`:**
@@ -39,20 +40,64 @@ Abre **Docker Desktop** desde el menú Inicio y espera a que abajo a la izquierd
 diga **Engine running** (tarda unos segundos). Sin esto no funcionan ni la base
 de datos ni las pruebas.
 
-## 3. Crear tu archivo `.env` (solo la primera vez)
+## 3. Crear o completar tu archivo `.env`
 
 El `.env` guarda las contraseñas de tu PC. **Nunca se sube a GitHub** (está en
 `.gitignore`); en el repositorio solo está la plantilla `.env.example`.
 
+**Si aún no tienes `.env`** (primera vez):
+
 ```powershell
 Copy-Item .env.example .env
+```
+
+**Si ya lo tienes del B1**, no lo borres (tiene la contraseña con la que se
+creó tu base de datos). Solo hay que añadirle las líneas nuevas del B2.
+
+### 3.1 Generar la clave `JWT_SECRET`
+
+Es la clave con la que el backend firma los tokens de sesión. Genera una
+aleatoria con este comando (cópialo entero, es una sola línea):
+
+```powershell
+$b = New-Object byte[] 48; [System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b); -join ($b | ForEach-Object { $_.ToString('x2') })
+```
+
+Sale una línea de 96 letras y números, por ejemplo `3f9a0c...e71b`. Cópiala
+(selecciónala con el ratón y clic derecho).
+
+### 3.2 Editar el `.env`
+
+```powershell
 notepad .env
 ```
 
-En el Bloc de notas cambia `POSTGRES_PASSWORD=cambia-esta-contrasena` por una
-contraseña tuya. Usa **solo letras y números** (sin espacios, `\`, `#` ni
-comillas) para evitar problemas. Guarda (Ctrl+S) y cierra. El resto de valores
-pueden quedarse como están.
+Deja el archivo así (con **tus** valores):
+
+```
+POSTGRES_DB=gestion_de_citas
+POSTGRES_USER=gestion_de_citas
+POSTGRES_PASSWORD=tu-clave-de-la-base-de-datos
+
+DB_URL=jdbc:postgresql://localhost:5433/gestion_de_citas
+JWT_SECRET=pega-aquí-la-clave-del-paso-3.1
+CORS_ALLOWED_ORIGINS=http://localhost:5173
+COOKIE_SECURE=true
+
+ADMIN_EMAIL=tu-correo@ejemplo.com
+ADMIN_PASSWORD=una-clave-para-el-administrador
+ADMIN_NOMBRE=Jose
+```
+
+- `POSTGRES_PASSWORD`: si ya tenías `.env`, **no la cambies**. Si es nuevo,
+  pon una tuya.
+- `ADMIN_EMAIL` y `ADMIN_PASSWORD`: con ellos se crea el **administrador** la
+  primera vez que arranca el backend. La contraseña necesita **10 caracteres
+  o más** y no puede ser muy común (`1234567890`, `contraseña123`...).
+- Usa **solo letras, números y guiones** en las contraseñas (sin espacios,
+  `\`, `#`, comillas ni tildes) para evitar problemas.
+
+Guarda (Ctrl+S) y cierra.
 
 ## 4. Arrancar la base de datos
 
@@ -85,9 +130,16 @@ cd backend
   librerías. Las siguientes veces arranca en unos 10 segundos.
 - Está listo cuando ves una línea parecida a
   `Started GestionDeCitasApplication in 5.3 seconds`.
-- Un poco más arriba verás `Successfully applied 2 migrations ... now at version v2`:
-  es Flyway creando las tablas (V1) y el registro del negocio (V2). Solo lo hace
-  la primera vez; después dirá que el esquema está al día.
+- Un poco más arriba verás Flyway aplicando las migraciones:
+  - Si tu base de datos venía del B1: `Successfully applied 1 migration ... now at version v3`
+    (la V3 añade un índice para las sesiones).
+  - Si es nueva: `Successfully applied 3 migrations ... now at version v3`.
+  - Las siguientes veces dirá que el esquema está al día (`is up to date`).
+- Justo después de `Started` verás
+  `Administrador inicial creado (id 1).` Solo sale la primera vez; las
+  siguientes dirá `El administrador inicial ya existe; no se modifica.`
+- Ya **no** debe aparecer `Using generated security password` (era el aviso
+  pendiente del B1).
 
 **No cierres esta ventana**: el backend funciona mientras está abierta.
 
@@ -98,10 +150,106 @@ Abre estas tres direcciones:
 | Dirección | Qué debes ver | Qué significa |
 |---|---|---|
 | http://localhost:8080/actuator/health | `{"groups":["liveness","readiness"],"status":"UP"}` | El backend está vivo y conectado a la base de datos. |
-| http://localhost:8080/swagger-ui.html | La página de Swagger "GestionDeCitas API" | La documentación de la API. Aún no hay endpoints: llegan desde B2. |
-| http://localhost:8080/api/v1/servicios | `{"detail":"Hay que iniciar sesión.", ... "status":401, ...}` | Correcto por ahora: la seguridad provisional cierra toda la API hasta B2, y el error sale en formato Problem Details. |
+| http://localhost:8080/swagger-ui.html | La página de Swagger "GestionDeCitas API" con los grupos **Autenticación** y **Mi perfil** | La documentación de la API, que además sirve para probarla (sección 7). |
+| http://localhost:8080/api/v1/me | `{"detail":"Hay que iniciar sesión.", ... "status":401, ...}` | Correcto: `/me` necesita sesión, y el error sale en formato Problem Details. |
 
-## 7. Ver las tablas (opcional)
+## 7. Probar el registro y el login con Swagger
+
+Abre http://localhost:8080/swagger-ui.html. Cada endpoint se despliega con un
+clic; dentro, el botón **Try it out** permite editar los datos y **Execute**
+envía la petición. La respuesta aparece debajo, en **Server response**.
+
+### 7.1 Iniciar sesión como administrador
+
+1. Despliega **POST /api/v1/auth/login** → **Try it out**.
+2. Cambia el cuerpo por tu correo y contraseña del `.env`:
+
+   ```json
+   { "email": "tu-correo@ejemplo.com", "password": "una-clave-para-el-administrador" }
+   ```
+
+3. **Execute**. Debe salir **Code 200** y un cuerpo parecido a:
+
+   ```json
+   {
+     "accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJk...",
+     "tokenType": "Bearer",
+     "expiraEnSegundos": 900,
+     "usuario": { "id": 1, "nombre": "Jose", "rol": "ADMIN", "debeCambiarPassword": false }
+   }
+   ```
+
+   En **Response headers** verás también `set-cookie: refresh_token=...;
+   HttpOnly; SameSite=Strict`: es el token de refresco, que el navegador
+   guarda y JavaScript no puede leer.
+4. Copia el valor de `accessToken` (lo que va entre comillas, sin ellas).
+
+### 7.2 Usar el token
+
+1. Arriba a la derecha pulsa **Authorize** 🔓, pega el token (sin escribir
+   `Bearer`) → **Authorize** → **Close**. El candado queda cerrado 🔒.
+2. Despliega **GET /api/v1/me** → **Try it out** → **Execute**.
+   Debe salir **200** con tus datos (`"rol": "ADMIN"`).
+3. El token caduca a los **15 minutos**. Cuando pase, `/me` dará **401**:
+   ejecuta **POST /api/v1/auth/refresh** (sin cuerpo; usa la cookie) y te dará
+   un `accessToken` nuevo para repetir el paso 1.
+
+### 7.3 Registrar un cliente
+
+1. Despliega **POST /api/v1/auth/registro** → **Try it out** y pon, por ejemplo:
+
+   ```json
+   {
+     "nombre": "Ana",
+     "apellidos": "García López",
+     "email": "ana@ejemplo.com",
+     "telefono": "600123123",
+     "fechaNacimiento": "1990-05-20",
+     "password": "Mi-clave-larga-2026",
+     "confirmacionPassword": "Mi-clave-larga-2026",
+     "aceptaPrivacidad": true
+   }
+   ```
+
+2. **Execute** → **201** con `"rol": "CLIENTE"`.
+3. Prueba los errores, que son parte de lo que hace el B2:
+
+   | Cambia esto y vuelve a ejecutar | Respuesta |
+   |---|---|
+   | El mismo correo otra vez | **409** "Ya existe una cuenta con ese correo." |
+   | `"fechaNacimiento": "2015-01-01"` (y otro correo) | **422** "Debes tener al menos 14 años..." |
+   | `"aceptaPrivacidad": false` | **400** con el campo `aceptaPrivacidad` |
+   | `"password"` y `"confirmacionPassword"`: `"1234567890"` | **400** "Es una contraseña demasiado común; elige otra." |
+
+4. Inicia sesión con Ana (7.1) y pulsa **Authorize** con su token. Con
+   **GET /api/v1/me** verás sus datos; si pruebas una ruta de administrador,
+   el resultado es **403** "No tienes permiso para esta operación".
+
+### 7.4 Otras pruebas rápidas
+
+- **Contraseña mal** en el login: **401** "Correo o contraseña no válidos."
+  (el mismo mensaje si el correo no existe, para no dar pistas).
+- **Seis intentos de login fallidos seguidos** en menos de un minuto:
+  el sexto da **429** "Demasiados intentos...". Espera un minuto.
+- **POST /api/v1/auth/logout** → **204**. Después, `/auth/refresh` da **401**:
+  la sesión se ha cerrado de verdad.
+- **PUT /api/v1/me/password** para cambiar tu contraseña (pide la actual).
+
+### 7.5 Lo mismo desde PowerShell (opcional)
+
+Con una **segunda** ventana de PowerShell (la del backend sigue abierta).
+Cambia el correo y la contraseña por los tuyos:
+
+```powershell
+$login = Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/v1/auth/login -ContentType "application/json" -Body '{"email":"tu-correo@ejemplo.com","password":"una-clave-para-el-administrador"}'
+$login.usuario
+Invoke-RestMethod -Uri http://localhost:8080/api/v1/me -Headers @{ Authorization = "Bearer $($login.accessToken)" }
+```
+
+El primer comando no muestra nada; el segundo muestra `id`, `nombre`, `rol`
+y `debeCambiarPassword`; el tercero, todos tus datos.
+
+## 8. Ver las tablas (opcional)
 
 Con una segunda ventana de PowerShell:
 
@@ -116,7 +264,7 @@ Con **DBeaver**: Nueva conexión → PostgreSQL → Host `localhost`, Puerto `54
 Base de datos `gestion_de_citas`, Usuario `gestion_de_citas` y la contraseña
 de tu `.env`.
 
-## 8. Parar todo
+## 9. Parar todo
 
 1. En la ventana del backend pulsa **Ctrl+C** (si pregunta, responde `S`).
 2. Para la base de datos (los datos se conservan):
@@ -132,7 +280,7 @@ repositorio y `.\mvnw.cmd spring-boot:run` desde `backend`.
 Si quieres **borrar la base de datos y empezar de cero**:
 `docker compose down -v` (borra todos los datos).
 
-## 9. Ejecutar las pruebas
+## 10. Ejecutar las pruebas
 
 Con Docker Desktop abierto (no hace falta tener el backend ni la base de datos
 arrancados):
@@ -146,7 +294,7 @@ Las pruebas crean su **propio** PostgreSQL temporal con Testcontainers y lo
 destruyen al acabar, así que nunca tocan tus datos. Al final debes ver:
 
 ```
-Tests run: 15, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 66, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -155,7 +303,7 @@ comprueba a propósito que un fallo interno no muestra detalles al cliente.
 
 GitHub Actions ejecuta estas mismas pruebas en cada PR (pestaña **Checks**).
 
-## 10. Desde IntelliJ IDEA (alternativa)
+## 11. Desde IntelliJ IDEA (alternativa)
 
 1. File → Open → elige la carpeta `gestion-de-citas` (o `backend\pom.xml`) →
    "Open as Project".
@@ -166,7 +314,7 @@ GitHub Actions ejecuta estas mismas pruebas en cada PR (pestaña **Checks**).
 
 La base de datos de Docker tiene que estar arrancada (paso 4) igual que antes.
 
-## 11. Problemas frecuentes
+## 12. Problemas frecuentes
 
 | Mensaje | Causa y solución |
 |---|---|
@@ -177,6 +325,11 @@ La base de datos de Docker tiene que estar arrancada (paso 4) igual que antes.
 | `Bind for 0.0.0.0:5433 failed: port is already allocated` | Otro programa usa el puerto 5433. Avísame y elegimos otro. |
 | `la autentificación password falló` (mensaje en español) | El backend está hablando con **otro** PostgreSQL instalado en Windows, no con el de Docker. Comprueba que tu `.env` tiene `DB_URL=jdbc:postgresql://localhost:5433/gestion_de_citas` (puerto 5433, como `.env.example`). |
 | `Could not find a valid Docker environment` (al ejecutar las pruebas) | Docker Desktop no está abierto o no dice "Engine running". |
+| `Binding to target ... app.security ... failed` con `falta JWT_SECRET` o `JWT_SECRET debe tener al menos 32 caracteres` | Falta la clave en el `.env` o es corta. Repite el paso 3.1. |
+| `ADMIN_PASSWORD no cumple la política de contraseñas` | La contraseña del administrador del `.env` es corta o muy común. Cámbiala (10 caracteres o más) y vuelve a arrancar. |
+| Aviso `ADMIN_EMAIL o ADMIN_PASSWORD están vacíos` | El backend arranca, pero sin administrador. Rellénalos en el `.env` (paso 3.2) y reinicia. |
+| Cambié `ADMIN_PASSWORD` en el `.env` y no puedo entrar con la nueva | Es lo esperado: el administrador solo se crea la primera vez. Entra con la contraseña antigua y cámbiala con `PUT /me/password`, o borra la base de datos (`docker compose down -v`). |
+| **429** al iniciar sesión | Has hecho más de 5 intentos en un minuto. Espera un minuto. |
 | `.\mvnw.cmd` no se reconoce | No estás dentro de la carpeta `backend`. Ejecuta `cd backend`. |
 | Error de SSL al descargar Maven o librerías | Mándame el mensaje completo; puede ser el mismo bloqueo de OpenSSL de la sección 1 de `instalacion-entorno.md`. |
 

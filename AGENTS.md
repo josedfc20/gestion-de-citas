@@ -70,7 +70,7 @@ avanza a la siguiente.
 - [ ] FASE 4: Desarrollo (plan en `docs/propuestas/4.0-plan-de-bloques.md`)
   - [x] 4.0 Plan de bloques: backend primero (B1 a B6) y web después (B7 a B9)
   - [x] B1 · Esqueleto: Spring Boot, docker-compose, Flyway V1/V2, CI (`feature/esqueleto-backend`, `docs/propuestas/4.1-B1-esqueleto-backend.md`)
-  - [ ] B2 · Autenticación (`feature/autenticacion`)
+  - [x] B2 · Autenticación: registro, login, JWT + refresh con rotación, roles, /me, admin inicial (`feature/autenticacion`, `docs/propuestas/4.2-B2-autenticacion.md`)
   - [ ] B3 · Cuenta y RGPD (`feature/recuperar-password-rgpd`)
   - [ ] B4 · Catálogo y empleados (`feature/catalogo-empleados`)
   - [ ] B5 · Horarios y disponibilidad (`feature/horarios-disponibilidad`)
@@ -115,11 +115,11 @@ avanza a la siguiente.
 - Capas: Controller → Service → Repository. Un controller nunca accede a un repository.
 - La API usa DTOs; nunca devolver entidades.
 - Formato en DTOs (`@Valid`); reglas de negocio en servicios.
-- Errores con Problem Details: 400, 401, 403, 404, 409 (hueco ocupado), 422 (regla de negocio).
+- Errores con Problem Details: 400, 401, 403, 404, 409 (hueco ocupado, dato duplicado), 422 (regla de negocio), 429 (demasiados intentos).
 - Usar un `Clock` inyectado; nunca `now()` directo.
 - Escrituras en métodos `@Transactional` del servicio.
 - API: `/api/v1`, rutas por rol (`/auth`, `/me`, públicas, `/empleado`, `/admin`); recursos ajenos → 404; fin y precio los calcula el servidor.
-- Seguridad: JWT 15 min + refresh token 7 días en cookie HttpOnly con rotación; BCrypt; roles por ruta y propiedad en servicios; límites de intentos; nunca registrar contraseñas ni tokens.
+- Seguridad: JWT 15 min (HS256, `JWT_SECRET`) + refresh token 7 días en cookie HttpOnly `SameSite=Strict` con ruta `/api/v1/auth` y rotación (en la BD solo su SHA-256; reutilizar uno revocado cierra todas las sesiones); BCrypt coste 12; contraseñas de 10 a 64 caracteres y no comunes; roles por ruta y propiedad en servicios; con contraseña temporal (RN-005) solo `GET /me` y `PUT /me/password`; 5 intentos de login por minuto por IP y por correo (429); nunca registrar contraseñas ni tokens.
 - Configuración técnica y secretos en `application.yml` / variables de entorno, nunca en Git.
 - El backend lee el `.env` de la raíz al arrancar; los valores del negocio están en la tabla `negocio`.
 - Migraciones Flyway en `backend/src/main/resources/db/migration`: una migración aplicada nunca se modifica, los cambios van en una nueva (V3, V4...).
@@ -275,3 +275,4 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 | 2026-10-28 | Datos iniciales: V2 solo con el registro de `negocio`; primer administrador desde `ADMIN_EMAIL`/`ADMIN_PASSWORD` al arrancar (B2); datos de demo en el perfil `demo`. |
 | 2026-10-28 | B1 aprobado: esqueleto del backend en `feature/esqueleto-backend`. |
 | 2026-10-28 | B1 fusionado (PR #1). PostgreSQL de Docker en el puerto 5433 del PC para convivir con el PostgreSQL de Odoo de Jose. |
+| 2026-10-28 | B2 aprobado: autenticación en `feature/autenticacion`. Cambios sobre el 3.4: refresh token con SHA-256 (no BCrypt), cookie en `/api/v1/auth`, logout público con la cookie y nuevo código 429. El registro no inicia sesión. |

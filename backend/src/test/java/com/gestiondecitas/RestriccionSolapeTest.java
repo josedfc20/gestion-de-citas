@@ -26,14 +26,16 @@ class RestriccionSolapeTest {
 
     @BeforeEach
     void prepararDatos() {
-        jdbc.execute("TRUNCATE usuario, servicio RESTART IDENTITY CASCADE");
-        clienteId = crearUsuario("CLIENTE", "cliente@ejemplo.com");
+        // Solo se vacían las citas: los usuarios de otras pruebas (como el administrador
+        // inicial) comparten esta base de datos. Correos y nombres únicos en cada prueba.
+        jdbc.execute("TRUNCATE cita CASCADE");
+        clienteId = crearUsuario("CLIENTE", ApiDePrueba.emailNuevo());
         jdbc.update("INSERT INTO cliente (usuario_id, fecha_nacimiento, privacidad_aceptada_en) "
                 + "VALUES (?, DATE '1990-01-01', now())", clienteId);
-        empleadoId = crearEmpleado("empleado@ejemplo.com");
-        otroEmpleadoId = crearEmpleado("otro@ejemplo.com");
+        empleadoId = crearEmpleado(ApiDePrueba.emailNuevo());
+        otroEmpleadoId = crearEmpleado(ApiDePrueba.emailNuevo());
         servicioId = jdbc.queryForObject("INSERT INTO servicio (nombre, duracion_minutos, precio) "
-                + "VALUES ('Servicio', 30, 15.00) RETURNING id", Long.class);
+                + "VALUES (?, 30, 15.00) RETURNING id", Long.class, "Servicio " + java.util.UUID.randomUUID());
     }
 
     @Test

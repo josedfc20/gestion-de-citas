@@ -1,0 +1,8 @@
+# Perfil de las pruebas de integración. La base de datos la pone Testcontainers.
+app:
+  security:
+    jwt-secret: clave-de-pruebas-que-no-se-usa-fuera-de-los-tests-1234
+  admin:
+    email: admin@pruebas.local
+    password: Admin-de-pruebas-2026
+    nombre: Admin Pruebas

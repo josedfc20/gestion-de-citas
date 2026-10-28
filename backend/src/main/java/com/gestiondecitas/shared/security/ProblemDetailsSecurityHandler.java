@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
@@ -40,7 +41,10 @@ public class ProblemDetailsSecurityHandler implements AuthenticationEntryPoint, 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
             AccessDeniedException ex) throws IOException {
-        escribir(request, response, HttpStatus.FORBIDDEN, "Sin permiso", "No tienes permiso para esta operación.");
+        String detalle = TokenActual.debeCambiarPassword(SecurityContextHolder.getContext().getAuthentication())
+                ? "Debes cambiar tu contraseña antes de continuar."
+                : "No tienes permiso para esta operación.";
+        escribir(request, response, HttpStatus.FORBIDDEN, "Sin permiso", detalle);
     }
 
     private void escribir(HttpServletRequest request, HttpServletResponse response, HttpStatus estado,
