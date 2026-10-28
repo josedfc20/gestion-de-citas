@@ -1,0 +1,258 @@
+# AGENTS.md — GestionDeCitas
+
+> Reglas y especificaciones del proyecto para cualquier asistente de IA
+> (Claude, Codex, Copilot...). Se mantiene corto y ordenado por temas.
+> El detalle de cada fase está en `docs/Doc.docx`.
+
+## 1. Proyecto
+
+- **Nombre:** GestionDeCitas
+- **Descripción:** sistema versátil de gestión y reserva de citas.
+- **Primer caso de aplicación:** una peluquería moderna con varios profesionales
+  y servicios.
+- **Versatilidad:** usar términos genéricos en diseño y código (negocio,
+  profesional, servicio, cita), nunca términos propios de la peluquería, para
+  poder adaptarlo a talleres, consultas, etc.
+- **Alcance de la primera versión:** un único establecimiento.
+
+## 2. Reglas de trabajo
+
+El usuario actúa como la empresa y como senior/tech lead. Cada requisito sigue
+este ciclo:
+
+1. La empresa plantea la funcionalidad que necesita.
+2. El asistente propone cómo resolverla.
+3. El usuario revisa la propuesta como lo haría un tech lead.
+4. Juntos se detectan errores o mejoras.
+5. El asistente implementa la solución.
+6. El usuario revisa el código.
+7. Se pasa al siguiente requisito.
+
+Normas adicionales:
+
+- No se escribe código sin una propuesta aprobada.
+- Pedir permiso antes de editar código o configuración, hacer push o abrir PRs.
+- Responder en español.
+- Tras cada paso aprobado, actualizar `AGENTS.md` y `docs/Doc.docx`.
+
+## 3. Metodología por fases
+
+El proyecto avanza en orden **sin saltarse ninguna fase**. Cada respuesta de
+trabajo anuncia la fase actual ("Estamos en la fase N") y se destaca cuando se
+avanza a la siguiente.
+
+| Fase | Nombre        | Trabajo a realizar                                       |
+|------|---------------|----------------------------------------------------------|
+| 1    | Análisis      | Definir el problema, los usuarios y los requisitos.      |
+| 2    | Diseño        | Crear los diagramas UML y diseñar la base de datos.      |
+| 3    | Arquitectura  | Elegir tecnologías, estructura y componentes.            |
+| 4    | Desarrollo    | Implementar las funcionalidades por pequeñas tareas.     |
+| 5    | Pruebas       | Comprobar que la aplicación funciona correctamente.      |
+| 6    | Documentación | Registrar decisiones técnicas y preparar el README.      |
+| 7    | Despliegue    | Preparar una versión que pueda utilizarse y demostrarse. |
+
+**Fase actual: 4. Desarrollo**
+
+- [x] FASE 1: Análisis
+- [x] FASE 2: Diseño
+  - [x] 2.1 Lista de casos de uso (sección 10)
+  - [x] 2.2 Diagramas de casos de uso (`docs/diagramas/CasosDeUso.drawio`)
+  - [x] 2.3 Especificación de casos de uso (4 lotes, en Doc.docx)
+  - [x] 2.4 Diagrama de clases (`docs/diagramas/Clases.drawio`)
+  - [x] 2.5 Diagramas de secuencia, actividad y estados (`docs/diagramas/*.mmd`)
+  - [x] 2.6 Diseño de la base de datos (`docs/propuestas/2.6-esquema-borrador.sql`)
+- [x] FASE 3: Arquitectura
+  - [x] 3.1 Tecnologías y stack
+  - [x] 3.2 Arquitectura del backend (`docs/propuestas/3.2-arquitectura-backend.md`)
+  - [x] 3.3 Diseño de la API REST (`docs/propuestas/3.3-api-rest.md`)
+  - [x] 3.4 Seguridad y autenticación (`docs/propuestas/3.4-seguridad.md`)
+  - [x] 3.5 Estructura del repositorio y entorno (`docs/propuestas/3.5-repositorio-y-entorno.md`)
+- [ ] FASE 4: Desarrollo
+- [ ] FASE 5: Pruebas
+- [ ] FASE 6: Documentación
+- [ ] FASE 7: Despliegue
+
+## 4. Problema y objetivo
+
+- **Problema:** muchos negocios que trabajan con citas las gestionan por
+  teléfono, WhatsApp o en una libreta: reservas duplicadas, solapamientos,
+  citas olvidadas y tiempo perdido atendiendo llamadas.
+- **Objetivo del producto:** un sistema versátil donde los clientes reserven en
+  línea según la disponibilidad real de cada profesional, y el personal y el
+  administrador gestionen agendas, servicios y horarios desde un solo lugar.
+- **Objetivo formativo:** aplicar análisis, UML, bases de datos, arquitectura,
+  desarrollo y pruebas en un proyecto completo.
+
+## 5. Tecnologías (aprobadas en el paso 3.1)
+
+| Área                  | Elección |
+|-----------------------|----------|
+| Backend               | Java 21 + Spring Boot 3 (Web, Data JPA, Validation, Security), API REST |
+| Base de datos         | PostgreSQL 16 + Flyway |
+| Construcción          | Maven |
+| Pruebas backend       | JUnit 5, Mockito, Testcontainers |
+| Documentación API     | Swagger / OpenAPI |
+| Frontend web          | React + TypeScript (Vite), React Router, TanStack Query, React Hook Form + Zod |
+| Herramientas (PC)     | Git, JDK 21 (Temurin), Node.js 24 LTS, Docker Desktop (WSL 2); guía en `docs/guias/instalacion-entorno.md` |
+| Pruebas frontend      | Vitest, Testing Library |
+| Entorno local         | Docker Compose (PostgreSQL) |
+| Control de versiones  | Git + GitHub |
+| Aplicación posterior  | Android con Kotlin y Jetpack Compose (Room opcional) |
+
+## 5b. Reglas de arquitectura (paso 3.2)
+
+- Monolito modular por funcionalidad: `auth`, `usuario`, `beneficiario`, `servicio`, `empleado`, `horario`, `disponibilidad`, `cita`, `negocio`, `shared`.
+- Capas: Controller → Service → Repository. Un controller nunca accede a un repository.
+- La API usa DTOs; nunca devolver entidades.
+- Formato en DTOs (`@Valid`); reglas de negocio en servicios.
+- Errores con Problem Details: 400, 401, 403, 404, 409 (hueco ocupado), 422 (regla de negocio).
+- Usar un `Clock` inyectado; nunca `now()` directo.
+- Escrituras en métodos `@Transactional` del servicio.
+- API: `/api/v1`, rutas por rol (`/auth`, `/me`, públicas, `/empleado`, `/admin`); recursos ajenos → 404; fin y precio los calcula el servidor.
+- Seguridad: JWT 15 min + refresh token 7 días en cookie HttpOnly con rotación; BCrypt; roles por ruta y propiedad en servicios; límites de intentos; nunca registrar contraseñas ni tokens.
+- Configuración técnica y secretos en `application.yml` / variables de entorno, nunca en Git.
+
+## 5c. Continuidad entre hilos
+
+Cada hilo nuevo debe leer primero este archivo, `docs/Doc.docx` y la carpeta
+`docs/propuestas/`. Plan: un hilo nuevo para la fase 4 y uno por bloque de
+desarrollo.
+
+## 5d. Repositorio y Git (paso 3.5)
+
+- Repositorio: https://github.com/josedfc20/gestion-de-citas (monorepo: `backend/`, `frontend/`, `docs/`).
+- `main` siempre estable; cada tarea en una rama `feature/...` o `fix/...` que se integra con PR revisado por el usuario.
+- Commits con Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `chore:`).
+- Nunca subir secretos: `.env` está en `.gitignore`; solo se versiona `.env.example`.
+- Documentación del proyecto en `docs/`.
+
+## 6. Perfiles de usuario
+
+- **Visitante:** persona sin cuenta; consulta servicios, precios, profesionales
+  y horarios.
+- **Cliente:** persona registrada de 14 años o más; reserva, consulta y cancela
+  sus citas y las de menores a su cargo.
+- **Empleado:** profesional dado de alta por el administrador (no se registra
+  solo); consulta su agenda y servicios y actualiza el estado de sus citas.
+- **Administrador:** dueño o encargado; gestiona servicios, empleados, horarios
+  y reservas.
+- Los menores de 14 años no son usuarios: figuran como beneficiarios de una cita.
+- "Usuario" = cualquier perfil con cuenta (cliente, empleado o administrador).
+
+## 7. Requisitos funcionales
+
+- RF-001: Registrar una cuenta de cliente.
+- RF-002: Iniciar y cerrar sesión.
+- RF-003: El visitante o el cliente consulta los servicios y sus precios.
+- RF-004: El visitante o el cliente consulta los profesionales disponibles.
+- RF-005: El visitante o el cliente consulta los horarios disponibles para un servicio y profesional.
+- RF-006: El cliente reserva una cita eligiendo servicio, profesional, fecha y hora.
+- RF-007: El sistema comprueba la disponibilidad antes de confirmar una reserva.
+- RF-008: El cliente consulta sus próximas citas.
+- RF-009: El cliente cancela una cita según las reglas del negocio.
+- RF-010: El empleado consulta su agenda.
+- RF-011: El empleado actualiza el estado de sus citas, según sus permisos.
+- RF-012: El administrador gestiona los servicios y sus precios.
+- RF-013: El administrador gestiona los empleados, incluida la creación de sus cuentas y la asignación de servicios.
+- RF-014: El administrador configura los horarios de atención.
+- RF-015: El administrador consulta y gestiona las reservas.
+- RF-016: El usuario modifica los datos de su perfil.
+- RF-017: El cliente reserva citas para un menor de 14 años a su cargo.
+- RF-018: El usuario recupera su contraseña.
+- RF-019: El empleado consulta los servicios que tiene asignados.
+
+## 8. Requisitos no funcionales
+
+- RNF-001: Contraseñas con hash seguro con sal, nunca en texto plano ni cifradas de forma reversible.
+- RNF-002: Control de permisos de clientes, empleados y administradores.
+- RNF-003: No se confirman dos reservas incompatibles para un mismo profesional, incluso cuando dos clientes reserven al mismo tiempo.
+- RNF-004: HTTPS entre clientes y backend en el entorno desplegado.
+- RNF-005: Pruebas que verifiquen las funcionalidades principales.
+- RNF-006: Código modular, fácil de mantener y ampliar.
+- RNF-007: Cumplimiento del RGPD y la LOPDGDD: consentimiento en el registro, consulta y eliminación de datos personales, y datos de menores según RN-006 y RN-007.
+- RNF-008: La web es responsive y usable desde el móvil.
+
+## 9. Reglas de negocio
+
+| Código | Regla               | Descripción |
+|--------|---------------------|-------------|
+| RN-001 | Duración            | Cada servicio tiene una duración determinada. |
+| RN-002 | Horarios            | Hay un horario general que el administrador ajusta por empleado. |
+| RN-003 | Confirmación        | La reserva se confirma automáticamente si hay disponibilidad. |
+| RN-004 | Cancelaciones       | El cliente puede cancelar hasta 24 horas antes. Pasado ese plazo, solo el administrador o el empleado pueden cancelarla. |
+| RN-005 | Cuentas de empleado | Solo el administrador las crea. El empleado recibe una contraseña temporal y la cambia en su primer inicio de sesión. |
+| RN-006 | Edad mínima         | Solo personas de 14 años o más pueden crear una cuenta de cliente (art. 7 LOPDGDD). Configurable. |
+| RN-007 | Menores de 14 años  | No tienen cuenta propia: un cliente adulto reserva por ellos y figura como responsable. |
+| RN-008 | Estados de cita     | Confirmada, Completada, Cancelada o No presentado. |
+| RN-009 | Antelación máxima   | Máximo 60 días de antelación (configurable). |
+| RN-010 | Intervalos          | Las citas empiezan en intervalos de 30 minutos (configurable). |
+| RN-011 | Duración múltiplo   | La duración de cada servicio es múltiplo del intervalo de reserva (RN-010). |
+
+## 10. Casos de uso
+
+IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
+**Obsoleto**. Cliente, Empleado y Administrador heredan del actor general
+**Usuario** (generalización), que reúne los casos comunes de cuenta.
+
+| ID     | Caso de uso                                        | Actor              | Requisito      |
+|--------|----------------------------------------------------|--------------------|----------------|
+| CU-001 | Registrarse                                        | Visitante          | RF-001         |
+| CU-002 | Iniciar sesión                                     | Usuario            | RF-002         |
+| CU-003 | Cerrar sesión                                      | Usuario            | RF-002         |
+| CU-004 | Modificar perfil                                   | Usuario            | RF-016         |
+| CU-005 | Consultar servicios y precios                      | Visitante, Cliente | RF-003         |
+| CU-006 | Consultar profesionales                            | Visitante, Cliente | RF-004         |
+| CU-007 | Consultar horarios disponibles                     | Visitante, Cliente | RF-005         |
+| CU-008 | Reservar cita                                      | Cliente            | RF-006, RF-007 |
+| CU-009 | Reservar cita para un menor a cargo                | Cliente            | RF-017, RN-007 |
+| CU-010 | Consultar próximas citas                           | Cliente            | RF-008         |
+| CU-011 | Consultar detalle de una cita                      | Cliente            | RF-008         |
+| CU-012 | Cancelar cita                                      | Cliente            | RF-009, RN-004 |
+| CU-013 | Consultar agenda                                   | Empleado           | RF-010         |
+| CU-014 | Consultar citas asignadas                          | Empleado           | RF-010         |
+| CU-015 | Actualizar estado de una cita                      | Empleado           | RF-011, RN-008 |
+| CU-016 | Gestionar servicios y precios                      | Administrador      | RF-012         |
+| CU-017 | Gestionar empleados (cuentas y servicios asignados)| Administrador      | RF-013, RN-005 |
+| CU-018 | Configurar horarios                                | Administrador      | RF-014         |
+| CU-019 | Consultar y gestionar reservas                     | Administrador      | RF-015         |
+| CU-020 | Recuperar contraseña                               | Usuario            | RF-018         |
+| CU-021 | Consultar servicios asignados                      | Empleado           | RF-019         |
+
+## 11. Fuera del alcance inicial
+
+- Pagos online, aplicación iOS y varios establecimientos.
+- Promociones avanzadas, mensajería externa y automatizaciones con n8n.
+- Notificaciones y recordatorios automáticos (solo se envía el correo de recuperación de contraseña).
+- Modificar una cita (en el MVP se cancela y se vuelve a reservar).
+- Bloqueo de horarios por parte del empleado.
+- Adaptación a citas médicas (datos de salud = categoría especial del RGPD).
+
+## 12. Temas pendientes de decidir
+
+- Jose hará más adelante una revisión más profunda del diagrama de clases (paso 2.4).
+
+## 13. Registro de decisiones
+
+| Fecha      | Decisión |
+|------------|----------|
+| 2026-10-24 | El proyecto avanza por fases sin saltarse ninguna y se anuncia la fase actual. |
+| 2026-10-24 | Solo el administrador crea cuentas de empleado. |
+| 2026-10-24 | Edad mínima de cuenta: 14 años; los menores de 14 reservan a través de un adulto. |
+| 2026-10-25 | Fase 1 revisada desde cero: Visitante, RF-018/019, RNF-007/008, RN-008 a RN-010. Fase 1 cerrada. |
+| 2026-10-25 | El producto pasa a llamarse GestionDeCitas y se diseña de forma genérica; la peluquería es el primer caso. |
+| 2026-10-25 | Paso 2.1 aprobado: casos de uso CU-001 a CU-021. |
+| 2026-10-25 | Paso 2.2 aprobado: diagramas de casos de uso en `docs/diagramas/`. |
+| 2026-10-25 | Paso 2.3, lote 1 aprobado: especificación de CU-001 a CU-004 y CU-020 (en Doc.docx). |
+| 2026-10-25 | Paso 2.3, lote 2 aprobado: CU-005 a CU-012. RN-010 pasa de 15 a 30 minutos. |
+| 2026-10-25 | Paso 2.3, lote 3 aprobado: CU-013 a CU-015 y CU-021. |
+| 2026-10-25 | Paso 2.3 cerrado (lote 4: CU-016 a CU-019). Nueva RN-011: duración múltiplo del intervalo. |
+| 2026-10-25 | Paso 2.4 aprobado: diagrama de clases (modelo de dominio). |
+| 2026-10-25 | Paso 2.5 aprobado: secuencias Reservar/Cancelar, actividad Disponibilidad y estados de la cita. |
+| 2026-10-25 | Paso 2.6 aprobado: base de datos. FASE 2 cerrada; empieza la FASE 3 (Arquitectura). |
+| 2026-10-25 | Paso 3.1 aprobado: stack tecnológico; frontend React + TypeScript (Vite). |
+| 2026-10-26 | Paso 3.2 aprobado: arquitectura del backend. Plan de un hilo por fase/bloque a partir de la fase 4. |
+| 2026-10-26 | Paso 3.3 aprobado: diseño de la API REST. |
+| 2026-10-26 | Paso 3.4 aprobado: seguridad. Nueva tabla refresh_token; nuevos endpoints /auth/refresh y /me/datos. |
+| 2026-10-26 | Paso 3.5 aprobado: monorepo `gestion-de-citas` en GitHub, ramas feature/* con PR, Conventional Commits y CI con GitHub Actions. FASE 3 cerrada; empieza la FASE 4 (Desarrollo). |
+| 2026-10-27 | Entorno instalado en el PC de Jose. Node.js 24 LTS en lugar de 22 (la 22 pasó a mantenimiento). |
+| 2026-10-28 | Repositorio creado en GitHub; la documentación pasa a `docs/`. |

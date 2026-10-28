@@ -1,0 +1,20 @@
+flowchart TB
+    subgraph Clientes
+        WEB[Web React]
+        AND[App Android - futura]
+    end
+    subgraph Backend["Backend Spring Boot"]
+        direction TB
+        C["Controller (capa web)<br/>Recibe HTTP, valida DTOs, devuelve JSON"]
+        S["Service (capa de negocio)<br/>Reglas RN, transacciones, permisos"]
+        R["Repository (capa de datos)<br/>Spring Data JPA"]
+        E["Entidades JPA (modelo de dominio)"]
+        X["Transversal: seguridad, manejo de errores,<br/>configuración, Clock"]
+        C --> S --> R --> E
+        X -.-> C
+        X -.-> S
+    end
+    DB[(PostgreSQL)]
+    WEB -- "HTTPS + JSON" --> C
+    AND -- "HTTPS + JSON" --> C
+    R --> DB

@@ -1,0 +1,32 @@
+# Secretos
+.env
+.env.*
+!.env.example
+
+# Java / Maven
+target/
+*.class
+*.log
+.mvn/wrapper/maven-wrapper.jar
+
+# Node / Vite
+node_modules/
+dist/
+coverage/
+*.local
+
+# IDE
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos temporales de Office y draw.io
+~$*
+~WRL*.tmp
+*.bkp

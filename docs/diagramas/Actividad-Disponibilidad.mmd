@@ -1,0 +1,26 @@
+flowchart TD
+    A([Inicio]) --> B[/Recibir servicio, profesional y fecha/]
+    B --> C{¿Fecha pasada o a más<br/>de 60 días?}
+    C -- Sí --> X1[Rechazar la fecha] --> Z([Fin])
+    C -- No --> D{¿Profesional y servicio activos<br/>y el profesional lo realiza?}
+    D -- No --> X2[Informar del error] --> Z
+    D -- Sí --> E{¿Día de cierre del negocio<br/>o del profesional?}
+    E -- Sí --> V
+    E -- No --> F{¿El profesional tiene ajuste<br/>de horario ese día?}
+    F -- Sí --> G1[Usar sus tramos]
+    F -- No --> G2[Usar el horario general]
+    G1 --> H[Generar horas de inicio cada 30 min<br/>dentro de cada tramo]
+    G2 --> H
+    H --> I[Tomar la siguiente hora de inicio]
+    I --> J{¿Inicio + duración<br/>cabe en el tramo?}
+    J -- No --> N
+    J -- Sí --> K{¿Se solapa con una<br/>cita Confirmada?}
+    K -- Sí --> N
+    K -- No --> L{¿La hora ya<br/>ha pasado?}
+    L -- Sí --> N
+    L -- No --> M[Añadir a horas disponibles]
+    M --> N{¿Quedan horas<br/>por revisar?}
+    N -- Sí --> I
+    N -- No --> V{¿Hay horas<br/>disponibles?}
+    V -- No --> W[Informar y sugerir el<br/>siguiente día con huecos] --> Z
+    V -- Sí --> Y[Mostrar las horas disponibles] --> Z

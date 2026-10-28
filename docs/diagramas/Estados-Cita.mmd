@@ -1,0 +1,10 @@
+stateDiagram-v2
+    direction LR
+    [*] --> Confirmada: Reservar (cliente o administrador)
+    Confirmada --> Completada: Empleado o admin,<br/>desde la hora de inicio
+    Confirmada --> NoPresentado: Empleado o admin,<br/>desde la hora de inicio
+    Confirmada --> Cancelada: Cliente (24 h o más antes)<br/>o empleado/admin (siempre, con motivo)
+    Completada --> [*]
+    NoPresentado --> [*]
+    Cancelada --> [*]
+    NoPresentado: No presentado

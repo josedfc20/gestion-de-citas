@@ -1,0 +1,27 @@
+sequenceDiagram
+    autonumber
+    actor C as Cliente
+    participant W as Interfaz web
+    participant S as Sistema (backend)
+    participant BD as Base de datos
+    C->>W: Elige servicio, profesional y fecha
+    W->>S: consultarDisponibilidad(servicio, profesional, fecha)
+    S->>BD: Obtener horario, días de cierre y citas confirmadas
+    BD-->>S: Datos del día
+    S->>S: Calcular huecos (intervalo 30 min y duración del servicio)
+    S-->>W: Horas disponibles
+    W-->>C: Muestra las horas
+    C->>W: Elige hora, beneficiario (opcional) y confirma
+    W->>S: reservar(servicio, profesional, inicio, beneficiario)
+    S->>S: Validar sesión y reglas (antelación máx. 60 días, menor de 14)
+    S->>BD: En una transacción: comprobar solape y guardar la cita
+    alt El hueco sigue libre
+        BD-->>S: Cita guardada (CONFIRMADA)
+        S->>BD: Guardar CambioEstadoCita (→ CONFIRMADA)
+        S-->>W: Confirmación de la reserva
+        W-->>C: "Cita confirmada"
+    else Otro cliente reservó antes (RNF-003)
+        BD-->>S: Conflicto: hueco ocupado
+        S-->>W: Error y otras horas disponibles
+        W-->>C: "Esa hora ya no está disponible"
+    end

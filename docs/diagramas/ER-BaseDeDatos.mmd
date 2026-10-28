@@ -1,0 +1,118 @@
+erDiagram
+    negocio ||--o{ tramo_horario : "horario general"
+    negocio ||--o{ dia_cierre : "cierres"
+    usuario ||--o| cliente : "es"
+    usuario ||--o| empleado : "es"
+    usuario ||--o{ token_recuperacion : "tiene"
+    usuario ||--o{ refresh_token : "sesiones"
+    cliente ||--o{ beneficiario : "responsable de"
+    cliente ||--o{ cita : "reserva"
+    empleado ||--o{ cita : "atiende"
+    servicio ||--o{ cita : "de"
+    beneficiario |o--o{ cita : "para"
+    empleado ||--o{ empleado_servicio : ""
+    servicio ||--o{ empleado_servicio : ""
+    empleado |o--o{ tramo_horario : "ajuste"
+    empleado |o--o{ dia_cierre : "vacaciones"
+    cita ||--o{ cambio_estado_cita : "historial"
+    usuario ||--o{ cambio_estado_cita : "realizado por"
+
+    negocio {
+        bigint id PK
+        varchar nombre
+        varchar zona_horaria
+        int intervalo_minutos
+        int antelacion_max_dias
+        int horas_min_cancelacion
+        int edad_minima_cuenta
+    }
+    usuario {
+        bigint id PK
+        varchar rol "CLIENTE, EMPLEADO, ADMIN"
+        varchar nombre
+        varchar apellidos
+        varchar email UK
+        varchar telefono
+        varchar password_hash
+        boolean activo
+        timestamptz creado_en
+    }
+    cliente {
+        bigint usuario_id PK, FK
+        date fecha_nacimiento
+        timestamptz privacidad_aceptada_en
+    }
+    empleado {
+        bigint usuario_id PK, FK
+        boolean debe_cambiar_password
+    }
+    token_recuperacion {
+        bigint id PK
+        bigint usuario_id FK
+        varchar token_hash UK
+        timestamptz expira_en
+        boolean usado
+    }
+    refresh_token {
+        bigint id PK
+        bigint usuario_id FK
+        varchar token_hash UK
+        timestamptz expira_en
+        boolean revocado
+        timestamptz creado_en
+    }
+    beneficiario {
+        bigint id PK
+        bigint cliente_id FK
+        varchar nombre
+        varchar apellidos
+        date fecha_nacimiento
+    }
+    servicio {
+        bigint id PK
+        varchar nombre UK
+        text descripcion
+        int duracion_minutos
+        numeric precio
+        boolean activo
+    }
+    empleado_servicio {
+        bigint empleado_id PK, FK
+        bigint servicio_id PK, FK
+    }
+    tramo_horario {
+        bigint id PK
+        bigint negocio_id FK
+        bigint empleado_id FK "NULL = horario general"
+        smallint dia_semana "1 lunes ... 7 domingo"
+        time hora_inicio
+        time hora_fin
+    }
+    dia_cierre {
+        bigint id PK
+        bigint negocio_id FK
+        bigint empleado_id FK "NULL = todo el negocio"
+        date fecha
+        varchar motivo
+    }
+    cita {
+        bigint id PK
+        bigint cliente_id FK
+        bigint empleado_id FK
+        bigint servicio_id FK
+        bigint beneficiario_id FK "NULL = para el cliente"
+        timestamptz inicio
+        timestamptz fin
+        numeric precio
+        varchar estado
+        varchar motivo_cancelacion
+        timestamptz creada_en
+    }
+    cambio_estado_cita {
+        bigint id PK
+        bigint cita_id FK
+        varchar estado_anterior "NULL al crear"
+        varchar estado_nuevo
+        timestamptz fecha
+        bigint realizado_por FK
+    }

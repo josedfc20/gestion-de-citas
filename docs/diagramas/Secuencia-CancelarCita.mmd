@@ -1,0 +1,31 @@
+sequenceDiagram
+    autonumber
+    actor C as Cliente
+    participant W as Interfaz web
+    participant S as Sistema (backend)
+    participant BD as Base de datos
+    C->>W: Abre "Mis citas" y selecciona una cita
+    W->>S: obtenerDetalle(idCita)
+    S->>BD: Buscar la cita
+    BD-->>S: Datos de la cita
+    S->>S: Comprobar que la cita es del cliente (o de un menor a su cargo)
+    S-->>W: Detalle y si puede cancelar (Confirmada y faltan 24 h o más)
+    W-->>C: Muestra el detalle con el botón "Cancelar"
+    C->>W: Pulsa "Cancelar"
+    W-->>C: "¿Seguro que quieres cancelar esta cita?"
+    C->>W: Confirma
+    W->>S: cancelarCita(idCita)
+    S->>BD: Leer la cita actual
+    BD-->>S: Estado y hora de inicio
+    alt Confirmada y faltan 24 h o más (RN-004)
+        S->>BD: En una transacción: estado → CANCELADA y guardar CambioEstadoCita
+        BD-->>S: Cambios guardados (el hueco queda libre)
+        S-->>W: Cancelación correcta
+        W-->>C: "Cita cancelada"
+    else Faltan menos de 24 h
+        S-->>W: Error: fuera de plazo
+        W-->>C: "Ya no puedes cancelar online. Contacta con el negocio."
+    else La cita ya no está Confirmada
+        S-->>W: Error: estado no válido
+        W-->>C: "Esta cita ya no se puede cancelar"
+    end

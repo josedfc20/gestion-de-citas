@@ -1,0 +1,15 @@
+# Normaliza los saltos de línea en el repositorio
+* text=auto
+
+# Scripts de Unix siempre con LF (los usa la CI en Linux)
+*.sh   text eol=lf
+mvnw   text eol=lf
+
+# Scripts de Windows siempre con CRLF
+*.cmd  text eol=crlf
+*.bat  text eol=crlf
+
+# Binarios
+*.docx binary
+*.png  binary
+*.jar  binary
