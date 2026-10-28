@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -124,6 +125,18 @@ public final class ApiDePrueba {
                 .andExpect(status().isCreated())
                 .andReturn();
         return leer(resultado).get("id").asLong();
+    }
+
+    /** Da de alta un empleado activo con esos servicios y devuelve su id. */
+    public long crearEmpleadoConServicios(String bearerAdmin, List<Long> servicioIds) throws Exception {
+        MvcResult resultado = mockMvc.perform(post("/api/v1/admin/empleados")
+                        .header(HttpHeaders.AUTHORIZATION, bearerAdmin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(aJson(Map.of("nombre", "Luis", "apellidos", "García", "email", emailNuevo(),
+                                "servicioIds", servicioIds))))
+                .andExpect(status().isCreated())
+                .andReturn();
+        return leer(resultado).get("empleado").get("id").asLong();
     }
 
     public static String nombreUnico(String base) {
