@@ -7,7 +7,7 @@ spring:
     # Lee ../.env al arrancar desde backend/ (o .env desde la raíz) si existe.
     import: "optional:file:../.env[.properties],optional:file:.env[.properties]"
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/gestion_de_citas}
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/gestion_de_citas}
     username: ${POSTGRES_USER:gestion_de_citas}
     password: ${POSTGRES_PASSWORD:}
   jpa:

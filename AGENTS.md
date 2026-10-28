@@ -69,7 +69,7 @@ avanza a la siguiente.
   - [x] 3.5 Estructura del repositorio y entorno (`docs/propuestas/3.5-repositorio-y-entorno.md`)
 - [ ] FASE 4: Desarrollo (plan en `docs/propuestas/4.0-plan-de-bloques.md`)
   - [x] 4.0 Plan de bloques: backend primero (B1 a B6) y web después (B7 a B9)
-  - [ ] B1 · Esqueleto: Spring Boot, docker-compose, Flyway V1/V2, CI (`feature/esqueleto-backend`, `docs/propuestas/4.1-B1-esqueleto-backend.md`)
+  - [x] B1 · Esqueleto: Spring Boot, docker-compose, Flyway V1/V2, CI (`feature/esqueleto-backend`, `docs/propuestas/4.1-B1-esqueleto-backend.md`)
   - [ ] B2 · Autenticación (`feature/autenticacion`)
   - [ ] B3 · Cuenta y RGPD (`feature/recuperar-password-rgpd`)
   - [ ] B4 · Catálogo y empleados (`feature/catalogo-empleados`)
@@ -274,3 +274,4 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 | 2026-10-28 | Spring Boot 4.1 en lugar de 3.x (la 3.5 está al final de su soporte gratuito). |
 | 2026-10-28 | Datos iniciales: V2 solo con el registro de `negocio`; primer administrador desde `ADMIN_EMAIL`/`ADMIN_PASSWORD` al arrancar (B2); datos de demo en el perfil `demo`. |
 | 2026-10-28 | B1 aprobado: esqueleto del backend en `feature/esqueleto-backend`. |
+| 2026-10-28 | B1 fusionado (PR #1). PostgreSQL de Docker en el puerto 5433 del PC para convivir con el PostgreSQL de Odoo de Jose. |
