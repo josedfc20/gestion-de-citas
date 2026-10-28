@@ -53,7 +53,7 @@ Requisitos: JDK 21, Docker Desktop y Git.
 
 ```bash
 cp .env.example .env                    # y cambia la contraseña
-docker compose up -d                    # PostgreSQL 16 en el puerto 5432
+docker compose up -d                    # PostgreSQL 16 en el puerto 5433
 cd backend && ./mvnw spring-boot:run    # API en http://localhost:8080
 ```
 

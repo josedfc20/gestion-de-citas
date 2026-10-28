@@ -112,7 +112,7 @@ docker exec -it gestion-de-citas-db psql -U gestion_de_citas -d gestion_de_citas
 Debe listar `cita`, `cliente`, `empleado`, `negocio`, `refresh_token`,
 `servicio`… y `flyway_schema_history` (el historial de migraciones).
 
-Con **DBeaver**: Nueva conexión → PostgreSQL → Host `localhost`, Puerto `5432`,
+Con **DBeaver**: Nueva conexión → PostgreSQL → Host `localhost`, Puerto `5433`,
 Base de datos `gestion_de_citas`, Usuario `gestion_de_citas` y la contraseña
 de tu `.env`.
 
@@ -171,10 +171,11 @@ La base de datos de Docker tiene que estar arrancada (paso 4) igual que antes.
 | Mensaje | Causa y solución |
 |---|---|
 | `JAVA_HOME not found` o `JAVA_HOME is set to an invalid directory` | `JAVA_HOME` no apunta al JDK 21. Repasa el paso 2 de `instalacion-entorno.md` y abre una terminal nueva. |
-| `Connection to localhost:5432 refused` | La base de datos no está arrancada: abre Docker Desktop y ejecuta `docker compose up -d` desde la raíz. |
+| `Connection to localhost:5433 refused` | La base de datos no está arrancada: abre Docker Desktop y ejecuta `docker compose up -d` desde la raíz. |
 | `password authentication failed for user "gestion_de_citas"` | Cambiaste la contraseña del `.env` después de crear la base de datos (PostgreSQL solo la lee la primera vez). Ejecuta `docker compose down -v` y `docker compose up -d` (borra los datos). |
 | `Port 8080 was already in use` | Ya tienes el backend abierto en otra ventana o IntelliJ. Ciérralo, o pulsa Ctrl+C en esa ventana. |
-| `Bind for 0.0.0.0:5432 failed: port is already allocated` | Tienes otro PostgreSQL instalado en Windows usando el puerto 5432. Páralo desde "Servicios" de Windows, o avísame y cambiamos el puerto. |
+| `Bind for 0.0.0.0:5433 failed: port is already allocated` | Otro programa usa el puerto 5433. Avísame y elegimos otro. |
+| `la autentificación password falló` (mensaje en español) | El backend está hablando con **otro** PostgreSQL instalado en Windows, no con el de Docker. Comprueba que tu `.env` tiene `DB_URL=jdbc:postgresql://localhost:5433/gestion_de_citas` (puerto 5433, como `.env.example`). |
 | `Could not find a valid Docker environment` (al ejecutar las pruebas) | Docker Desktop no está abierto o no dice "Engine running". |
 | `.\mvnw.cmd` no se reconoce | No estás dentro de la carpeta `backend`. Ejecuta `cd backend`. |
 | Error de SSL al descargar Maven o librerías | Mándame el mensaje completo; puede ser el mismo bloqueo de OpenSSL de la sección 1 de `instalacion-entorno.md`. |
