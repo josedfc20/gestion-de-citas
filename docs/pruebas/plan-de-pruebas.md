@@ -136,8 +136,13 @@ El paso 5d añade, en la misma carpeta:
 
 ## 7. Defectos encontrados
 
-| Fecha | Defecto | Causa | Arreglo |
-|---|---|---|---|
-| 31/10/2026 | La prueba web "desactiva un servicio tras confirmarlo" fallaba de forma intermitente (3 de 9 ejecuciones) | Defecto de la prueba, no de la web: tras desactivar, la página vuelve a pedir el servicio (`invalidarServicios`) y el servidor simulado lo devolvía todavía activo. Si esa respuesta llegaba antes de que la prueba buscase el título, la página volvía a "Desactivar el servicio" | El servidor simulado recuerda el cambio, como haría el backend (5a) |
-| 31/10/2026 | En el móvil, los enlaces del menú medían 40 px de alto, por debajo de los 44 px recomendados para tocar con el dedo (lo encontró `movil.spec.ts`) | `.enlace` de `Marco.module.css` solo tenía el relleno; los botones ya tenían `min-height` | `min-height: 2.75rem` en los enlaces del menú, como los botones (5d) |
-| 31/10/2026 | axe (`label-content-name-mismatch`, grave): el nombre que oye un lector de pantalla no contenía el texto visible en "Ver ficha" (lista de empleados) y "Añadir tramo" (editor de horarios). Quien usa el control por voz diciendo lo que ve no podía pulsarlos (WCAG 2.5.3) | Los `aria-label` decían "Ver la ficha de…" y "Añadir un tramo al…" | `aria-label` "Ver ficha de…" y "Añadir tramo al…" (5d) |
+Cada defecto tiene su ficha en **`registro-de-defectos.md`**: qué se vio, la
+causa, la solución, el PR, la prueba que lo vigila y lo aprendido. Ese
+documento explica también cómo se apunta y se arregla un defecto nuevo.
+
+| Nº | Defecto | Paso |
+|---|---|---|
+| D-1 | Prueba web "desactiva un servicio tras confirmarlo" intermitente | 5a |
+| D-2 | Enlaces del menú del móvil de 40 px | 5d |
+| D-3 | Dos `aria-label` sin el texto visible | 5d |
+| D-4 | Pruebas de punta a punta que rellenaban el campo de la página anterior (intermitentes en la CI) | 5e |
