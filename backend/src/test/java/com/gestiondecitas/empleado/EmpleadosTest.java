@@ -152,6 +152,43 @@ class EmpleadosTest {
     }
 
     @Test
+    void alEditarNoSePuedeUsarElCorreoDeOtraCuenta() throws Exception {
+        String emailCliente = ApiDePrueba.emailNuevo();
+        api.registrar(emailCliente);
+        String propio = ApiDePrueba.emailNuevo();
+        long id = idDe(alta("Eva", "Martín", propio, List.of()));
+
+        enviarAdmin(put("/api/v1/admin/empleados/" + id),
+                Map.of("nombre", "Eva", "apellidos", "Martín", "email", emailCliente.toUpperCase()))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.detail").value("Ese correo ya lo usa otra cuenta."));
+        // Su propio correo, aunque cambien las mayúsculas, sí vale.
+        enviarAdmin(put("/api/v1/admin/empleados/" + id),
+                Map.of("nombre", "Eva", "apellidos", "Martín", "email", propio.toUpperCase()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value(propio));
+    }
+
+    @Test
+    void losAvisosYLosConflictosCuentanLasCitasEnSingularYEnPlural() throws Exception {
+        long corte = api.crearServicio(admin, ApiDePrueba.nombreUnico("Corte"), 30, "15.00");
+        long cliente = clienteNuevo();
+        long conDos = idDe(alta("Raúl", "Gil", ApiDePrueba.emailNuevo(), List.of(corte)));
+        ApiDePrueba.crearCita(jdbc, cliente, conDos, corte, Instant.now().plus(Duration.ofDays(3)));
+        ApiDePrueba.crearCita(jdbc, cliente, conDos, corte, Instant.now().plus(Duration.ofDays(4)));
+        long conUna = idDe(alta("Pablo", "Ríos", ApiDePrueba.emailNuevo(), List.of(corte)));
+        ApiDePrueba.crearCita(jdbc, cliente, conUna, corte, Instant.now().plus(Duration.ofDays(3)));
+
+        enviarAdmin(put("/api/v1/admin/empleados/" + conDos + "/servicios"), Map.of("servicioIds", List.of()))
+                .andExpect(jsonPath("$.avisos[0]").value(org.hamcrest.Matchers.startsWith("Tiene 2 citas futuras de «")));
+        enviarAdmin(patch("/api/v1/admin/empleados/" + conUna + "/activo"), Map.of("activo", false))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.citasFuturas").value(1))
+                .andExpect(jsonPath("$.detail").value(
+                        "Tiene 1 cita futura. Cancélalas o reasígnalas antes de desactivarlo."));
+    }
+
+    @Test
     void unServicioDesactivadoYaAsignadoPuedeSeguirEnLaLista() throws Exception {
         long corte = api.crearServicio(admin, ApiDePrueba.nombreUnico("Corte"), 30, "15.00");
         long id = idDe(alta("Iris", "Paz", ApiDePrueba.emailNuevo(), List.of(corte)));

@@ -117,6 +117,40 @@ class ServiciosTest {
     }
 
     @Test
+    void alEditarNoSePuedeUsarElNombreDeOtroServicio() throws Exception {
+        String ocupado = ApiDePrueba.nombreUnico("Manicura");
+        api.crearServicio(admin, ocupado, 30, "10.00");
+        String propio = ApiDePrueba.nombreUnico("Pedicura");
+        long id = api.crearServicio(admin, propio, 30, "12.00");
+
+        enviar(put("/api/v1/admin/servicios/" + id), datos(ocupado.toUpperCase(), 30, "12.00"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.detail").value("Ya existe un servicio con ese nombre."));
+        // Su propio nombre sí vale (por ejemplo, para cambiar solo el precio).
+        enviar(put("/api/v1/admin/servicios/" + id), datos(propio, 30, "14.00"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.precio").value(14.00));
+    }
+
+    @Test
+    void elAdminVeLaFichaDeUnServicioAunqueEsteDesactivado() throws Exception {
+        String nombre = ApiDePrueba.nombreUnico("Alisado");
+        long id = api.crearServicio(admin, nombre, 90, "60.00");
+        enviar(patch("/api/v1/admin/servicios/" + id + "/activo"), Map.of("activo", false))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/admin/servicios/" + id).header(HttpHeaders.AUTHORIZATION, admin))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.nombre").value(nombre))
+                .andExpect(jsonPath("$.duracionMinutos").value(90))
+                .andExpect(jsonPath("$.activo").value(false))
+                .andExpect(jsonPath("$.empleados").value(0));
+        mockMvc.perform(get("/api/v1/admin/servicios/999999").header(HttpHeaders.AUTHORIZATION, admin))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void desactivarLoOcultaDelPublicoPeroNoDelAdmin() throws Exception {
         String nombre = ApiDePrueba.nombreUnico("Barba");
         long id = api.crearServicio(admin, nombre, 30, "8.00");

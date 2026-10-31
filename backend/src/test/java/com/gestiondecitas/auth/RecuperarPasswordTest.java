@@ -161,6 +161,22 @@ class RecuperarPasswordTest {
     }
 
     @Test
+    void siDesactivanLaCuentaDespuesDePedirloElEnlaceYaNoSirve() throws Exception {
+        String email = ApiDePrueba.emailNuevo();
+        api.registrar(email);
+        solicitar(email);
+        String token = correos.ultimoToken(email);
+        // Por ejemplo, el admin desactiva a un empleado que acababa de pedir el enlace.
+        jdbc.update("UPDATE usuario SET activo = FALSE WHERE email = ?", email);
+
+        restablecer(token, NUEVA, NUEVA)
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(jsonPath("$.detail").value("El enlace no es válido o ha caducado. Solicita uno nuevo."));
+        String hash = jdbc.queryForObject("SELECT password_hash FROM usuario WHERE email = ?", String.class, email);
+        assertThat(passwordEncoder.matches(NUEVA, hash)).isFalse();
+    }
+
+    @Test
     void unTokenInventadoNoSirve() throws Exception {
         restablecer(TokenAleatorio.generar(), NUEVA, NUEVA).andExpect(status().isUnprocessableContent());
     }

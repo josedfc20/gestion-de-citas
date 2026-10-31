@@ -74,6 +74,21 @@ class PerfilYPasswordTest {
     }
 
     @Test
+    void elTelefonoSeGuardaSinEspaciosAlrededorYEnBlancoQuedaVacio() throws Exception {
+        var sesion = api.clienteConSesion();
+        String email = ApiDePrueba.emailNuevo();
+
+        actualizarPerfil(sesion, Map.of("nombre", "Ana", "apellidos", "García", "email", email,
+                "telefono", " 600 111 222 "))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.telefono").value("600 111 222"));
+        actualizarPerfil(sesion, Map.of("nombre", "Ana", "apellidos", "García", "email", email,
+                "telefono", "       "))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.telefono").doesNotExist());
+    }
+
+    @Test
     void noPuedeUsarElCorreoDeOtraCuenta() throws Exception {
         String ajeno = ApiDePrueba.emailNuevo();
         api.registrar(ajeno);
@@ -140,10 +155,15 @@ class PerfilYPasswordTest {
 
     private org.springframework.test.web.servlet.ResultActions actualizarPerfil(ApiDePrueba.Sesion sesion,
             String email) throws Exception {
+        return actualizarPerfil(sesion, Map.of("nombre", "Ana María", "apellidos", "García", "email", email));
+    }
+
+    private org.springframework.test.web.servlet.ResultActions actualizarPerfil(ApiDePrueba.Sesion sesion,
+            Map<String, Object> datos) throws Exception {
         return mockMvc.perform(put("/api/v1/me")
                 .header(HttpHeaders.AUTHORIZATION, sesion.bearer())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(api.aJson(Map.of("nombre", "Ana María", "apellidos", "García", "email", email))));
+                .content(api.aJson(datos)));
     }
 
     private org.springframework.test.web.servlet.ResultActions cambiarPassword(String bearer, String actual,

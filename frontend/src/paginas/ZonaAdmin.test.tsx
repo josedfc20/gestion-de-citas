@@ -2,7 +2,7 @@ import { screen, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
 
-import type { DatosReservaAdmin } from '../api/tipos'
+import type { DatosCambioEstado, DatosReservaAdmin } from '../api/tipos'
 import { administrador, citaAsignada, empleado, martaEncontrada, paginaDe, problema, sesionDe } from '../pruebas/datos'
 import { renderizarApp } from '../pruebas/renderizar'
 import { API, servidor } from '../pruebas/servidor'
@@ -96,6 +96,42 @@ describe('reservas (CU-019)', () => {
     const historial = screen.getByRole('region', { name: 'Historial' })
     expect(within(historial).getByText('Viernes, 30 de octubre a las 18:00 · Reservada (confirmada) · por el cliente')).toBeInTheDocument()
     expect(within(historial).getByText('Lunes, 2 de noviembre a las 09:15 · Confirmada → Cancelada · por Luis G.')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Cancelar cita' })).not.toBeInTheDocument()
+  })
+})
+
+describe('gestionar una reserva (CU-019, H-4)', () => {
+  it('el admin cancela con motivo desde el detalle y el historial dice que fue él', async () => {
+    conSesion()
+    const reservada = { estadoAnterior: null, estadoNuevo: 'CONFIRMADA' as const, fecha: '2026-10-30T18:00:00+01:00', realizadoPor: 5, realizadoPorNombre: 'Cliente' }
+    const cita = citaAsignada({
+      cliente: { id: 5, nombre: 'Marta', apellidos: 'Pérez Gil', telefono: '600 000 000', email: 'marta@ejemplo.es' },
+      cambios: [reservada],
+    })
+    let recibido: DatosCambioEstado | undefined
+    servidor.use(
+      http.get(`${API}/citas/40`, () => HttpResponse.json(cita)),
+      http.patch(`${API}/citas/40/estado`, async ({ request }) => {
+        recibido = (await request.json()) as DatosCambioEstado
+        return HttpResponse.json({
+          ...cita,
+          estado: 'CANCELADA',
+          motivoCancelacion: recibido.motivo,
+          puedeCancelar: false,
+          cambios: [reservada, { estadoAnterior: 'CONFIRMADA', estadoNuevo: 'CANCELADA', fecha: '2026-11-02T09:15:00+01:00', realizadoPor: 1, realizadoPorNombre: 'Administrador' }],
+        })
+      }),
+    )
+    const { usuario } = renderizarApp('/admin/reservas/40')
+
+    await usuario.click(await screen.findByRole('button', { name: 'Cancelar cita' }))
+    await usuario.type(screen.getByLabelText('Motivo'), 'El cliente llamó por teléfono')
+    await usuario.click(screen.getByRole('button', { name: 'Sí, cancelar' }))
+
+    expect(await screen.findByText('Cita cancelada.')).toBeInTheDocument()
+    expect(recibido).toEqual({ estado: 'CANCELADA', motivo: 'El cliente llamó por teléfono' })
+    const historial = screen.getByRole('region', { name: 'Historial' })
+    expect(within(historial).getByText('Lunes, 2 de noviembre a las 09:15 · Confirmada → Cancelada · por Administrador')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Cancelar cita' })).not.toBeInTheDocument()
   })
 })

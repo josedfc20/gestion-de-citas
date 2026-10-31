@@ -1,6 +1,6 @@
 # Matriz de trazabilidad
 
-> Fase 5, paso 5a (31/10/2026). Relaciona cada caso de uso, regla de negocio
+> Fase 5, paso 5a (31/10/2026); actualizada en el 5b. Relaciona cada caso de uso, regla de negocio
 > y requisito no funcional con las pruebas que lo cubren. Se actualiza en cada
 > PR que añade pruebas.
 >
@@ -30,10 +30,10 @@
 | CU-013 | Consultar agenda | `AgendaEmpleadoTest` | `ZonaEmpleado.test` › agenda | 5c | ✅ |
 | CU-014 | Consultar citas asignadas | `AgendaEmpleadoTest` (laListaDeCitasFiltra…) | `ZonaEmpleado.test` › citas asignadas | 5c | ✅ |
 | CU-015 | Actualizar estado de una cita | `EstadosCitaTest`, `CitaTest` | `ZonaEmpleado.test` › detalle y cambio de estado | 5c (solo cancelar) | ✅ |
-| CU-016 | Gestionar servicios y precios | `ServiciosTest`, `DuracionServicioTest` | `ZonaAdminGestion.test` › servicios | 5c | 🟡 H-1 |
-| CU-017 | Gestionar empleados | `EmpleadosTest`, `PasswordTemporalTest` | `ZonaAdminGestion.test` › empleados | 5c | 🟡 H-2 |
-| CU-018 | Configurar horarios | `HorariosTest`, `HorarioSemanalTest`, `DiasCierreTest` | `ZonaAdminGestion.test` › horarios, días de cierre | 5c | 🟡 H-3 |
-| CU-019 | Consultar y gestionar reservas | `AdminCitasTest`, `EstadosCitaTest` (elAdminCancela…) | `ZonaAdmin.test` › reservas, reservar por un cliente | 5c | 🟡 H-4 |
+| CU-016 | Gestionar servicios y precios | `ServiciosTest`, `DuracionServicioTest` | `ZonaAdminGestion.test` › servicios, servicios: volver a activar | 5c | ✅ |
+| CU-017 | Gestionar empleados | `EmpleadosTest`, `PasswordTemporalTest` | `ZonaAdminGestion.test` › empleados, empleados: datos y reactivar | 5c | ✅ |
+| CU-018 | Configurar horarios | `HorariosTest`, `HorarioSemanalTest`, `DiasCierreTest` | `ZonaAdminGestion.test` › horarios, días de cierre, días de cierre pasados | 5c | ✅ |
+| CU-019 | Consultar y gestionar reservas | `AdminCitasTest`, `EstadosCitaTest` (elAdminCancela…) | `ZonaAdmin.test` › reservas, gestionar una reserva, reservar por un cliente | 5c | ✅ |
 | CU-020 | Recuperar contraseña | `RecuperarPasswordTest`, `EnlaceRecuperacionTest`, `LimiteSolicitudesRecuperacionTest` | `Cuenta.test` › recuperar la contraseña | 5c | ✅ |
 | CU-021 | Consultar servicios asignados | `EmpleadosTest` (soloElAdminGestionaEmpleadosYSoloElEmpleadoVeSusServicios) | `ZonaEmpleado.test` › mis servicios | 5c | ✅ |
 | — | Configuración del negocio | `NegocioTest` | `ZonaAdminGestion.test` › configuración del negocio, `ZonaPublica.test` (GET /negocio) | — | ✅ |
@@ -59,26 +59,32 @@
 | RNF | Requisito | Pruebas | Estado |
 |---|---|---|---|
 | RNF-001 | Contraseñas con hash seguro | `RegistroTest` (…ConLaContrasenaEnBcrypt), `AdministradorInicialTest`, `SesionTest` (enLaBaseDeDatosSoloSeGuardaElHash…), `DatosPersonalesTest` (…SinHashes), `EnlaceRecuperacionTest` (elTokenNoApareceEnElLog) | ✅ |
-| RNF-002 | Permisos por rol | `SeguridadTest` y una prueba "solo…" en cada clase de integración (`soloElAdminGestionaServicios`, `soloLosEmpleadosTienenAgenda`…); web: `ZonaAdmin.test`, `ZonaEmpleado.test`, `ZonaCliente.test` (rutas por rol) | 🟡 H-5 |
+| RNF-002 | Permisos por rol | **`PermisosTest`**: los 54 endpoints con 5 perfiles (anónimo, cliente, empleado, empleado con contraseña temporal y admin) y la comprobación de que la tabla tiene todos los endpoints; `SeguridadTest` (tokens manipulados o caducados) y las pruebas "solo…" de cada clase (lo ajeno es 404). Web: **`Permisos.test`**, las 33 rutas con 5 perfiles y la comprobación de que la tabla tiene todas las rutas | ✅ |
 | RNF-003 | Sin reservas incompatibles, también a la vez | `ReservasTest` (dosReservasALaVezDelMismoHuecoSoloConfirmanUna, laRestriccionDeLaBaseDeDatos…), `RestriccionSolapeTest` | 🟡 H-6 |
 | RNF-004 | HTTPS en el entorno desplegado | — (fase 7) | — |
 | RNF-005 | Pruebas de las funcionalidades principales | Esta matriz, la cobertura en la CI y el informe de la fase 5 | 🟡 fase 5 |
-| RNF-006 | Código modular | Sin prueba automática de las reglas de arquitectura (capas, dependencias entre paquetes) | ❌ H-7 |
-| RNF-007 | RGPD y LOPDGDD | `RegistroTest` (sinAceptarLaPrivacidad…), `DatosPersonalesTest`, `BeneficiariosTest` (conCitasSeAnonimiza…); web: `Cuenta.test` | ✅ |
+| RNF-006 | Código modular | **`ArquitecturaTest`** (ArchUnit): los controllers no usan repositories ni devuelven entidades, `usuario` y `beneficiario` no dependen de `cita`, nadie lee la hora sin el `Clock` y `CalculoDisponibilidad` no depende de Spring | ✅ |
+| RNF-007 | RGPD y LOPDGDD | `RegistroTest` (sinAceptarLaPrivacidad…), `DatosPersonalesTest`, `BeneficiariosTest` (conCitasSeAnonimiza…), `CorreoRecuperacionListenerTest` (el token nunca va al log); web: `Cuenta.test` | ✅ |
 | RNF-008 | Web responsive y usable en el móvil | Ninguna automática (jsdom no tiene pantalla) | ❌ H-8 |
 
 ## 4. Huecos encontrados
 
-| Hueco | Qué falta | Dónde se cubre |
+| Hueco | Qué faltaba | Estado |
 |---|---|---|
-| H-1 | Web: volver a **activar** un servicio desactivado (el backend sí lo prueba). | 5b |
-| H-2 | Web: volver a **activar** un empleado y editar sus datos personales (el backend sí lo prueba). | 5b |
-| H-3 | Web: los días de cierre de los últimos 90 días ("ver anteriores") y quitar un día de cierre del negocio. | 5b |
-| H-4 | Web: el admin **cambia el estado** de una reserva desde su detalle (solo se prueba en la zona del empleado, que comparte `<CambioEstado>`). | 5b |
-| H-5 | Una **matriz de permisos** que recorra todos los endpoints con los cuatro perfiles (anónimo, cliente, empleado, admin). Hoy cada clase prueba los suyos y un endpoint nuevo podría quedar abierto por olvido. | 5b |
+| H-1 | Web: volver a **activar** un servicio desactivado. | ✅ 5b (`ZonaAdminGestion.test` › servicios: volver a activar) |
+| H-2 | Web: volver a **activar** un empleado y editar sus datos personales. | ✅ 5b (`ZonaAdminGestion.test` › empleados: datos y reactivar) |
+| H-3 | Web: los días de cierre de los últimos 90 días. | ✅ 5b (`ZonaAdminGestion.test` › días de cierre pasados) |
+| H-4 | Web: el admin **cambia el estado** de una reserva desde su detalle. | ✅ 5b (`ZonaAdmin.test` › gestionar una reserva) |
+| H-5 | Una **matriz de permisos** con todos los endpoints y perfiles. | ✅ 5b (`PermisosTest`, `Permisos.test`) |
 | H-6 | La reserva simultánea desde **dos navegadores** reales. | 5d |
-| H-7 | Reglas de arquitectura del paso 3.2 sin prueba: un controller nunca usa un repository; `usuario` y `beneficiario` no dependen de `cita`. Propuesta: ArchUnit (pruebas JUnit, sin cambiar el código). | 5b (si lo apruebas) |
+| H-7 | Reglas de arquitectura del paso 3.2. | ✅ 5b (`ArquitecturaTest`) |
 | H-8 | Móvil (390 px) y accesibilidad (axe). | 5d |
-| H-9 | El envío real de correo (`EnvioCorreoSmtp`, 41,7 % de sus líneas) y el fallo del envío en `CorreoRecuperacionListener`: las pruebas usan el buzón en memoria. Es el caso para Mockito (decisión 4) o para Mailpit en las E2E. | 5b / 5c |
-| H-10 | Ramas sin cubrir en el backend (84,8 % de ramas): sobre todo `EmpleadoService` (6 líneas), `ServicioService` (4) y `DiaCierreService` (3). Se revisan una a una en el 5b; solo se prueban las que son reglas. | 5b |
+| H-9 | El envío real de correo y el fallo del envío. | ✅ 5b (`EnvioCorreoSmtpTest` y `CorreoRecuperacionListenerTest`, con Mockito) |
+| H-10 | Reglas sin cubrir que marcaba JaCoCo. | ✅ 5b: editar con el correo o el nombre de otro (409), `GET /admin/servicios/{id}` (ninguna prueba lo llamaba), singular y plural de las citas futuras, enlace de recuperación de una cuenta desactivada, último día sin sugerencia, teléfono y motivo en blanco |
 | — | Flujos completos de punta a punta. | 5c |
+
+**Lo que se deja sin probar a propósito:** las líneas defensivas que solo se
+ejecutan si la base de datos está rota (el registro del negocio de V2), si
+falta un archivo del propio `.jar` o si Java no tiene SHA-256, y los `catch`
+de dos peticiones iguales a la vez, que ya cubre la restricción de la base de
+datos.

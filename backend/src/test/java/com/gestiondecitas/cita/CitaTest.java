@@ -63,6 +63,14 @@ class CitaTest {
     }
 
     @Test
+    void unMotivoEnBlancoSeGuardaVacio() {
+        cita.cancelarPorCliente("   ", PLAZO, CLIENTE, INICIO.minus(PLAZO));
+
+        assertThat(cita.getEstado()).isEqualTo(EstadoCita.CANCELADA);
+        assertThat(cita.getMotivoCancelacion()).isNull();
+    }
+
+    @Test
     void elClienteNoCancelaConMenosDe24Horas() {
         Instant tarde = INICIO.minus(PLAZO).plusSeconds(60);
         assertThat(cita.puedeCancelarCliente(PLAZO, tarde)).isFalse();
