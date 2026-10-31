@@ -7,11 +7,11 @@ export interface EstadoLogin {
   email?: string
 }
 
-/** Página a la que va cada usuario al iniciar sesión. B8 y B9 la cambian por su área. */
+/** Página a la que va cada usuario al iniciar sesión. B9 cambiará la del empleado y el admin. */
 export function rutaInicialDe(usuario: UsuarioResumen): string {
   if (usuario.debeCambiarPassword) return '/cambiar-password'
   const porRol: Record<Rol, string> = {
-    CLIENTE: '/mi-area',
+    CLIENTE: '/mis-citas',
     EMPLEADO: '/mi-area',
     ADMIN: '/mi-area',
   }

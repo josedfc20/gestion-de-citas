@@ -1,0 +1,29 @@
+.estado {
+  display: inline-block;
+  padding: var(--espacio-1) var(--espacio-3);
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.confirmada {
+  color: var(--color-exito);
+  background: var(--color-exito-fondo);
+}
+
+.completada {
+  color: var(--color-info);
+  background: var(--color-info-fondo);
+}
+
+.cancelada {
+  color: var(--color-error);
+  background: var(--color-error-fondo);
+}
+
+.noPresentado {
+  color: var(--color-texto-suave);
+  background: var(--color-superficie-2);
+}

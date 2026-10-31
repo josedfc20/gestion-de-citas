@@ -1,6 +1,6 @@
 // Datos de ejemplo para las pruebas (como los de la demo del backend).
 
-import type { Negocio, Profesional, Servicio, SesionResponse, UsuarioResumen } from '../api/tipos'
+import type { Beneficiario, Cita, Negocio, Pagina, Profesional, Servicio, SesionResponse, UsuarioResumen } from '../api/tipos'
 
 export const negocio: Negocio = {
   nombre: 'Peluquería Demo',
@@ -30,4 +30,30 @@ export function sesionDe(usuario: UsuarioResumen, token = 'token-1'): SesionResp
 
 export function problema(status: number, detail: string, extra: Record<string, unknown> = {}) {
   return { type: 'about:blank', title: 'Error', status, detail, ...extra }
+}
+
+export const empleado: UsuarioResumen = { id: 7, nombre: 'Ana', rol: 'EMPLEADO', debeCambiarPassword: false }
+
+export const lucia: Beneficiario = { id: 3, nombre: 'Lucía', apellidos: 'Pérez', fechaNacimiento: '2018-05-20' }
+
+/** Cita confirmada que aún se puede cancelar; se cambia lo necesario en cada prueba. */
+export function citaDe(cambios: Partial<Cita> = {}): Cita {
+  return {
+    id: 40,
+    servicio: { id: 1, nombre: 'Corte de pelo', duracionMinutos: 30 },
+    profesional: { id: 10, nombre: 'Ana M.' },
+    beneficiario: null,
+    inicio: '2026-11-03T10:00:00+01:00',
+    fin: '2026-11-03T10:30:00+01:00',
+    precio: 15,
+    estado: 'CONFIRMADA',
+    motivoCancelacion: null,
+    puedeCancelar: true,
+    cancelableHasta: '2026-11-02T10:00:00+01:00',
+    ...cambios,
+  }
+}
+
+export function paginaDe<T>(contenido: T[], pagina = 0, totalPaginas = 1): Pagina<T> {
+  return { contenido, pagina, tamano: 20, totalElementos: contenido.length, totalPaginas }
 }

@@ -9,3 +9,8 @@ export function numeroDeParametro(valor: string | null): number | undefined {
 export function fechaDeParametro(valor: string | null): string | undefined {
   return valor && /^\d{4}-\d{2}-\d{2}$/.test(valor) ? valor : undefined
 }
+
+/** Lee una hora HH:mm de la URL, o undefined si no tiene ese formato. */
+export function horaDeParametro(valor: string | null): string | undefined {
+  return valor && /^([01]\d|2[0-3]):[0-5]\d$/.test(valor) ? valor : undefined
+}

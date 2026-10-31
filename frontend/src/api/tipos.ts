@@ -72,3 +72,53 @@ export interface DatosCambioPassword {
   passwordNueva: string
   confirmacionPassword: string
 }
+
+/** Lista paginada del backend (`Pagina<T>`). */
+export interface Pagina<T> {
+  contenido: T[]
+  pagina: number
+  tamano: number
+  totalElementos: number
+  totalPaginas: number
+}
+
+export type EstadoCita = 'CONFIRMADA' | 'COMPLETADA' | 'CANCELADA' | 'NO_PRESENTADO'
+
+/** Una cita del cliente (lista y detalle). Las fechas llevan el desfase de la zona del negocio. */
+export interface Cita {
+  id: number
+  servicio: { id: number; nombre: string; duracionMinutos: number }
+  profesional: { id: number; nombre: string }
+  /** null si la cita es para el propio cliente. */
+  beneficiario: { id: number; nombre: string } | null
+  inicio: string
+  fin: string
+  precio: number
+  estado: EstadoCita
+  motivoCancelacion: string | null
+  /** RN-004 calculada por el servidor: la web no repite la regla de las 24 h. */
+  puedeCancelar: boolean
+  cancelableHasta: string
+}
+
+export interface DatosReserva {
+  servicioId: number
+  profesionalId: number
+  /** Instante con desfase: "2026-11-03T10:00:00+01:00". */
+  inicio: string
+  beneficiarioId?: number
+}
+
+/** Menor a cargo del cliente (CU-009). */
+export interface Beneficiario {
+  id: number
+  nombre: string
+  apellidos: string
+  fechaNacimiento: string
+}
+
+export interface DatosBeneficiario {
+  nombre: string
+  apellidos: string
+  fechaNacimiento: string
+}

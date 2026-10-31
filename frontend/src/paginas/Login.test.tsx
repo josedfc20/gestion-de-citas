@@ -15,14 +15,14 @@ describe('login (CU-002)', () => {
         return HttpResponse.json(sesionDe(cliente))
       }),
     )
-    const { usuario, router } = renderizarApp('/mi-area')
+    const { usuario, router } = renderizarApp('/mis-citas')
 
     await usuario.type(await screen.findByLabelText('Correo electrónico'), 'marta@demo.invalid')
     await usuario.type(screen.getByLabelText('Contraseña'), 'una frase larga')
     await usuario.click(screen.getByRole('button', { name: 'Iniciar sesión' }))
 
-    expect(await screen.findByRole('heading', { name: 'Hola, Marta' })).toBeInTheDocument()
-    expect(router.state.location.pathname).toBe('/mi-area')
+    expect(await screen.findByRole('heading', { name: 'Mis citas', level: 1 })).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/mis-citas')
     expect(cuerpo).toEqual({ email: 'marta@demo.invalid', password: 'una frase larga' })
   })
 

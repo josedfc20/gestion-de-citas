@@ -1,0 +1,55 @@
+.reserva {
+  max-width: 36rem;
+}
+
+.resumen {
+  display: grid;
+  gap: var(--espacio-3);
+  margin: 0 0 var(--espacio-2);
+  padding: var(--espacio-5);
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-l);
+  box-shadow: var(--sombra);
+}
+
+.resumen dt {
+  font-size: var(--texto-s);
+  color: var(--color-texto-suave);
+}
+
+.resumen dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.nota {
+  display: block;
+  font-size: var(--texto-s);
+  font-weight: 400;
+  color: var(--color-texto-suave);
+}
+
+.para {
+  margin: var(--espacio-4) 0;
+  padding: var(--espacio-4);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-l);
+}
+
+.para legend {
+  padding: 0 var(--espacio-2);
+  font-weight: 600;
+}
+
+.opcion {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  min-height: 2.75rem;
+}
+
+.opcion input {
+  width: 1.25rem;
+  height: 1.25rem;
+}

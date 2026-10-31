@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useSearchParams } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 
 import { consultaDisponibilidad, consultaNegocio, consultaProfesionales, consultaServicios } from '../api/catalogo'
 import type { Disponibilidad, Negocio } from '../api/tipos'
@@ -8,6 +8,7 @@ import { Boton } from '../componentes/Boton'
 import { Campo, CampoSeleccion } from '../componentes/Campo'
 import { Cargando } from '../componentes/Cargando'
 import { ErrorConsulta } from '../componentes/ErrorConsulta'
+import { useSesion } from '../sesion/contexto'
 import { hoyEnZona, sumarDias } from '../utilidades/fechas'
 import { formatearDuracion, formatearFechaLarga } from '../utilidades/formato'
 import { useTitulo } from '../utilidades/useTitulo'
@@ -30,6 +31,10 @@ export function Horarios() {
 
 function ConsultaHorarios({ negocio }: { negocio: Negocio }) {
   const [parametros, setParametros] = useSearchParams()
+  const { usuario } = useSesion()
+  // B8: el visitante y el cliente reservan desde aquí (el visitante pasa antes por el login).
+  // El empleado y el admin solo consultan; el admin reserva por un cliente en su panel (B9).
+  const puedeReservar = !usuario || usuario.rol === 'CLIENTE'
   const hoy = hoyEnZona(negocio.zonaHoraria)
   const ultimoDia = sumarDias(hoy, negocio.antelacionMaxDias)
 
@@ -122,6 +127,11 @@ function ConsultaHorarios({ negocio }: { negocio: Negocio }) {
               nombreServicio={servicio?.nombre}
               antelacionMaxDias={negocio.antelacionMaxDias}
               irA={(otraFecha) => cambiar({ fecha: otraFecha })}
+              enlaceReserva={
+                puedeReservar
+                  ? (hora) => `/reservar?${new URLSearchParams({ servicio: String(servicioId), profesional: String(profesionalId), fecha, hora })}`
+                  : undefined
+              }
             />
           )}
         </section>
@@ -135,9 +145,11 @@ interface PropsResultado {
   nombreServicio?: string
   antelacionMaxDias: number
   irA: (fecha: string) => void
+  /** Si se puede reservar, cada hora es un enlace a /reservar; si no, una etiqueta. */
+  enlaceReserva?: (hora: string) => string
 }
 
-function Resultado({ datos, nombreServicio, antelacionMaxDias, irA }: PropsResultado) {
+function Resultado({ datos, nombreServicio, antelacionMaxDias, irA, enlaceReserva }: PropsResultado) {
   const dia = formatearFechaLarga(datos.fecha)
 
   if (datos.horas.length === 0) {
@@ -163,10 +175,17 @@ function Resultado({ datos, nombreServicio, antelacionMaxDias, irA }: PropsResul
         {datos.horas.length === 1 ? '1 hora libre' : `${datos.horas.length} horas libres`} el {dia}
         {nombreServicio && <span className={estilos.suave}> · {nombreServicio}</span>}
       </h2>
+      {enlaceReserva && <p className={estilos.suave}>Elige una hora para reservarla.</p>}
       <ul className={propias.horas}>
         {datos.horas.map((hora) => (
-          <li key={hora} className={propias.hora}>
-            {hora}
+          <li key={hora}>
+            {enlaceReserva ? (
+              <Link to={enlaceReserva(hora)} className={`${propias.hora} ${propias.horaEnlace}`} aria-label={`Reservar a las ${hora}`}>
+                {hora}
+              </Link>
+            ) : (
+              <span className={propias.hora}>{hora}</span>
+            )}
           </li>
         ))}
       </ul>
