@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from '../utilidades/prueba.ts'
 
 import { ApiAdmin, correoNuevo, hoyEnZona, sumarDias, type Escenario } from '../utilidades/api.ts'
 import { PASSWORD } from '../utilidades/entorno.ts'
@@ -43,14 +43,14 @@ test('un cliente se registra, reserva una hora libre y la cancela', async ({ pag
   })
 
   await test.step('ve el servicio y el profesional (CU-005, CU-006)', async () => {
-    await irA(page, 'Servicios')
+    await irA(page, 'Servicios', 'Servicios y precios')
     await expect(page.getByRole('heading', { name: servicio.nombre })).toBeVisible()
     await irA(page, 'Profesionales')
     await expect(page.getByRole('heading', { name: empleado.nombrePublico })).toBeVisible()
   })
 
   await test.step('elige servicio, profesional y día en los horarios libres (CU-007)', async () => {
-    await irA(page, 'Reservar')
+    await irA(page, 'Reservar', 'Horarios libres')
     await expect(page.getByRole('heading', { name: 'Horarios libres', level: 1 })).toBeVisible()
     const buscador = page.getByRole('form', { name: 'Buscar horas libres' })
     await buscador.getByLabel('Servicio').selectOption({ label: `${servicio.nombre} · 30 min` })

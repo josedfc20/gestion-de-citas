@@ -1,8 +1,8 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from '../utilidades/prueba.ts'
 
 import { ApiAdmin, correoNuevo, hoyEnZona, registrarCliente, sumarDias, unico } from '../utilidades/api.ts'
 import { ADMIN_EMAIL, ADMIN_PASSWORD, PASSWORD } from '../utilidades/entorno.ts'
-import { iniciarSesion, irA, reservarComoCliente } from '../utilidades/web.ts'
+import { iniciarSesion, irA, pulsarEnlace, reservarComoCliente } from '../utilidades/web.ts'
 
 // CU-016 y CU-017 (el admin), RN-005 (contraseña temporal), CU-021 y CU-013 a CU-015 (el empleado).
 
@@ -20,7 +20,7 @@ test('el admin da de alta un servicio y un empleado, que atiende y cancela una c
 
   await test.step('el admin crea el servicio (CU-016)', async () => {
     await irA(admin, 'Servicios')
-    await admin.getByRole('link', { name: 'Nuevo servicio' }).click()
+    await pulsarEnlace(admin, 'Nuevo servicio', 'Nuevo servicio')
     await admin.getByLabel('Nombre').fill(nombreServicio)
     await admin.getByLabel('Duración').selectOption({ label: '30 min' })
     await admin.getByLabel('Precio (€)').fill('18,50')
@@ -31,7 +31,7 @@ test('el admin da de alta un servicio y un empleado, que atiende y cancela una c
 
   await test.step('el admin da de alta al empleado con ese servicio (CU-017)', async () => {
     await irA(admin, 'Empleados')
-    await admin.getByRole('link', { name: 'Dar de alta' }).click()
+    await pulsarEnlace(admin, 'Dar de alta', 'Alta de empleado')
     await admin.getByLabel('Nombre').fill(nombreEmpleado)
     await admin.getByLabel('Apellidos').fill('Prueba')
     await admin.getByLabel('Correo electrónico').fill(emailEmpleado)

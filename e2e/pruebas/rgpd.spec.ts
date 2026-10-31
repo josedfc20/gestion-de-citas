@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 
-import { expect, test } from '@playwright/test'
+import { expect, test } from '../utilidades/prueba.ts'
 
 import { registrarCliente } from '../utilidades/api.ts'
 import { PASSWORD } from '../utilidades/entorno.ts'

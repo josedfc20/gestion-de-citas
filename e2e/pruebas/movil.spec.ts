@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '../utilidades/prueba.ts'
 
 import { ApiAdmin, hoyEnZona, registrarCliente, sumarDias, type Escenario } from '../utilidades/api.ts'
 import { abrirMenu, iniciarSesion, reservarComoCliente } from '../utilidades/web.ts'

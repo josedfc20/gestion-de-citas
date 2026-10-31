@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from '../utilidades/prueba.ts'
 
 import { ApiAdmin, hoyEnZona, registrarCliente, sumarDias, type Escenario } from '../utilidades/api.ts'
 import { ADMIN_EMAIL, ADMIN_PASSWORD } from '../utilidades/entorno.ts'

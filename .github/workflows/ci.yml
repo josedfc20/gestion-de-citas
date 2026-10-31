@@ -161,7 +161,8 @@ jobs:
         working-directory: e2e
         run: npx playwright test
 
-      # Con captura, vídeo y traza de lo que falle: npx playwright show-report <carpeta>
+      # Con captura, vídeo, traza y peticiones a la API de lo que falle, y el registro
+      # del backend: npx playwright show-report <carpeta>
       - name: Guardar el informe de Playwright
         if: failure()
         uses: actions/upload-artifact@v4
@@ -170,4 +171,5 @@ jobs:
           path: |
             e2e/playwright-report/
             e2e/test-results/
+            e2e/registros/
           retention-days: 14

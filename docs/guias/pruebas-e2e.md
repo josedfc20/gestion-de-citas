@@ -122,13 +122,45 @@ docker exec gestion-de-citas-db dropdb -U gestion_de_citas gestion_de_citas_e2e
 docker exec gestion-de-citas-db createdb -U gestion_de_citas gestion_de_citas_e2e
 ```
 
+### Al escribir una prueba nueva
+
+- Importa `test` y `expect` de `../utilidades/prueba.ts`, no de
+  `@playwright/test`. Así, si la prueba falla, el informe trae un adjunto
+  `peticiones-api` con cada llamada a la API, su estado y lo que tardó.
+- Después de pulsar un enlace, espera a la página nueva antes de tocar nada:
+  usa `irA` (menú) o `pulsarEnlace` (enlaces de la página), que esperan a su
+  título. Si rellenas un campo justo después de pulsar, puedes escribir en uno
+  de la página anterior con la misma etiqueta (defecto D-4 de
+  `registro-de-defectos.md`).
+
+### Buscar prisas con la CPU lenta
+
+Una prueba que solo falla en la CI suele ser una prisa: algo que la prueba
+hace antes de que la página esté lista. Para que salga en tu PC, frena
+Chromium n veces:
+
+```powershell
+$env:E2E_CPU_LENTA = "10"
+npx playwright test
+Remove-Item Env:E2E_CPU_LENTA
+```
+
+Con este modo los tiempos de espera son más largos (5 minutos por prueba),
+porque todo va más despacio, pero una prisa falla igual. `accesibilidad` es la
+más lenta: con 20 o más puede quedarse sin tiempo, y eso no es un defecto.
+
 ## 7. En la CI
 
 El trabajo **Punta a punta (Playwright)** de GitHub Actions hace lo mismo
 después de que pasen los del backend y la web, con PostgreSQL y Mailpit como
 servicios. Si falla, en la página de la ejecución hay un artefacto
 `informe-playwright`: descárgalo, descomprímelo y ábrelo con
-`npx playwright show-report playwright-report` desde `e2e`.
+`npx playwright show-report playwright-report` desde `e2e`. En la carpeta
+`registros` del artefacto está el registro del backend (`backend.log`). En tu
+PC, ese registro queda en `e2e/registros/backend.log`.
+
+Si una prueba falla en la CI y al relanzarla pasa, es un defecto intermitente:
+apúntalo en `docs/pruebas/registro-de-defectos.md` y búscale la causa.
 
 ## 8. Si algo falla
 

@@ -148,11 +148,14 @@ En el PC, sin tocar el ratón.
 
 ## Defectos y mejoras encontrados
 
-| Nº | Línea | Qué pasa | Tipo | Estado |
-|---|---|---|---|---|
-| | | | | |
+| Nº | Línea | Qué pasa | Tipo | Ficha | Estado |
+|---|---|---|---|---|---|
+| | | | | | |
 
-**Tipo:** *defecto*, si no cumple un caso de uso, una regla o un requisito, o
-si confunde o impide hacer algo, y se arregla en el 5e en una rama `fix/...`
-con una prueba que lo reproduzca; o *mejora*, si funciona pero podría ser
-mejor, y se apunta para después de la primera versión.
+**Tipo:**
+- *Defecto*: no cumple un caso de uso, una regla o un requisito, o confunde o
+  impide hacer algo. Tiene su ficha (D-n) en `registro-de-defectos.md`, con la
+  causa, la solución y lo aprendido. Se arregla en el 5e en una rama `fix/...`,
+  con una prueba que lo reproduzca.
+- *Mejora*: funciona, pero podría ser mejor. Se apunta para después de la
+  primera versión.
