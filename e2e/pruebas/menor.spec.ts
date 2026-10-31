@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 import { ApiAdmin, hoyEnZona, registrarCliente, sumarDias, type Escenario } from '../utilidades/api.ts'
-import { abrirHorarios, iniciarSesion } from '../utilidades/web.ts'
+import { abrirHorarios, iniciarSesion, irA } from '../utilidades/web.ts'
 
 // CU-009 y RN-007: el cliente reserva por un menor a su cargo.
 
@@ -21,7 +21,7 @@ test('un cliente da de alta a un menor y le reserva una cita', async ({ page }) 
   await iniciarSesion(page, cliente.email)
 
   await test.step('da de alta al menor', async () => {
-    await page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Menores a mi cargo' }).click()
+    await irA(page, 'Menores a mi cargo')
     await expect(page.getByText('Todavía no has añadido ningún menor.')).toBeVisible()
     await page.getByRole('button', { name: 'Añadir un menor' }).click()
     const formulario = page.getByRole('form', { name: 'Añadir un menor a cargo' })
@@ -42,7 +42,7 @@ test('un cliente da de alta a un menor y le reserva una cita', async ({ page }) 
   })
 
   await test.step('en "Mis citas" sale para quién es', async () => {
-    await page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Mis citas' }).click()
+    await irA(page, 'Mis citas')
     const cita = page.getByRole('link', { name: new RegExp(servicio.nombre) })
     await expect(cita).toContainText('Para Lucas')
   })

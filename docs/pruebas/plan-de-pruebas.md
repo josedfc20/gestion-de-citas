@@ -1,6 +1,6 @@
 # Plan de pruebas
 
-> Fase 5 (Pruebas), paso 5a; actualizado en el 5b y el 5c. Plan aprobado el 31/10/2026 en
+> Fase 5 (Pruebas), paso 5a; actualizado en el 5b, el 5c y el 5d. Plan aprobado el 31/10/2026 en
 > `docs/propuestas/5.0-plan-de-pruebas.md`.
 
 ## 1. Objetivo
@@ -41,6 +41,23 @@ Usan una base de datos aparte (`gestion_de_citas_e2e`), su propio
 administrador y un límite de inicios de sesión alto
 (`APP_SECURITY_INTENTOSLOGINPORMINUTO=1000`), porque todas entran desde la
 misma IP; ese límite ya lo prueba `LimiteIntentosLoginTest`. Solo Chromium.
+
+El paso 5d añade, en la misma carpeta:
+
+- **Móvil:** un segundo proyecto de Playwright, `movil` (Chromium a 390 × 844,
+  táctil), que repite los flujos del cliente (`cliente`, `menor`,
+  `recuperar-password`, `rgpd`) con el menú plegado, y `movil.spec.ts`: ninguna
+  página se sale de la pantalla y lo que se toca mide al menos 44 × 44 px.
+- **Accesibilidad:** `accesibilidad.spec.ts` pasa axe (`@axe-core/playwright`,
+  reglas WCAG 2.1 A y AA) por 33 páginas de los cuatro perfiles, en modo claro
+  y oscuro. Fallan los fallos graves y críticos; los moderados y leves se
+  anotan en el informe (hoy no hay ninguno).
+- **Reserva simultánea:** `concurrencia.spec.ts`, dos navegadores confirman la
+  misma hora a la vez.
+- **Seguridad básica:** `seguridad.spec.ts`, la cookie del refresh, que el
+  token no se guarde en el navegador, las cabeceras del backend y que ninguna
+  respuesta de la API lleve hashes. Las cabeceras de la web (CSP, HSTS) y el
+  análisis de dependencias van en la fase 7.
 
 ## 3. Cobertura
 
@@ -112,8 +129,8 @@ misma IP; ese límite ya lo prueba `LimiteIntentosLoginTest`. Solo Chromium.
 |---|---|---|
 | 5a | Este plan, matriz de trazabilidad, cobertura en la CI y prueba intermitente arreglada | hecho (PR #15) |
 | 5b | Huecos de la matriz, matrices de permisos (RNF-002), ArchUnit y umbral de cobertura | hecho (PR #16) |
-| 5c | Pruebas de punta a punta con Playwright: 7 flujos en Chromium y trabajo `e2e` en la CI | en curso |
-| 5d | Móvil, accesibilidad, reserva simultánea y comprobaciones de seguridad | pendiente |
+| 5c | Pruebas de punta a punta con Playwright: 7 flujos en Chromium y trabajo `e2e` en la CI | hecho (PR #17) |
+| 5d | Móvil, accesibilidad, reserva simultánea y comprobaciones de seguridad | en curso |
 | 5e | Pruebas manuales y defectos | pendiente |
 | 5f | Informe de pruebas y cierre de la fase | pendiente |
 
@@ -122,3 +139,5 @@ misma IP; ese límite ya lo prueba `LimiteIntentosLoginTest`. Solo Chromium.
 | Fecha | Defecto | Causa | Arreglo |
 |---|---|---|---|
 | 31/10/2026 | La prueba web "desactiva un servicio tras confirmarlo" fallaba de forma intermitente (3 de 9 ejecuciones) | Defecto de la prueba, no de la web: tras desactivar, la página vuelve a pedir el servicio (`invalidarServicios`) y el servidor simulado lo devolvía todavía activo. Si esa respuesta llegaba antes de que la prueba buscase el título, la página volvía a "Desactivar el servicio" | El servidor simulado recuerda el cambio, como haría el backend (5a) |
+| 31/10/2026 | En el móvil, los enlaces del menú medían 40 px de alto, por debajo de los 44 px recomendados para tocar con el dedo (lo encontró `movil.spec.ts`) | `.enlace` de `Marco.module.css` solo tenía el relleno; los botones ya tenían `min-height` | `min-height: 2.75rem` en los enlaces del menú, como los botones (5d) |
+| 31/10/2026 | axe (`label-content-name-mismatch`, grave): el nombre que oye un lector de pantalla no contenía el texto visible en "Ver ficha" (lista de empleados) y "Añadir tramo" (editor de horarios). Quien usa el control por voz diciendo lo que ve no podía pulsarlos (WCAG 2.5.3) | Los `aria-label` decían "Ver la ficha de…" y "Añadir un tramo al…" | `aria-label` "Ver ficha de…" y "Añadir tramo al…" (5d) |

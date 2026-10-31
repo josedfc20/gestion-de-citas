@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 import { ApiAdmin, correoNuevo, hoyEnZona, sumarDias, type Escenario } from '../utilidades/api.ts'
 import { PASSWORD } from '../utilidades/entorno.ts'
-import { abrirHorarios } from '../utilidades/web.ts'
+import { abrirHorarios, cerrarSesion, irA } from '../utilidades/web.ts'
 
 // CU-001 a CU-003, CU-005 a CU-008 y CU-010 a CU-012: el recorrido completo de un cliente.
 
@@ -43,14 +43,14 @@ test('un cliente se registra, reserva una hora libre y la cancela', async ({ pag
   })
 
   await test.step('ve el servicio y el profesional (CU-005, CU-006)', async () => {
-    await page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Servicios' }).click()
+    await irA(page, 'Servicios')
     await expect(page.getByRole('heading', { name: servicio.nombre })).toBeVisible()
-    await page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Profesionales' }).click()
+    await irA(page, 'Profesionales')
     await expect(page.getByRole('heading', { name: empleado.nombrePublico })).toBeVisible()
   })
 
   await test.step('elige servicio, profesional y día en los horarios libres (CU-007)', async () => {
-    await page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Reservar' }).click()
+    await irA(page, 'Reservar')
     await expect(page.getByRole('heading', { name: 'Horarios libres', level: 1 })).toBeVisible()
     const buscador = page.getByRole('form', { name: 'Buscar horas libres' })
     await buscador.getByLabel('Servicio').selectOption({ label: `${servicio.nombre} · 30 min` })
@@ -86,8 +86,7 @@ test('un cliente se registra, reserva una hora libre y la cancela', async ({ pag
   })
 
   await test.step('cierra sesión (CU-003)', async () => {
-    await page.getByRole('button', { name: 'Cerrar sesión' }).click()
-    await expect(page.getByRole('link', { name: 'Iniciar sesión' })).toBeVisible()
+    await cerrarSesion(page)
     await page.goto('/mis-citas')
     await expect(page).toHaveURL(/\/login$/)
   })

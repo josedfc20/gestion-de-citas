@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 import { ApiAdmin, hoyEnZona, registrarCliente, sumarDias, type Escenario } from '../utilidades/api.ts'
 import { ADMIN_EMAIL, ADMIN_PASSWORD } from '../utilidades/entorno.ts'
-import { iniciarSesion } from '../utilidades/web.ts'
+import { iniciarSesion, irA } from '../utilidades/web.ts'
 
 // CU-019: el admin reserva en nombre de un cliente registrado.
 
@@ -23,7 +23,7 @@ test('el admin reserva una cita para un cliente y la ve en las reservas', async 
   await iniciarSesion(page, ADMIN_EMAIL, ADMIN_PASSWORD)
 
   await test.step('elige la hora en los horarios libres', async () => {
-    await page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Reservas' }).click()
+    await irA(page, 'Reservas')
     await page.getByRole('link', { name: 'Nueva reserva' }).click()
     await expect(page.getByRole('heading', { name: 'Horarios libres', level: 1 })).toBeVisible()
     const buscador = page.getByRole('form', { name: 'Buscar horas libres' })
@@ -51,7 +51,7 @@ test('el admin reserva una cita para un cliente y la ve en las reservas', async 
   })
 
   await test.step('la reserva sale en la lista, filtrada por profesional', async () => {
-    await page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Reservas' }).click()
+    await irA(page, 'Reservas')
     await page.getByLabel('Profesional').selectOption({ label: empleado.nombrePublico })
     const reserva = page.getByRole('link', { name: new RegExp(servicio.nombre) })
     await expect(reserva).toContainText(nombreCliente)

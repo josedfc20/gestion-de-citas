@@ -69,8 +69,16 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
-  // Solo Chromium (decisión 2 del 5c).
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  // Solo Chromium (decisión 2 del 5c), en escritorio y en un móvil de 390 px (5d).
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] }, testIgnore: /movil\.spec\.ts/ },
+    {
+      name: 'movil',
+      // Los flujos del cliente, que son los que se usan desde el móvil (decisión 1 del 5d).
+      testMatch: /(cliente|menor|recuperar-password|rgpd|movil)\.spec\.ts/,
+      use: { ...devices['Pixel 7'], viewport: { width: 390, height: 844 } },
+    },
+  ],
   // Siempre arranca los suyos (nunca reutiliza): un backend de desarrollo en el 8080
   // usaría otra base de datos y otro administrador. Si el puerto está ocupado, avisa.
   webServer: [

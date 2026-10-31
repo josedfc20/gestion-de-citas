@@ -1,6 +1,6 @@
 # Matriz de trazabilidad
 
-> Fase 5, paso 5a (31/10/2026); actualizada en el 5b y el 5c. Relaciona cada caso de uso, regla de negocio
+> Fase 5, paso 5a (31/10/2026); actualizada en el 5b, el 5c y el 5d. Relaciona cada caso de uso, regla de negocio
 > y requisito no funcional con las pruebas que lo cubren. Se actualiza en cada
 > PR que añade pruebas.
 >
@@ -58,14 +58,14 @@
 
 | RNF | Requisito | Pruebas | Estado |
 |---|---|---|---|
-| RNF-001 | Contraseñas con hash seguro | `RegistroTest` (…ConLaContrasenaEnBcrypt), `AdministradorInicialTest`, `SesionTest` (enLaBaseDeDatosSoloSeGuardaElHash…), `DatosPersonalesTest` (…SinHashes), `EnlaceRecuperacionTest` (elTokenNoApareceEnElLog) | ✅ |
+| RNF-001 | Contraseñas con hash seguro | `RegistroTest` (…ConLaContrasenaEnBcrypt), `AdministradorInicialTest`, `SesionTest` (enLaBaseDeDatosSoloSeGuardaElHash…), `DatosPersonalesTest` (…SinHashes), `EnlaceRecuperacionTest` (elTokenNoApareceEnElLog); E2E: `seguridad` (ninguna respuesta de la API lleva hashes ni campos de contraseña, la cookie del refresh es `HttpOnly`, `Secure`, `SameSite=Strict` y el token no se guarda en el navegador) | ✅ |
 | RNF-002 | Permisos por rol | **`PermisosTest`**: los 54 endpoints con 5 perfiles (anónimo, cliente, empleado, empleado con contraseña temporal y admin) y la comprobación de que la tabla tiene todos los endpoints; `SeguridadTest` (tokens manipulados o caducados) y las pruebas "solo…" de cada clase (lo ajeno es 404). Web: **`Permisos.test`**, las 33 rutas con 5 perfiles y la comprobación de que la tabla tiene todas las rutas | ✅ |
-| RNF-003 | Sin reservas incompatibles, también a la vez | `ReservasTest` (dosReservasALaVezDelMismoHuecoSoloConfirmanUna, laRestriccionDeLaBaseDeDatos…), `RestriccionSolapeTest` | 🟡 H-6 |
+| RNF-003 | Sin reservas incompatibles, también a la vez | `ReservasTest` (dosReservasALaVezDelMismoHuecoSoloConfirmanUna, laRestriccionDeLaBaseDeDatos…), `RestriccionSolapeTest`; E2E: **`concurrencia`** (dos navegadores confirman la misma hora a la vez: uno la consigue y el otro ve "Ese horario ya no está disponible") | ✅ |
 | RNF-004 | HTTPS en el entorno desplegado | — (fase 7) | — |
 | RNF-005 | Pruebas de las funcionalidades principales | Esta matriz, la cobertura en la CI y el informe de la fase 5 | 🟡 fase 5 |
 | RNF-006 | Código modular | **`ArquitecturaTest`** (ArchUnit): los controllers no usan repositories ni devuelven entidades, `usuario` y `beneficiario` no dependen de `cita`, nadie lee la hora sin el `Clock` y `CalculoDisponibilidad` no depende de Spring | ✅ |
 | RNF-007 | RGPD y LOPDGDD | `RegistroTest` (sinAceptarLaPrivacidad…), `DatosPersonalesTest`, `BeneficiariosTest` (conCitasSeAnonimiza…), `CorreoRecuperacionListenerTest` (el token nunca va al log); web: `Cuenta.test`; E2E: `rgpd` (el JSON descargado no lleva contraseñas) | ✅ |
-| RNF-008 | Web responsive y usable en el móvil | Ninguna automática (jsdom no tiene pantalla) | ❌ H-8 |
+| RNF-008 | Web responsive y usable en el móvil | E2E: proyecto **`movil`** (390 px) con los flujos del cliente; **`movil`** (ninguna página se sale de la pantalla y lo que se toca mide 44 × 44 px o más); **`accesibilidad`** (axe con WCAG 2.1 A y AA en 33 páginas, en modo claro y oscuro) | ✅ |
 
 ## 4. Huecos encontrados
 
@@ -76,9 +76,9 @@
 | H-3 | Web: los días de cierre de los últimos 90 días. | ✅ 5b (`ZonaAdminGestion.test` › días de cierre pasados) |
 | H-4 | Web: el admin **cambia el estado** de una reserva desde su detalle. | ✅ 5b (`ZonaAdmin.test` › gestionar una reserva) |
 | H-5 | Una **matriz de permisos** con todos los endpoints y perfiles. | ✅ 5b (`PermisosTest`, `Permisos.test`) |
-| H-6 | La reserva simultánea desde **dos navegadores** reales. | 5d |
+| H-6 | La reserva simultánea desde **dos navegadores** reales. | ✅ 5d (`concurrencia`) |
 | H-7 | Reglas de arquitectura del paso 3.2. | ✅ 5b (`ArquitecturaTest`) |
-| H-8 | Móvil (390 px) y accesibilidad (axe). | 5d |
+| H-8 | Móvil (390 px) y accesibilidad (axe). | ✅ 5d (proyecto `movil`, `movil`, `accesibilidad`) |
 | H-9 | El envío real de correo y el fallo del envío. | ✅ 5b (`EnvioCorreoSmtpTest` y `CorreoRecuperacionListenerTest`, con Mockito) |
 | H-10 | Reglas sin cubrir que marcaba JaCoCo. | ✅ 5b: editar con el correo o el nombre de otro (409), `GET /admin/servicios/{id}` (ninguna prueba lo llamaba), singular y plural de las citas futuras, enlace de recuperación de una cuenta desactivada, último día sin sugerencia, teléfono y motivo en blanco |
 | — | Flujos completos de punta a punta. | ✅ 5c (`e2e/pruebas`, 7 flujos en Chromium) |

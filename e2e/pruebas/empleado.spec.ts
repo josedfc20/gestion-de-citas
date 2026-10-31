@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 import { ApiAdmin, correoNuevo, hoyEnZona, registrarCliente, sumarDias, unico } from '../utilidades/api.ts'
 import { ADMIN_EMAIL, ADMIN_PASSWORD, PASSWORD } from '../utilidades/entorno.ts'
-import { iniciarSesion, reservarComoCliente } from '../utilidades/web.ts'
+import { iniciarSesion, irA, reservarComoCliente } from '../utilidades/web.ts'
 
 // CU-016 y CU-017 (el admin), RN-005 (contraseña temporal), CU-021 y CU-013 a CU-015 (el empleado).
 
@@ -19,7 +19,7 @@ test('el admin da de alta un servicio y un empleado, que atiende y cancela una c
   await iniciarSesion(admin, ADMIN_EMAIL, ADMIN_PASSWORD)
 
   await test.step('el admin crea el servicio (CU-016)', async () => {
-    await admin.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Servicios' }).click()
+    await irA(admin, 'Servicios')
     await admin.getByRole('link', { name: 'Nuevo servicio' }).click()
     await admin.getByLabel('Nombre').fill(nombreServicio)
     await admin.getByLabel('Duración').selectOption({ label: '30 min' })
@@ -30,7 +30,7 @@ test('el admin da de alta un servicio y un empleado, que atiende y cancela una c
   })
 
   await test.step('el admin da de alta al empleado con ese servicio (CU-017)', async () => {
-    await admin.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Empleados' }).click()
+    await irA(admin, 'Empleados')
     await admin.getByRole('link', { name: 'Dar de alta' }).click()
     await admin.getByLabel('Nombre').fill(nombreEmpleado)
     await admin.getByLabel('Apellidos').fill('Prueba')
@@ -67,7 +67,7 @@ test('el admin da de alta un servicio y un empleado, que atiende y cancela una c
   })
 
   await test.step('ve el servicio en "Mis servicios" (CU-021)', async () => {
-    await empleado.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Mis servicios' }).click()
+    await irA(empleado, 'Mis servicios')
     await expect(empleado.getByRole('heading', { name: nombreServicio })).toBeVisible()
     await expect(empleado.getByText('18,50 €')).toBeVisible()
   })

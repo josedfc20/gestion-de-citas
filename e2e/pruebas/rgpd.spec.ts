@@ -4,7 +4,7 @@ import { expect, test } from '@playwright/test'
 
 import { registrarCliente } from '../utilidades/api.ts'
 import { PASSWORD } from '../utilidades/entorno.ts'
-import { iniciarSesion } from '../utilidades/web.ts'
+import { esperarSinSesion, iniciarSesion } from '../utilidades/web.ts'
 
 // CU-004 y RNF-007: descargar los datos personales y eliminar la cuenta.
 
@@ -36,7 +36,7 @@ test('un cliente descarga sus datos y elimina su cuenta', async ({ page }) => {
     await page.getByLabel('Escribe tu contraseña para confirmar').fill(PASSWORD)
     await page.getByRole('button', { name: 'Eliminar mi cuenta' }).click()
     await expect(page.getByText('Tu cuenta se ha eliminado.')).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Iniciar sesión' })).toBeVisible()
+    await esperarSinSesion(page)
   })
 
   await test.step('ya no puede iniciar sesión', async () => {
