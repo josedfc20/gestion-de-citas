@@ -89,7 +89,7 @@ avanza a la siguiente.
   - [x] 5.0 Plan de la fase: seis pasos, Playwright para las E2E y umbral de cobertura tras cubrir los huecos
   - [x] 5a · Plan de pruebas, matriz de trazabilidad y cobertura en la CI (`test/cobertura-trazabilidad`, `docs/pruebas/`)
   - [x] 5b · Huecos de la matriz, matrices de permisos (RNF-002), ArchUnit y umbral de cobertura (`test/huecos-permisos`, `docs/propuestas/5.2-5b-huecos-y-permisos.md`)
-  - [ ] 5c · Pruebas de punta a punta con Playwright (`e2e/`)
+  - [x] 5c · Pruebas de punta a punta con Playwright: 7 flujos en Chromium y trabajo `e2e` en la CI (`test/e2e`, `docs/propuestas/5.3-5c-pruebas-e2e.md`)
   - [ ] 5d · Móvil, accesibilidad, reserva simultánea y seguridad básica
   - [ ] 5e · Pruebas manuales y defectos (`fix/...`)
   - [ ] 5f · Informe de pruebas y cierre de la fase
@@ -152,6 +152,7 @@ avanza a la siguiente.
 - Pruebas de integración con `@IntegracionTest` (Testcontainers, PostgreSQL 16 real); los tests nunca usan la base de datos de Docker Compose.
 - Pruebas (fase 5): plan en `docs/pruebas/plan-de-pruebas.md` y matriz de trazabilidad en `docs/pruebas/matriz-trazabilidad.md`, que se actualiza en cada PR que añade pruebas. Cobertura con JaCoCo (`./mvnw verify`, informe en `backend/target/site/jacoco`; sin el arranque, los DTO ni `shared/config`) y `@vitest/coverage-v8` (`npm run test:cobertura`, informe en `frontend/coverage`); la CI muestra el resumen y guarda los informes como artefactos. Una prueba intermitente es un defecto: se arregla, nunca se reintenta ni se desactiva. En la web, el servidor simulado (MSW) debe recordar los cambios que la página vuelve a pedir tras invalidar la caché. Mockito solo donde una prueba de integración no llegue (hoy, el envío de correo). Ramas `test/...` para el trabajo que solo añade pruebas.
 - Permisos y arquitectura (5b): **un endpoint nuevo se añade a la tabla de `PermisosTest`** (quién puede usarlo; la prueba falla si falta) y **una ruta nueva de la web, a la de `Permisos.test.tsx`**. `ArquitecturaTest` (ArchUnit) comprueba que los controllers no usan repositories ni devuelven entidades, que `usuario` y `beneficiario` no dependen de `cita`, que nadie llama a `now()` sin el `Clock` y que `CalculoDisponibilidad` no depende de Spring. Mínimo de cobertura que hace fallar la CI: backend 95 % de líneas y 85 % de ramas (`jacoco:check`), web 90 % de líneas y 80 % de ramas (`coverage.thresholds`).
+- Pruebas de punta a punta (5c): carpeta `e2e/` con su propio `package.json` (`@playwright/test` fijado a una versión exacta), guía en `docs/guias/pruebas-e2e.md`. `playwright.config.ts` arranca siempre su backend (el `.jar`) y su web (`vite preview`, puerto 4173), nunca reutiliza los de desarrollo, y les pasa todas las variables (no se fía del `.env`): base de datos aparte `gestion_de_citas_e2e`, su propio administrador, nunca el perfil `demo` y `APP_SECURITY_INTENTOSLOGINPORMINUTO=1000`. PostgreSQL y Mailpit van aparte (Docker en el PC, servicios en la CI). Cada prueba crea sus datos por la API (`utilidades/api.ts`) con nombres únicos y usa la web solo para el flujo que prueba; nunca cambia el horario general ni crea cierres de todo el negocio, porque van en paralelo. Selectores por rol y texto visible, sin `data-testid`. Solo Chromium. Un flujo nuevo importante de la web lleva su prueba en `e2e/pruebas`.
 
 ## 5c. Continuidad entre hilos
 
@@ -161,7 +162,7 @@ desarrollo.
 
 ## 5d. Repositorio y Git (paso 3.5)
 
-- Repositorio: https://github.com/josedfc20/gestion-de-citas (monorepo: `backend/`, `frontend/`, `docs/`).
+- Repositorio: https://github.com/josedfc20/gestion-de-citas (monorepo: `backend/`, `frontend/`, `e2e/`, `docs/`).
 - `main` siempre estable; cada tarea en una rama `feature/...`, `fix/...` o `test/...` (solo pruebas) que se integra con PR revisado por el usuario.
 - Commits con Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `chore:`).
 - Nunca subir secretos: `.env` está en `.gitignore`; solo se versiona `.env.example`.
@@ -325,3 +326,5 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 | 2026-10-31 | Paso 5.0 aprobado: plan de la fase 5 (Pruebas) en seis pasos (5a a 5f). Playwright en `e2e/` para las pruebas de punta a punta; umbral de cobertura (80 % backend, 85 % web) después de cubrir los huecos; Mockito solo donde una prueba de integración no llegue; ramas `test/...` para el trabajo que solo añade pruebas. |
 | 2026-10-31 | 5a fusionado (PR #15). |
 | 2026-10-31 | 5b aprobado: matrices de permisos del backend (54 endpoints × 5 perfiles) y de la web (todas las rutas × 5 perfiles), que fallan si falta un endpoint o una ruta; ArchUnit para las reglas del paso 3.2; Mockito para el envío de correo; mínimo de cobertura 95/85 en el backend y 90/80 en la web; se borra `EstadoCita.ocupa()`, que nadie usaba. |
+| 2026-10-31 | 5b fusionado (PR #16). |
+| 2026-10-31 | 5c aprobado: pruebas de punta a punta con Playwright en `e2e/` (7 flujos, uno por archivo). Límite de inicios de sesión subido solo en las E2E con `APP_SECURITY_INTENTOSLOGINPORMINUTO=1000`; solo Chromium; base de datos aparte `gestion_de_citas_e2e` en el PC; trabajo `e2e` en la CI en cada PR y en cada push a `main`, después del backend y la web. Sin cambios en el código de la aplicación. |

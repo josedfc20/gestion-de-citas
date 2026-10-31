@@ -1,12 +1,12 @@
 # Matriz de trazabilidad
 
-> Fase 5, paso 5a (31/10/2026); actualizada en el 5b. Relaciona cada caso de uso, regla de negocio
+> Fase 5, paso 5a (31/10/2026); actualizada en el 5b y el 5c. Relaciona cada caso de uso, regla de negocio
 > y requisito no funcional con las pruebas que lo cubren. Se actualiza en cada
 > PR que añade pruebas.
 >
 > **Backend:** clase de prueba de `backend/src/test` (método entre paréntesis
 > cuando solo cubre una parte). **Web:** archivo de `frontend/src` › bloque
-> (`describe`). **E2E:** pruebas de punta a punta (paso 5c).
+> (`describe`). **E2E:** archivo de `e2e/pruebas` (paso 5c), sin el `.spec.ts`.
 >
 > Estado: ✅ cubierto · 🟡 cubierto en parte (ver huecos) · ❌ sin prueba ·
 > — no se puede probar todavía
@@ -15,27 +15,27 @@
 
 | CU | Caso de uso | Backend | Web | E2E | Estado |
 |---|---|---|---|---|---|
-| CU-001 | Registrarse | `RegistroTest`, `EdadMinimaTest`, `PoliticaPasswordTest` | `Registro.test` › registro | 5c | ✅ |
-| CU-002 | Iniciar sesión | `LoginTest`, `LimiteIntentosLoginTest`, `SesionTest`, `JwtServiceTest` | `Login.test` › login, `sesion.test`, `cliente.test` | 5c | ✅ |
-| CU-003 | Cerrar sesión | `SesionTest` (elLogout…) | `sesion.test` (cerrar sesión…) | 5c | ✅ |
-| CU-004 | Modificar perfil | `PerfilYPasswordTest` | `Cuenta.test` › perfil | 5c | ✅ |
-| CU-005 | Consultar servicios y precios | `ServiciosTest` (…SaleEnElCatalogoPublico, desactivarLoOcultaDelPublico…), `SeguridadTest` (lasConsultasDelCatalogoSonPublicas) | `ZonaPublica.test` | 5c | ✅ |
-| CU-006 | Consultar profesionales | `EmpleadosTest` (losProfesionalesPublicos…, desactivarCierraSusSesionesYLoOcultaDelPublico) | `ZonaPublica.test` | 5c | ✅ |
-| CU-007 | Consultar horarios disponibles | `CalculoDisponibilidadTest`, `DisponibilidadTest` | `ZonaPublica.test` (horarios: …) | 5c | ✅ |
-| CU-008 | Reservar cita | `ReservasTest`, `CitaTest` (alReservar…), `RestriccionSolapeTest` | `ZonaCliente.test` › reservar | 5c | ✅ |
-| CU-009 | Reservar para un menor a cargo | `ReservasTest` (reservaParaUnMenorACargo, elBeneficiarioTieneQueSerSuyo…), `BeneficiariosTest`, `BeneficiarioTest` | `ZonaCliente.test` › reservar, menores a mi cargo | 5c | ✅ |
-| CU-010 | Consultar próximas citas | `CitasClienteTest` (misCitas…) | `ZonaCliente.test` › mis citas | 5c | ✅ |
-| CU-011 | Consultar detalle de una cita | `CitasClienteTest` (cadaUnoVeElDetalleDeLoSuyo) | `ZonaCliente.test` › detalle y cancelar | 5c | ✅ |
-| CU-012 | Cancelar cita | `CitaTest`, `CitasClienteTest` (cancelar…, conMenosDe24Horas…, soloElCliente…) | `ZonaCliente.test` › detalle y cancelar | 5c | ✅ |
-| CU-013 | Consultar agenda | `AgendaEmpleadoTest` | `ZonaEmpleado.test` › agenda | 5c | ✅ |
-| CU-014 | Consultar citas asignadas | `AgendaEmpleadoTest` (laListaDeCitasFiltra…) | `ZonaEmpleado.test` › citas asignadas | 5c | ✅ |
-| CU-015 | Actualizar estado de una cita | `EstadosCitaTest`, `CitaTest` | `ZonaEmpleado.test` › detalle y cambio de estado | 5c (solo cancelar) | ✅ |
-| CU-016 | Gestionar servicios y precios | `ServiciosTest`, `DuracionServicioTest` | `ZonaAdminGestion.test` › servicios, servicios: volver a activar | 5c | ✅ |
-| CU-017 | Gestionar empleados | `EmpleadosTest`, `PasswordTemporalTest` | `ZonaAdminGestion.test` › empleados, empleados: datos y reactivar | 5c | ✅ |
-| CU-018 | Configurar horarios | `HorariosTest`, `HorarioSemanalTest`, `DiasCierreTest` | `ZonaAdminGestion.test` › horarios, días de cierre, días de cierre pasados | 5c | ✅ |
-| CU-019 | Consultar y gestionar reservas | `AdminCitasTest`, `EstadosCitaTest` (elAdminCancela…) | `ZonaAdmin.test` › reservas, gestionar una reserva, reservar por un cliente | 5c | ✅ |
-| CU-020 | Recuperar contraseña | `RecuperarPasswordTest`, `EnlaceRecuperacionTest`, `LimiteSolicitudesRecuperacionTest` | `Cuenta.test` › recuperar la contraseña | 5c | ✅ |
-| CU-021 | Consultar servicios asignados | `EmpleadosTest` (soloElAdminGestionaEmpleadosYSoloElEmpleadoVeSusServicios) | `ZonaEmpleado.test` › mis servicios | 5c | ✅ |
+| CU-001 | Registrarse | `RegistroTest`, `EdadMinimaTest`, `PoliticaPasswordTest` | `Registro.test` › registro | `cliente` | ✅ |
+| CU-002 | Iniciar sesión | `LoginTest`, `LimiteIntentosLoginTest`, `SesionTest`, `JwtServiceTest` | `Login.test` › login, `sesion.test`, `cliente.test` | `cliente` (y todas las demás) | ✅ |
+| CU-003 | Cerrar sesión | `SesionTest` (elLogout…) | `sesion.test` (cerrar sesión…) | `cliente` | ✅ |
+| CU-004 | Modificar perfil | `PerfilYPasswordTest` | `Cuenta.test` › perfil | `rgpd` (descargar datos y eliminar la cuenta) | ✅ |
+| CU-005 | Consultar servicios y precios | `ServiciosTest` (…SaleEnElCatalogoPublico, desactivarLoOcultaDelPublico…), `SeguridadTest` (lasConsultasDelCatalogoSonPublicas) | `ZonaPublica.test` | `cliente` | ✅ |
+| CU-006 | Consultar profesionales | `EmpleadosTest` (losProfesionalesPublicos…, desactivarCierraSusSesionesYLoOcultaDelPublico) | `ZonaPublica.test` | `cliente` | ✅ |
+| CU-007 | Consultar horarios disponibles | `CalculoDisponibilidadTest`, `DisponibilidadTest` | `ZonaPublica.test` (horarios: …) | `cliente`, `horarios` | ✅ |
+| CU-008 | Reservar cita | `ReservasTest`, `CitaTest` (alReservar…), `RestriccionSolapeTest` | `ZonaCliente.test` › reservar | `cliente`, `menor`, `empleado` | ✅ |
+| CU-009 | Reservar para un menor a cargo | `ReservasTest` (reservaParaUnMenorACargo, elBeneficiarioTieneQueSerSuyo…), `BeneficiariosTest`, `BeneficiarioTest` | `ZonaCliente.test` › reservar, menores a mi cargo | `menor` | ✅ |
+| CU-010 | Consultar próximas citas | `CitasClienteTest` (misCitas…) | `ZonaCliente.test` › mis citas | `cliente`, `menor` | ✅ |
+| CU-011 | Consultar detalle de una cita | `CitasClienteTest` (cadaUnoVeElDetalleDeLoSuyo) | `ZonaCliente.test` › detalle y cancelar | `cliente` | ✅ |
+| CU-012 | Cancelar cita | `CitaTest`, `CitasClienteTest` (cancelar…, conMenosDe24Horas…, soloElCliente…) | `ZonaCliente.test` › detalle y cancelar | `cliente` | ✅ |
+| CU-013 | Consultar agenda | `AgendaEmpleadoTest` | `ZonaEmpleado.test` › agenda | `empleado` | ✅ |
+| CU-014 | Consultar citas asignadas | `AgendaEmpleadoTest` (laListaDeCitasFiltra…) | `ZonaEmpleado.test` › citas asignadas | — (la agenda sí, en `empleado`) | ✅ |
+| CU-015 | Actualizar estado de una cita | `EstadosCitaTest`, `CitaTest` | `ZonaEmpleado.test` › detalle y cambio de estado | `empleado` (solo cancelar con motivo) | ✅ |
+| CU-016 | Gestionar servicios y precios | `ServiciosTest`, `DuracionServicioTest` | `ZonaAdminGestion.test` › servicios, servicios: volver a activar | `empleado` (alta) | ✅ |
+| CU-017 | Gestionar empleados | `EmpleadosTest`, `PasswordTemporalTest` | `ZonaAdminGestion.test` › empleados, empleados: datos y reactivar | `empleado` (alta y contraseña temporal) | ✅ |
+| CU-018 | Configurar horarios | `HorariosTest`, `HorarioSemanalTest`, `DiasCierreTest` | `ZonaAdminGestion.test` › horarios, días de cierre, días de cierre pasados | `horarios` | ✅ |
+| CU-019 | Consultar y gestionar reservas | `AdminCitasTest`, `EstadosCitaTest` (elAdminCancela…) | `ZonaAdmin.test` › reservas, gestionar una reserva, reservar por un cliente | `reserva-admin` | ✅ |
+| CU-020 | Recuperar contraseña | `RecuperarPasswordTest`, `EnlaceRecuperacionTest`, `LimiteSolicitudesRecuperacionTest` | `Cuenta.test` › recuperar la contraseña | `recuperar-password` | ✅ |
+| CU-021 | Consultar servicios asignados | `EmpleadosTest` (soloElAdminGestionaEmpleadosYSoloElEmpleadoVeSusServicios) | `ZonaEmpleado.test` › mis servicios | `empleado` | ✅ |
 | — | Configuración del negocio | `NegocioTest` | `ZonaAdminGestion.test` › configuración del negocio, `ZonaPublica.test` (GET /negocio) | — | ✅ |
 
 ## 2. Reglas de negocio
@@ -43,12 +43,12 @@
 | RN | Regla | Backend | Web | Estado |
 |---|---|---|---|---|
 | RN-001 | Duración | `CitaTest` (alReservarCalculaElFin…), `ReservasTest` (reservaConFinYPrecioDelServidor…), `CalculoDisponibilidadTest` (elServicioTieneQueCaberEntero…) | — (lo decide el servidor) | ✅ |
-| RN-002 | Horario general ajustado por empleado | `HorariosTest` (elAjusteDeUnEmpleado…), `HorarioSemanalTest`, `DisponibilidadTest` (usaElAjusteDelEmpleado…) | `ZonaAdminGestion.test` › horarios | ✅ |
+| RN-002 | Horario general ajustado por empleado | `HorariosTest` (elAjusteDeUnEmpleado…), `HorarioSemanalTest`, `DisponibilidadTest` (usaElAjusteDelEmpleado…) | `ZonaAdminGestion.test` › horarios; E2E: `horarios` | ✅ |
 | RN-003 | Confirmación automática | `ReservasTest` (reservaConFinYPrecio…), `CitaTest` | `ZonaCliente.test` › reservar | ✅ |
 | RN-004 | Cancelar hasta 24 h antes | `CitaTest` (…JustoEnElLimite…, …ConMenosDe24Horas, elEmpleadoCancela…), `CitasClienteTest`, `EstadosCitaTest` (elAdminCancela…) | `ZonaCliente.test` (fuera de plazo…, si el plazo vence…) | ✅ |
-| RN-005 | Cuentas de empleado y contraseña temporal | `EmpleadosTest`, `PerfilYPasswordTest` (elEmpleadoConContrasenaTemporal…), `RecuperarPasswordTest` (elEmpleadoQueRecupera…) | `sesion.test` (con contraseña temporal…), `ZonaAdminGestion.test` › empleados | ✅ |
+| RN-005 | Cuentas de empleado y contraseña temporal | `EmpleadosTest`, `PerfilYPasswordTest` (elEmpleadoConContrasenaTemporal…), `RecuperarPasswordTest` (elEmpleadoQueRecupera…) | `sesion.test` (con contraseña temporal…), `ZonaAdminGestion.test` › empleados; E2E: `empleado` | ✅ |
 | RN-006 | Edad mínima 14 años, configurable | `EdadMinimaTest`, `RegistroTest` (menorDeCatorce…) | `Registro.test` (avisa…edad mínima, 422) | ✅ |
-| RN-007 | Menores sin cuenta propia | `BeneficiariosTest`, `BeneficiarioTest`, `ReservasTest` (elBeneficiarioTieneQueSerSuyoYSeguirSiendoMenor) | `ZonaCliente.test` › menores a mi cargo | ✅ |
+| RN-007 | Menores sin cuenta propia | `BeneficiariosTest`, `BeneficiarioTest`, `ReservasTest` (elBeneficiarioTieneQueSerSuyoYSeguirSiendoMenor) | `ZonaCliente.test` › menores a mi cargo; E2E: `menor` | ✅ |
 | RN-008 | Estados de la cita | `CitaTest` (losEstadosFinalesNoCambian, noSePuedeVolverAConfirmar…), `EstadosCitaTest` | `ZonaEmpleado.test` › detalle y cambio de estado | ✅ |
 | RN-009 | Antelación máxima | `DisponibilidadTest` (soloAdmiteFechasDeHoyHastaLaAntelacionMaxima), `ReservasTest` (reglasDeFecha…) | — (lo decide el servidor) | ✅ |
 | RN-010 | Intervalos | `CalculoDisponibilidadTest` (generaHorasCadaIntervalo…, respetaOtrosIntervalos, …AlineadasAlReloj…), `NegocioTest` | `ZonaAdminGestion.test` › configuración del negocio | ✅ |
@@ -64,7 +64,7 @@
 | RNF-004 | HTTPS en el entorno desplegado | — (fase 7) | — |
 | RNF-005 | Pruebas de las funcionalidades principales | Esta matriz, la cobertura en la CI y el informe de la fase 5 | 🟡 fase 5 |
 | RNF-006 | Código modular | **`ArquitecturaTest`** (ArchUnit): los controllers no usan repositories ni devuelven entidades, `usuario` y `beneficiario` no dependen de `cita`, nadie lee la hora sin el `Clock` y `CalculoDisponibilidad` no depende de Spring | ✅ |
-| RNF-007 | RGPD y LOPDGDD | `RegistroTest` (sinAceptarLaPrivacidad…), `DatosPersonalesTest`, `BeneficiariosTest` (conCitasSeAnonimiza…), `CorreoRecuperacionListenerTest` (el token nunca va al log); web: `Cuenta.test` | ✅ |
+| RNF-007 | RGPD y LOPDGDD | `RegistroTest` (sinAceptarLaPrivacidad…), `DatosPersonalesTest`, `BeneficiariosTest` (conCitasSeAnonimiza…), `CorreoRecuperacionListenerTest` (el token nunca va al log); web: `Cuenta.test`; E2E: `rgpd` (el JSON descargado no lleva contraseñas) | ✅ |
 | RNF-008 | Web responsive y usable en el móvil | Ninguna automática (jsdom no tiene pantalla) | ❌ H-8 |
 
 ## 4. Huecos encontrados
@@ -81,7 +81,7 @@
 | H-8 | Móvil (390 px) y accesibilidad (axe). | 5d |
 | H-9 | El envío real de correo y el fallo del envío. | ✅ 5b (`EnvioCorreoSmtpTest` y `CorreoRecuperacionListenerTest`, con Mockito) |
 | H-10 | Reglas sin cubrir que marcaba JaCoCo. | ✅ 5b: editar con el correo o el nombre de otro (409), `GET /admin/servicios/{id}` (ninguna prueba lo llamaba), singular y plural de las citas futuras, enlace de recuperación de una cuenta desactivada, último día sin sugerencia, teléfono y motivo en blanco |
-| — | Flujos completos de punta a punta. | 5c |
+| — | Flujos completos de punta a punta. | ✅ 5c (`e2e/pruebas`, 7 flujos en Chromium) |
 
 **Lo que se deja sin probar a propósito:** las líneas defensivas que solo se
 ejecutan si la base de datos está rota (el registro del negocio de V2), si

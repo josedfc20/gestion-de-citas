@@ -1,0 +1,18 @@
+{
+  "name": "gestion-de-citas-e2e",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Pruebas de punta a punta (fase 5, paso 5c): la web, el backend y PostgreSQL reales con Playwright.",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "informe": "playwright show-report",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "^24.19.2",
+    "typescript": "~7.0.2"
+  }
+}
