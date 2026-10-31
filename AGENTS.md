@@ -87,8 +87,8 @@ avanza a la siguiente.
     - [x] B9c · Admin: servicios, empleados, horarios, cierres y negocio (`feature/web-admin-gestion`)
 - [ ] FASE 5: Pruebas (plan en `docs/propuestas/5.0-plan-de-pruebas.md`)
   - [x] 5.0 Plan de la fase: seis pasos, Playwright para las E2E y umbral de cobertura tras cubrir los huecos
-  - [ ] 5a · Plan de pruebas, matriz de trazabilidad y cobertura en la CI (`test/cobertura-trazabilidad`, `docs/pruebas/`)
-  - [ ] 5b · Huecos de la matriz, matriz de permisos (RNF-002) y umbral de cobertura
+  - [x] 5a · Plan de pruebas, matriz de trazabilidad y cobertura en la CI (`test/cobertura-trazabilidad`, `docs/pruebas/`)
+  - [x] 5b · Huecos de la matriz, matrices de permisos (RNF-002), ArchUnit y umbral de cobertura (`test/huecos-permisos`, `docs/propuestas/5.2-5b-huecos-y-permisos.md`)
   - [ ] 5c · Pruebas de punta a punta con Playwright (`e2e/`)
   - [ ] 5d · Móvil, accesibilidad, reserva simultánea y seguridad básica
   - [ ] 5e · Pruebas manuales y defectos (`fix/...`)
@@ -150,7 +150,8 @@ avanza a la siguiente.
 - Migraciones Flyway en `backend/src/main/resources/db/migration`: una migración aplicada nunca se modifica, los cambios van en una nueva (V3, V4...).
 - Datos iniciales: V2 solo crea el negocio; el primer administrador se crea al arrancar desde `ADMIN_EMAIL` y `ADMIN_PASSWORD`; los datos de demostración van en el perfil `demo` (`DatosDemo`: solo si no hay servicios; cuentas con `DEMO_PASSWORD` y correos `@demo.invalid`).
 - Pruebas de integración con `@IntegracionTest` (Testcontainers, PostgreSQL 16 real); los tests nunca usan la base de datos de Docker Compose.
-- Pruebas (fase 5): plan en `docs/pruebas/plan-de-pruebas.md` y matriz de trazabilidad en `docs/pruebas/matriz-trazabilidad.md`, que se actualiza en cada PR que añade pruebas. Cobertura con JaCoCo (`./mvnw verify`, informe en `backend/target/site/jacoco`; sin el arranque, los DTO ni `shared/config`) y `@vitest/coverage-v8` (`npm run test:cobertura`, informe en `frontend/coverage`); la CI muestra el resumen y guarda los informes como artefactos. Una prueba intermitente es un defecto: se arregla, nunca se reintenta ni se desactiva. En la web, el servidor simulado (MSW) debe recordar los cambios que la página vuelve a pedir tras invalidar la caché. Mockito solo donde una prueba de integración no llegue. Ramas `test/...` para el trabajo que solo añade pruebas.
+- Pruebas (fase 5): plan en `docs/pruebas/plan-de-pruebas.md` y matriz de trazabilidad en `docs/pruebas/matriz-trazabilidad.md`, que se actualiza en cada PR que añade pruebas. Cobertura con JaCoCo (`./mvnw verify`, informe en `backend/target/site/jacoco`; sin el arranque, los DTO ni `shared/config`) y `@vitest/coverage-v8` (`npm run test:cobertura`, informe en `frontend/coverage`); la CI muestra el resumen y guarda los informes como artefactos. Una prueba intermitente es un defecto: se arregla, nunca se reintenta ni se desactiva. En la web, el servidor simulado (MSW) debe recordar los cambios que la página vuelve a pedir tras invalidar la caché. Mockito solo donde una prueba de integración no llegue (hoy, el envío de correo). Ramas `test/...` para el trabajo que solo añade pruebas.
+- Permisos y arquitectura (5b): **un endpoint nuevo se añade a la tabla de `PermisosTest`** (quién puede usarlo; la prueba falla si falta) y **una ruta nueva de la web, a la de `Permisos.test.tsx`**. `ArquitecturaTest` (ArchUnit) comprueba que los controllers no usan repositories ni devuelven entidades, que `usuario` y `beneficiario` no dependen de `cita`, que nadie llama a `now()` sin el `Clock` y que `CalculoDisponibilidad` no depende de Spring. Mínimo de cobertura que hace fallar la CI: backend 95 % de líneas y 85 % de ramas (`jacoco:check`), web 90 % de líneas y 80 % de ramas (`coverage.thresholds`).
 
 ## 5c. Continuidad entre hilos
 
@@ -322,3 +323,5 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 | 2026-10-31 | B9c terminado (`feature/web-admin-gestion`): panel del admin. Con él termina el B9 y se cierra la FASE 4 (Desarrollo); la siguiente es la FASE 5 (Pruebas). "Nueva reserva" sale del menú del admin (está en Reservas) para que el menú quepa en una línea. |
 | 2026-10-31 | B9c fusionado (PR #14). |
 | 2026-10-31 | Paso 5.0 aprobado: plan de la fase 5 (Pruebas) en seis pasos (5a a 5f). Playwright en `e2e/` para las pruebas de punta a punta; umbral de cobertura (80 % backend, 85 % web) después de cubrir los huecos; Mockito solo donde una prueba de integración no llegue; ramas `test/...` para el trabajo que solo añade pruebas. |
+| 2026-10-31 | 5a fusionado (PR #15). |
+| 2026-10-31 | 5b aprobado: matrices de permisos del backend (54 endpoints × 5 perfiles) y de la web (todas las rutas × 5 perfiles), que fallan si falta un endpoint o una ruta; ArchUnit para las reglas del paso 3.2; Mockito para el envío de correo; mínimo de cobertura 95/85 en el backend y 90/80 en la web; se borra `EstadoCita.ocupa()`, que nadie usaba. |
