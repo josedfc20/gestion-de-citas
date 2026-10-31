@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -47,8 +48,9 @@ public record CitaResponse(
     public record DatosCliente(Long id, String nombre, String apellidos, String telefono, String email) {
     }
 
+    /** {@code realizadoPorNombre}: "Cliente", "Luis G." o "Administrador" (B9b). */
     public record Cambio(EstadoCita estadoAnterior, EstadoCita estadoNuevo, OffsetDateTime fecha,
-            Long realizadoPor) {
+            Long realizadoPor, String realizadoPorNombre) {
     }
 
     /** Lo que ve el cliente (CU-010, CU-011). */
@@ -65,14 +67,16 @@ public record CitaResponse(
 
     /**
      * CU-019: el administrador ve también el correo y, en el detalle, el historial
-     * de cambios (en las listas no, para no cargarlo cita a cita).
+     * de cambios con el nombre de quien hizo cada uno ({@code autores}, por id). En
+     * las listas, {@code autores} es null y no sale el historial, para no cargarlo
+     * cita a cita.
      */
     public static CitaResponse paraAdmin(Cita cita, ZoneId zona, Duration plazoCancelacion, Instant ahora,
-            boolean conCambios) {
+            Map<Long, String> autores) {
         Cliente cliente = cita.getCliente();
-        List<Cambio> cambios = !conCambios ? null : cita.getCambios().stream()
+        List<Cambio> cambios = autores == null ? null : cita.getCambios().stream()
                 .map(c -> new Cambio(c.getEstadoAnterior(), c.getEstadoNuevo(), enZona(c.getFecha(), zona),
-                        c.getRealizadoPor()))
+                        c.getRealizadoPor(), autores.get(c.getRealizadoPor())))
                 .toList();
         return de(cita, zona, plazoCancelacion, ahora, new DatosCliente(cliente.getId(), cliente.getNombre(),
                 cliente.getApellidos(), cliente.getTelefono(), cliente.getEmail()), cambios);

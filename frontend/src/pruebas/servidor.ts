@@ -30,6 +30,9 @@ export const manejadoresPorDefecto = [
   }),
   http.get(`${API}/empleado/citas`, () => HttpResponse.json(paginaDe([]))),
   http.get(`${API}/empleado/servicios`, () => HttpResponse.json([])),
+  // Reservas del admin (B9b): por defecto, sin reservas ni clientes.
+  http.get(`${API}/admin/citas`, () => HttpResponse.json(paginaDe([]))),
+  http.get(`${API}/admin/clientes`, () => HttpResponse.json([])),
   // Por defecto, sin cookie: visitante.
   http.post(`${API}/auth/refresh`, () => HttpResponse.json(problema(401, 'Sesión no válida.'), { status: 401 })),
   http.post(`${API}/auth/logout`, () => new HttpResponse(null, { status: 204 })),

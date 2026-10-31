@@ -81,8 +81,7 @@ están en la misma dirección y la cookie de sesión funciona sin más.
 ### 4.3 Login, sesión y cerrar sesión (CU-002, CU-003)
 
 1. Entra con `cliente@demo.invalid` y tu `DEMO_PASSWORD`: llegas a "Mis
-   citas"; el empleado llega a su **Agenda** (el admin sigue llegando a "Mi
-   área" hasta el B9b).
+   citas"; el empleado llega a su **Agenda** y el admin, a **Reservas**.
 2. **Recarga la página (F5):** sigues dentro. El access token solo estaba en
    memoria y se ha perdido, pero la web ha pedido otro con la cookie
    `refresh_token` (F12 → Aplicación → Cookies: verás que es `HttpOnly` y que
@@ -182,7 +181,31 @@ quedan horas) para tener algo que ver.
 6. **Mis servicios:** los que el admin le asignó, con duración y precio.
 7. Como cliente, `/empleado/agenda` dice "No tienes acceso a esta página".
 
-### 4.8 Desde el móvil (RNF-008)
+### 4.8 Reservas del administrador (B9b)
+
+Entra con el administrador (`ADMIN_EMAIL` y `ADMIN_PASSWORD` de tu `.env`).
+
+1. Llegas a **Reservas**: las de hoy en adelante, con el cliente, su teléfono
+   y el estado. Filtra por estado, fechas y profesional; en "Filtrar por
+   cliente", busca `cli` (3 letras o más) y elige al cliente de la demo: solo
+   salen sus reservas. "Ver todos los clientes" quita el filtro.
+2. **Detalle de una reserva:** además del teléfono, el correo del cliente y el
+   **Historial**: quién la reservó ("por el cliente" o "por Administrador") y
+   cada cambio de estado con quién lo hizo ("por Ana M."). Cancela una con
+   motivo: aparece una línea nueva "Confirmada → Cancelada · por
+   Administrador".
+3. **Nueva reserva** (menú): te lleva a **Horarios libres**. Elige servicio,
+   profesional y día y pulsa una hora: llegas a "Nueva reserva" con el
+   resumen. Busca al cliente, elígelo y decide si es para él o para uno de sus
+   menores. **Confirmar reserva** te lleva al detalle con "Reserva creada".
+4. Busca un texto que no coincida con nadie: "antes debe registrarse" (el
+   admin no crea clientes).
+5. Abre la misma hora en dos pestañas y confirma en las dos: la segunda da
+   "Ese horario ya no está disponible" con **Elegir otra hora**.
+6. Entra como ese cliente: la cita reservada por el admin sale en "Mis
+   citas".
+
+### 4.9 Desde el móvil (RNF-008)
 
 - **Rápido, en el PC:** F12 → icono del móvil (Ctrl+Shift+M) → elige un
   iPhone o un Pixel. El menú pasa a un botón ☰.
