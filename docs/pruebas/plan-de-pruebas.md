@@ -16,13 +16,20 @@ ejecuta en cada push y en cada PR.
 |---|---|---|---|---|
 | **Unitarias (backend)** | Reglas puras, sin Spring ni base de datos: cálculo de la disponibilidad, horario semanal, edad mínima, política de contraseñas, JWT, estados de la cita | JUnit 5, AssertJ | `backend/src/test` (clases sin `@IntegracionTest`) | `./mvnw test` |
 | **Integración (backend)** | Cada endpoint con su seguridad, validación, reglas de negocio y la base de datos real (restricciones, migraciones, concurrencia) | JUnit 5, MockMvc, Testcontainers (PostgreSQL 16) | `backend/src/test` (clases con `@IntegracionTest`) | `./mvnw verify` (necesita Docker) |
+| **Arquitectura (backend)** | Las reglas del paso 3.2 sobre el código compilado (capas, DTO, dependencias entre paquetes, `Clock`) | ArchUnit | `ArquitecturaTest` | `./mvnw test` |
 | **Componentes (web)** | Cada pantalla con la API simulada: formularios, errores del servidor, rutas por rol, sesión y renovación del token | Vitest, Testing Library, MSW | `frontend/src/**/*.test.ts(x)` | `npm test` |
 | **De punta a punta** | Los flujos principales con la web, el backend y PostgreSQL reales; móvil, accesibilidad y reserva simultánea | Playwright, axe | `e2e/` (paso 5c) | pendiente |
 | **Manuales** | Lo que una máquina no juzga bien: que se entienda, que se vea bien, los correos | Lista de comprobación con el perfil `demo` | `docs/pruebas/pruebas-manuales.md` (paso 5e) | pendiente |
 
-Mockito está en el stack pero no se usa: las reglas se prueban con PostgreSQL
-real, que es más fiable que simular los repositorios. Solo se usará donde una
-prueba de integración no llegue (decisión 4 del plan).
+Las reglas se prueban con PostgreSQL real, que es más fiable que simular los
+repositorios. Mockito solo se usa donde una prueba de integración no llega
+(decisión 4 del plan): el envío de correo por SMTP y su fallo
+(`EnvioCorreoSmtpTest`, `CorreoRecuperacionListenerTest`).
+
+Los **permisos** se prueban con dos matrices: `PermisosTest` (backend, cada
+endpoint con cada perfil) y `Permisos.test.tsx` (web, cada ruta con cada
+perfil). Las dos fallan si se añade un endpoint o una ruta sin decidir quién
+puede usarlo.
 
 ## 3. Cobertura
 
@@ -42,11 +49,23 @@ prueba de integración no llegue (decisión 4 del plan).
   | Backend | 226 | 97,2 % | 84,8 % | — |
   | Web | 122 | 91,3 % | 80,3 % | 84,9 % |
 
-  En el backend, lo único por debajo del 94 % es `shared/correo` (41,7 %): el
+  En el backend, lo único por debajo del 94 % era `shared/correo` (41,7 %): el
   envío real por SMTP, que las pruebas sustituyen por el buzón en memoria.
-- **Umbral:** se fijará en el paso 5b, después de cubrir los huecos
-  (propuesta: 80 % de líneas en el backend y 85 % en la web). No se persigue
-  el 100 %.
+- **Tras el paso 5b:**
+
+  | Parte | Pruebas | Líneas | Ramas | Funciones |
+  |---|---|---|---|---|
+  | Backend | 512 | 98,1 % | 88,7 % | — |
+  | Web | 293 | 92,6 % | 82,1 % | 86,0 % |
+
+  Las cifras de pruebas cuentan cada caso de una prueba parametrizada (270 de
+  la matriz de permisos en el backend y 165 en la web).
+- **Umbral (paso 5b):** el backend exige un **95 % de líneas y un 85 % de
+  ramas** (`jacoco:check` en `./mvnw verify`) y la web un **90 % de líneas y
+  un 80 % de ramas** (`coverage.thresholds` en `npm run test:cobertura`). Por
+  debajo, la CI falla. Están algo por debajo de lo que hay para que una
+  refactorización pequeña no rompa la CI, y se revisan al cerrar la fase. No
+  se persigue el 100 %.
 
 ## 4. Criterios
 
@@ -73,8 +92,8 @@ prueba de integración no llegue (decisión 4 del plan).
 
 | Paso | Contenido | Estado |
 |---|---|---|
-| 5a | Este plan, matriz de trazabilidad, cobertura en la CI y prueba intermitente arreglada | en curso |
-| 5b | Huecos de la matriz, matriz de permisos (RNF-002) y umbral de cobertura | pendiente |
+| 5a | Este plan, matriz de trazabilidad, cobertura en la CI y prueba intermitente arreglada | hecho (PR #15) |
+| 5b | Huecos de la matriz, matrices de permisos (RNF-002), ArchUnit y umbral de cobertura | en curso |
 | 5c | Pruebas de punta a punta con Playwright | pendiente |
 | 5d | Móvil, accesibilidad, reserva simultánea y comprobaciones de seguridad | pendiente |
 | 5e | Pruebas manuales y defectos | pendiente |

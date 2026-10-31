@@ -1,6 +1,6 @@
 import { fireEvent, screen, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { CitaAfectada, DatosServicio, DiaCierre, DiaHorario, EmpleadoAdmin, Negocio, ServicioAdmin } from '../api/tipos'
 import { administrador, negocio, problema, sesionDe } from '../pruebas/datos'
@@ -140,6 +140,28 @@ describe('servicios (CU-016)', () => {
   })
 })
 
+describe('servicios: volver a activar (CU-016, H-1)', () => {
+  it('activa un servicio desactivado tras confirmarlo', async () => {
+    conAdmin()
+    let activo = peinado.activo
+    servidor.use(
+      http.get(`${API}/admin/servicios/3`, () => HttpResponse.json({ ...peinado, activo })),
+      http.patch(`${API}/admin/servicios/3/activo`, async ({ request }) => {
+        activo = ((await request.json()) as { activo: boolean }).activo
+        return HttpResponse.json({ ...peinado, activo })
+      }),
+    )
+    const { usuario } = renderizarApp('/admin/servicios/3')
+
+    expect(await screen.findByRole('heading', { name: 'Servicio desactivado' })).toBeInTheDocument()
+    await usuario.click(screen.getByRole('button', { name: 'Activar' }))
+    await usuario.click(screen.getByRole('button', { name: 'Sí, activar' }))
+
+    expect(await screen.findByRole('heading', { name: 'Desactivar el servicio' })).toBeInTheDocument()
+    expect(activo).toBe(true)
+  })
+})
+
 describe('empleados (CU-017, RN-005)', () => {
   it('da de alta un empleado y muestra su contraseña temporal una vez', async () => {
     conAdmin()
@@ -208,6 +230,58 @@ describe('empleados (CU-017, RN-005)', () => {
     await usuario.click(screen.getByRole('button', { name: 'Sí, generar' }))
 
     expect(await screen.findByText('Nueva123abcd')).toBeInTheDocument()
+  })
+})
+
+describe('empleados: datos y reactivar (CU-017, H-2)', () => {
+  it('edita sus datos y un correo de otra cuenta (409) sale debajo del correo', async () => {
+    conAdmin()
+    const recibido = capturar<Record<string, unknown>>()
+    let veces = 0
+    servidor.use(
+      http.put(`${API}/admin/empleados/11`, async ({ request }) => {
+        recibido.cuerpo = (await request.json()) as Record<string, unknown>
+        veces += 1
+        if (veces === 1) return HttpResponse.json(problema(409, 'Ese correo ya lo usa otra cuenta.'), { status: 409 })
+        return HttpResponse.json({ ...luis, ...recibido.cuerpo })
+      }),
+    )
+    const { usuario } = renderizarApp('/admin/empleados/11')
+
+    const correo = await screen.findByLabelText('Correo electrónico')
+    await usuario.clear(correo)
+    await usuario.type(correo, 'ana@demo.invalid')
+    await usuario.click(screen.getByRole('button', { name: 'Guardar datos' }))
+    expect(await screen.findByText('Ese correo ya lo usa otra cuenta.')).toBeInTheDocument()
+    expect(correo).toHaveAttribute('aria-invalid', 'true')
+
+    await usuario.clear(correo)
+    await usuario.type(correo, 'luis.garcia@demo.invalid')
+    await usuario.type(screen.getByLabelText(/Teléfono/), '600111222')
+    await usuario.click(screen.getByRole('button', { name: 'Guardar datos' }))
+
+    expect(await screen.findByText('Datos guardados.')).toBeInTheDocument()
+    expect(recibido.cuerpo).toEqual({ nombre: 'Luis', apellidos: 'García', email: 'luis.garcia@demo.invalid', telefono: '600111222' })
+  })
+
+  it('vuelve a activar a un empleado desactivado tras confirmarlo', async () => {
+    conAdmin()
+    let activo = false
+    servidor.use(
+      http.get(`${API}/admin/empleados/11`, () => HttpResponse.json({ ...luis, activo })),
+      http.patch(`${API}/admin/empleados/11/activo`, async ({ request }) => {
+        activo = ((await request.json()) as { activo: boolean }).activo
+        return HttpResponse.json({ ...luis, activo })
+      }),
+    )
+    const { usuario } = renderizarApp('/admin/empleados/11')
+
+    await usuario.click(await screen.findByRole('button', { name: 'Activar' }))
+    expect(screen.getByText('Volverá a salir en la web y podrá iniciar sesión.')).toBeInTheDocument()
+    await usuario.click(screen.getByRole('button', { name: 'Sí, activar' }))
+
+    expect(await screen.findByRole('button', { name: 'Desactivar' })).toBeInTheDocument()
+    expect(activo).toBe(true)
   })
 })
 
@@ -330,6 +404,35 @@ describe('días de cierre (CU-018)', () => {
     await usuario.click(screen.getByRole('button', { name: 'Sí, quitar' }))
     expect(await screen.findByText('Día de cierre quitado.')).toBeInTheDocument()
     expect(await screen.findByText('No hay días de cierre próximos.')).toBeInTheDocument()
+  })
+})
+
+describe('días de cierre pasados (CU-018, H-3)', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('"ver también los de los últimos 90 días" pide los cierres desde hace 90 días', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-11-02T08:00:00Z')) // lunes 2 de noviembre en Madrid
+    conAdmin()
+    const pasado: DiaCierre = { id: 4, fecha: '2026-10-12', empleadoId: null, empleado: null, motivo: 'Fiesta Nacional' }
+    const pedidos: (string | null)[] = []
+    servidor.use(
+      http.get(`${API}/admin/dias-cierre`, ({ request }) => {
+        const desde = new URL(request.url).searchParams.get('desde')
+        pedidos.push(desde)
+        return HttpResponse.json(desde ? [pasado] : [])
+      }),
+    )
+    const { usuario } = renderizarApp('/admin/horarios')
+
+    expect(await screen.findByText('No hay días de cierre próximos.')).toBeInTheDocument()
+    await usuario.click(screen.getByLabelText('Ver también los de los últimos 90 días'))
+
+    const lista = await screen.findByRole('list', { name: 'Días de cierre' })
+    expect(within(lista).getByText('lunes, 12 de octubre de 2026 · Todo el negocio · Fiesta Nacional')).toBeInTheDocument()
+    expect(pedidos).toEqual([null, '2026-08-04'])
   })
 })
 

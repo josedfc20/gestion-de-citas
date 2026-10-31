@@ -22,6 +22,7 @@
         <springdoc.version>3.2.0</springdoc.version>
         <bucket4j.version>8.21.0</bucket4j.version>
         <jacoco.version>0.8.13</jacoco.version>
+        <archunit.version>1.5.1</archunit.version>
     </properties>
 
     <dependencies>
@@ -115,6 +116,13 @@
             <artifactId>testcontainers-postgresql</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Reglas de arquitectura del paso 3.2 comprobadas con pruebas (fase 5) -->
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit-junit5</artifactId>
+            <version>${archunit.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -149,6 +157,33 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                    </execution>
+                    <!-- Mínimo de cobertura (paso 5b): por debajo, mvn verify falla. -->
+                    <execution>
+                        <id>minimo</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.95</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.85</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -36,6 +36,8 @@ export default defineConfig(({ mode }) => {
         include: ['src/**/*.{ts,tsx}'],
         exclude: ['src/**/*.test.{ts,tsx}', 'src/pruebas/**', 'src/main.tsx', 'src/api/tipos.ts'],
         reporter: ['text-summary', 'html', 'json-summary'],
+        // Mínimo (paso 5b): por debajo, npm run test:cobertura falla.
+        thresholds: { lines: 90, branches: 80 },
       },
     },
   }
