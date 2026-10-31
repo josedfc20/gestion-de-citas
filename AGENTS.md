@@ -300,3 +300,4 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 | 2026-10-31 | B7 aprobado: web base y zona pública en `feature/web-base`. Nuevo `GET /negocio` público; proxy de Vite en desarrollo; CSS Modules sin Tailwind; `/cambiar-password` ya en el B7 (RN-005); política de privacidad provisional; recuperar contraseña (CU-020) se queda en el B8. TypeScript 7 y oxlint (los de la plantilla actual de Vite) en lugar de ESLint, que aún no admite TypeScript 7. |
 | 2026-10-31 | B7 fusionado (PR #9). |
 | 2026-10-31 | B8 aprobado: zona del cliente en dos PR (`feature/web-cliente` y `feature/web-cliente-perfil`). Sin cambios en el backend: la web calcula el desfase de la hora reservada con `Intl`; `/perfil` para los tres roles con "Eliminar mi cuenta" solo para el cliente; menores con página propia y también desde la reserva; confirmaciones dentro de la página. |
+| 2026-10-31 | B8a fusionado (PR #10). |
