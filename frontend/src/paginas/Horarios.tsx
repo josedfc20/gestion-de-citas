@@ -33,8 +33,8 @@ function ConsultaHorarios({ negocio }: { negocio: Negocio }) {
   const [parametros, setParametros] = useSearchParams()
   const { usuario } = useSesion()
   // B8: el visitante y el cliente reservan desde aquí (el visitante pasa antes por el login).
-  // El empleado y el admin solo consultan; el admin reserva por un cliente en su panel (B9).
-  const puedeReservar = !usuario || usuario.rol === 'CLIENTE'
+  // B9b: el admin también, en nombre de un cliente. El empleado solo consulta.
+  const destinoReserva = !usuario || usuario.rol === 'CLIENTE' ? '/reservar' : usuario.rol === 'ADMIN' ? '/admin/reservas/nueva' : null
   const hoy = hoyEnZona(negocio.zonaHoraria)
   const ultimoDia = sumarDias(hoy, negocio.antelacionMaxDias)
 
@@ -128,8 +128,8 @@ function ConsultaHorarios({ negocio }: { negocio: Negocio }) {
               antelacionMaxDias={negocio.antelacionMaxDias}
               irA={(otraFecha) => cambiar({ fecha: otraFecha })}
               enlaceReserva={
-                puedeReservar
-                  ? (hora) => `/reservar?${new URLSearchParams({ servicio: String(servicioId), profesional: String(profesionalId), fecha, hora })}`
+                destinoReserva
+                  ? (hora) => `${destinoReserva}?${new URLSearchParams({ servicio: String(servicioId), profesional: String(profesionalId), fecha, hora })}`
                   : undefined
               }
             />
@@ -145,7 +145,7 @@ interface PropsResultado {
   nombreServicio?: string
   antelacionMaxDias: number
   irA: (fecha: string) => void
-  /** Si se puede reservar, cada hora es un enlace a /reservar; si no, una etiqueta. */
+  /** Si se puede reservar, cada hora es un enlace a la reserva; si no, una etiqueta. */
   enlaceReserva?: (hora: string) => string
 }
 

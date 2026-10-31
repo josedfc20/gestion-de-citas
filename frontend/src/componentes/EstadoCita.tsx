@@ -1,12 +1,6 @@
 import type { EstadoCita as Estado } from '../api/tipos'
+import { NOMBRE_ESTADO } from '../utilidades/formato'
 import estilos from './EstadoCita.module.css'
-
-const NOMBRE_ESTADO: Record<Estado, string> = {
-  CONFIRMADA: 'Confirmada',
-  COMPLETADA: 'Completada',
-  CANCELADA: 'Cancelada',
-  NO_PRESENTADO: 'No presentado',
-}
 
 const CLASE: Record<Estado, string> = {
   CONFIRMADA: estilos.confirmada,

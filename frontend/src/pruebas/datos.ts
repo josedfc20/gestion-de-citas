@@ -1,6 +1,6 @@
 // Datos de ejemplo para las pruebas (como los de la demo del backend).
 
-import type { AgendaDia, Beneficiario, Cita, Negocio, Pagina, Perfil, Profesional, Servicio, SesionResponse, UsuarioResumen } from '../api/tipos'
+import type { AgendaDia, Beneficiario, Cita, ClienteEncontrado, Negocio, Pagina, Perfil, Profesional, Servicio, SesionResponse, UsuarioResumen } from '../api/tipos'
 import { sumarDias } from '../utilidades/fechas'
 
 export const negocio: Negocio = {
@@ -88,4 +88,16 @@ export function agendaVacia(desde: string, hasta: string): AgendaDia[] {
     })
   }
   return dias
+}
+
+export const administrador: UsuarioResumen = { id: 1, nombre: 'Elena', rol: 'ADMIN', debeCambiarPassword: false }
+
+/** Cliente en la búsqueda del admin, con una menor a cargo. */
+export const martaEncontrada: ClienteEncontrado = {
+  id: 5,
+  nombre: 'Marta',
+  apellidos: 'Pérez Gil',
+  email: 'marta@ejemplo.es',
+  telefono: '600 000 000',
+  beneficiarios: [lucia],
 }

@@ -118,6 +118,23 @@ export interface CambioCita {
   estadoNuevo: EstadoCita
   fecha: string
   realizadoPor: number
+  /** "Cliente", "Luis G." o "Administrador" (B9b). */
+  realizadoPorNombre: string | null
+}
+
+/** Cliente en la búsqueda del admin, con sus menores a cargo (GET /admin/clientes). */
+export interface ClienteEncontrado {
+  id: number
+  nombre: string
+  apellidos: string
+  email: string
+  telefono: string | null
+  beneficiarios: Beneficiario[]
+}
+
+/** CU-019, alt. 1: el admin reserva en nombre de un cliente registrado. */
+export interface DatosReservaAdmin extends DatosReserva {
+  clienteId: number
 }
 
 /** Tramo de horario en hora del negocio: { inicio: "09:00", fin: "14:00" }. */

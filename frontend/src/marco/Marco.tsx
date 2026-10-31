@@ -32,7 +32,15 @@ const ENLACES_EMPLEADO = [
   { a: '/horarios', texto: 'Horarios libres' },
 ]
 
-const ENLACES_POR_ROL = { CLIENTE: ENLACES_CLIENTE, EMPLEADO: ENLACES_EMPLEADO, ADMIN: ENLACES }
+// B9b: el admin reserva por un cliente desde los horarios libres. B9c añade su panel.
+const ENLACES_ADMIN = [
+  { a: '/admin/reservas', texto: 'Reservas' },
+  { a: '/horarios', texto: 'Nueva reserva' },
+  { a: '/servicios', texto: 'Servicios' },
+  { a: '/profesionales', texto: 'Profesionales' },
+]
+
+const ENLACES_POR_ROL = { CLIENTE: ENLACES_CLIENTE, EMPLEADO: ENLACES_EMPLEADO, ADMIN: ENLACES_ADMIN }
 
 /** Estructura común de todas las páginas: cabecera con menú, contenido y pie. */
 export function Marco() {
@@ -109,13 +117,6 @@ export function Marco() {
               <ul className={estilos.cuenta}>
                 {usuario ? (
                   <>
-                    {usuario.rol === 'ADMIN' && (
-                      <li>
-                        <NavLink to="/mi-area" className={estilos.enlace}>
-                          Mi área
-                        </NavLink>
-                      </li>
-                    )}
                     <li>
                       <NavLink to="/perfil" className={estilos.enlace}>
                         Mi perfil <span className={estilos.saludo}>({usuario.nombre})</span>

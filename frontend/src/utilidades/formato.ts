@@ -1,5 +1,6 @@
 // Formatos en español para precios, duraciones y fechas.
 
+import type { EstadoCita } from '../api/tipos'
 import { partesDeInstante } from './fechas'
 
 const euros = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' })
@@ -50,4 +51,12 @@ export function personaDeLaCita(cita: { cliente?: { nombre: string; apellidos: s
 /** Tramos de un día: "09:00–14:00 · 16:00–20:00". */
 export function formatearTramos(tramos: { inicio: string; fin: string }[]): string {
   return tramos.map((tramo) => `${tramo.inicio}–${tramo.fin}`).join(' · ')
+}
+
+/** Nombre de cada estado de una cita (RN-008). */
+export const NOMBRE_ESTADO: Record<EstadoCita, string> = {
+  CONFIRMADA: 'Confirmada',
+  COMPLETADA: 'Completada',
+  CANCELADA: 'Cancelada',
+  NO_PRESENTADO: 'No presentado',
 }

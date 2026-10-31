@@ -16,25 +16,8 @@ import { inicioConDesfase } from '../utilidades/fechas'
 import { formatearDuracion, formatearFechaLarga, formatearPrecio } from '../utilidades/formato'
 import { useTitulo } from '../utilidades/useTitulo'
 import estilos from './Paginas.module.css'
-import { fechaDeParametro, horaDeParametro, numeroDeParametro } from './parametros'
+import { eleccionCompleta, eleccionDeParametros, enlaceHorarios, type Eleccion } from './parametros'
 import propias from './Reservar.module.css'
-
-interface Eleccion {
-  servicioId: number
-  profesionalId: number
-  fecha: string
-  hora: string
-}
-
-/** Dirección de /horarios con lo ya elegido, para cambiar la hora o elegir otra. */
-function enlaceHorarios(eleccion: Partial<Eleccion>): string {
-  const parametros = new URLSearchParams()
-  if (eleccion.servicioId) parametros.set('servicio', String(eleccion.servicioId))
-  if (eleccion.profesionalId) parametros.set('profesional', String(eleccion.profesionalId))
-  if (eleccion.fecha) parametros.set('fecha', eleccion.fecha)
-  const texto = parametros.toString()
-  return texto ? `/horarios?${texto}` : '/horarios'
-}
 
 /**
  * CU-008 y CU-009: confirmar la hora elegida en /horarios, para el cliente o
@@ -45,18 +28,12 @@ export function Reservar() {
   const [parametros] = useSearchParams()
   const negocio = useQuery(consultaNegocio)
 
-  const eleccion: Partial<Eleccion> = {
-    servicioId: numeroDeParametro(parametros.get('servicio')),
-    profesionalId: numeroDeParametro(parametros.get('profesional')),
-    fecha: fechaDeParametro(parametros.get('fecha')),
-    hora: horaDeParametro(parametros.get('hora')),
-  }
-  const completa = eleccion.servicioId && eleccion.profesionalId && eleccion.fecha && eleccion.hora
+  const eleccion = eleccionDeParametros(parametros)
 
-  if (!completa) return <SinHora enlace={enlaceHorarios(eleccion)} />
+  if (!eleccionCompleta(eleccion)) return <SinHora enlace={enlaceHorarios(eleccion)} />
   if (negocio.isPending) return <Cargando />
   if (negocio.error) return <ErrorConsulta error={negocio.error} reintentar={() => negocio.refetch()} />
-  return <ConfirmarReserva negocio={negocio.data} eleccion={eleccion as Eleccion} />
+  return <ConfirmarReserva negocio={negocio.data} eleccion={eleccion} />
 }
 
 function SinHora({ enlace }: { enlace: string }) {

@@ -33,3 +33,35 @@ export function filtrosDeParametros(parametros: URLSearchParams) {
     hasta: fechaDeParametro(parametros.get('hasta')),
   }
 }
+
+/** Servicio, profesional, día y hora elegidos en /horarios (B8 y B9b). */
+export interface Eleccion {
+  servicioId: number
+  profesionalId: number
+  fecha: string
+  hora: string
+}
+
+/** Dirección de /horarios con lo ya elegido, para cambiar la hora o elegir otra. */
+export function enlaceHorarios(eleccion: Partial<Eleccion>): string {
+  const parametros = new URLSearchParams()
+  if (eleccion.servicioId) parametros.set('servicio', String(eleccion.servicioId))
+  if (eleccion.profesionalId) parametros.set('profesional', String(eleccion.profesionalId))
+  if (eleccion.fecha) parametros.set('fecha', eleccion.fecha)
+  const texto = parametros.toString()
+  return texto ? `/horarios?${texto}` : '/horarios'
+}
+
+/** Lee la elección de la URL (?servicio=&profesional=&fecha=&hora=). */
+export function eleccionDeParametros(parametros: URLSearchParams): Partial<Eleccion> {
+  return {
+    servicioId: numeroDeParametro(parametros.get('servicio')),
+    profesionalId: numeroDeParametro(parametros.get('profesional')),
+    fecha: fechaDeParametro(parametros.get('fecha')),
+    hora: horaDeParametro(parametros.get('hora')),
+  }
+}
+
+export function eleccionCompleta(eleccion: Partial<Eleccion>): eleccion is Eleccion {
+  return Boolean(eleccion.servicioId && eleccion.profesionalId && eleccion.fecha && eleccion.hora)
+}
