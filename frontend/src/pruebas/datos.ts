@@ -1,6 +1,7 @@
 // Datos de ejemplo para las pruebas (como los de la demo del backend).
 
-import type { Beneficiario, Cita, Negocio, Pagina, Perfil, Profesional, Servicio, SesionResponse, UsuarioResumen } from '../api/tipos'
+import type { AgendaDia, Beneficiario, Cita, Negocio, Pagina, Perfil, Profesional, Servicio, SesionResponse, UsuarioResumen } from '../api/tipos'
+import { sumarDias } from '../utilidades/fechas'
 
 export const negocio: Negocio = {
   nombre: 'Peluquería Demo',
@@ -67,4 +68,24 @@ export const perfilCliente: Perfil = {
   telefono: '600000000',
   fechaNacimiento: '1990-04-12',
   debeCambiarPassword: false,
+}
+
+/** Cita vista por el empleado: con el nombre y el teléfono del cliente. */
+export function citaAsignada(cambios: Partial<Cita> = {}): Cita {
+  return citaDe({ cliente: { id: 5, nombre: 'Marta', apellidos: 'Pérez Gil', telefono: '600 000 000' }, ...cambios })
+}
+
+/** Días de desde a hasta: de lunes a viernes de 09:00 a 14:00 y de 16:00 a 20:00; sábado y domingo libres. */
+export function agendaVacia(desde: string, hasta: string): AgendaDia[] {
+  const dias: AgendaDia[] = []
+  for (let fecha = desde, i = 0; fecha <= hasta; fecha = sumarDias(fecha, 1), i++) {
+    const laborable = i % 7 < 5
+    dias.push({
+      fecha,
+      cierre: false,
+      tramos: laborable ? [{ inicio: '09:00', fin: '14:00' }, { inicio: '16:00', fin: '20:00' }] : [],
+      citas: [],
+    })
+  }
+  return dias
 }

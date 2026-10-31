@@ -60,3 +60,24 @@ export function inicioConDesfase(isoFecha: string, hora: string, zonaHoraria: st
 export function partesDeInstante(instante: string): { fecha: string; hora: string } {
   return { fecha: instante.slice(0, 10), hora: instante.slice(11, 16) }
 }
+
+/** Día de la semana ISO de una fecha: 1 = lunes ... 7 = domingo. */
+export function diaDeLaSemana(isoFecha: string): number {
+  const [anio, mes, dia] = isoFecha.split('-').map(Number)
+  const domingoCero = new Date(Date.UTC(anio, mes - 1, dia)).getUTCDay()
+  return domingoCero === 0 ? 7 : domingoCero
+}
+
+/** Lunes de la semana de una fecha ("2026-11-08", domingo → "2026-11-02"). */
+export function lunesDe(isoFecha: string): string {
+  return sumarDias(isoFecha, 1 - diaDeLaSemana(isoFecha))
+}
+
+/**
+ * ¿Ha llegado ya la hora de inicio de una cita? El instante lleva su desfase,
+ * así que se compara bien esté donde esté el navegador. Solo sirve para no
+ * ofrecer un botón que fallaría: quien decide es el servidor.
+ */
+export function yaHaEmpezado(instante: string, ahora: number = Date.now()): boolean {
+  return Date.parse(instante) <= ahora
+}

@@ -39,3 +39,15 @@ export function formatearInstante(instante: string, conAnio = true): string {
   const { fecha, hora } = partesDeInstante(instante)
   return `${conAnio ? formatearFechaLarga(fecha) : formatearDia(fecha)} a las ${hora}`
 }
+
+/** Para quién es una cita, visto por el empleado o el admin: "Marta Pérez" o "Lucía (menor), a cargo de Marta Pérez". */
+export function personaDeLaCita(cita: { cliente?: { nombre: string; apellidos: string }; beneficiario: { nombre: string } | null }): string {
+  const cliente = cita.cliente ? `${cita.cliente.nombre} ${cita.cliente.apellidos}` : ''
+  if (!cita.beneficiario) return cliente
+  return cliente ? `${cita.beneficiario.nombre} (menor), a cargo de ${cliente}` : `${cita.beneficiario.nombre} (menor)`
+}
+
+/** Tramos de un día: "09:00–14:00 · 16:00–20:00". */
+export function formatearTramos(tramos: { inicio: string; fin: string }[]): string {
+  return tramos.map((tramo) => `${tramo.inicio}–${tramo.fin}`).join(' · ')
+}

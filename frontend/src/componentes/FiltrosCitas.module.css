@@ -1,0 +1,12 @@
+.filtros {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0 var(--espacio-4);
+  margin-bottom: var(--espacio-4);
+}
+
+@media (min-width: 640px) {
+  .filtros {
+    grid-template-columns: repeat(3, minmax(0, 12rem));
+  }
+}

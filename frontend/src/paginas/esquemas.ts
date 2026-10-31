@@ -121,3 +121,8 @@ export const esquemaRestablecerPassword = z
     message: 'Las contraseñas no coinciden.',
   })
 export type DatosFormularioRestablecer = z.infer<typeof esquemaRestablecerPassword>
+
+/** Cancelar como empleado o admin (CU-015, CU-019): el motivo es obligatorio. */
+export const esquemaCancelacionGestion = z.object({
+  motivo: z.string().trim().min(1, 'Indica el motivo de la cancelación.').max(MOTIVO_MAX, `Como máximo ${MOTIVO_MAX} caracteres.`),
+})
