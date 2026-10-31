@@ -262,12 +262,14 @@ En `frontend`:
 
 ```powershell
 npm test            # Vitest + Testing Library + MSW (no necesita el backend)
+npm run test:cobertura  # lo mismo midiendo la cobertura (informe en frontend\coverage\index.html)
 npm run lint        # oxlint
 npm run typecheck   # TypeScript estricto
 npm run build       # versión de producción en frontend/dist
 ```
 
-Es lo mismo que ejecuta la CI de GitHub en cada PR (job **Frontend**).
+Es lo mismo que ejecuta la CI de GitHub en cada PR (job **Frontend**, que
+ejecuta las pruebas con cobertura).
 
 ## 6. Problemas frecuentes
 
