@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import { edadEn, hoyEnZona, lunesDe, sumarDias, yaHaEmpezado } from './fechas'
-import { formatearDuracion, formatearFechaLarga, formatearPrecio, formatearTramos, personaDeLaCita } from './formato'
+import { precioDeTexto } from '../paginas/esquemas'
+import { duracionesPosibles, formatearDuracion, formatearFechaLarga, formatearPrecio, formatearTramos, personaDeLaCita } from './formato'
+import { diasDe, erroresDeSemana, semanaDe } from './horarios'
 
 describe('formatos', () => {
   it('formatea duraciones', () => {
@@ -57,5 +59,35 @@ describe('semana y hora de inicio (B9a)', () => {
     expect(personaDeLaCita({ cliente, beneficiario: null })).toBe('Marta Pérez')
     expect(personaDeLaCita({ cliente, beneficiario: { nombre: 'Lucía' } })).toBe('Lucía (menor), a cargo de Marta Pérez')
     expect(formatearTramos([{ inicio: '09:00', fin: '14:00' }, { inicio: '16:00', fin: '20:00' }])).toBe('09:00–14:00 · 16:00–20:00')
+  })
+})
+
+describe('panel del admin (B9c)', () => {
+  it('duraciones múltiplo del intervalo hasta 8 horas (RN-011)', () => {
+    expect(duracionesPosibles(30).slice(0, 3)).toEqual([30, 60, 90])
+    expect(duracionesPosibles(30).at(-1)).toBe(480)
+    expect(duracionesPosibles(60)).toHaveLength(8)
+  })
+
+  it('lee precios con coma o punto y como mucho dos decimales', () => {
+    expect(precioDeTexto('15')).toBe(15)
+    expect(precioDeTexto(' 15,5 ')).toBe(15.5)
+    expect(precioDeTexto('9999.99')).toBe(9999.99)
+    expect(precioDeTexto('15,555')).toBeNull()
+    expect(precioDeTexto('10000')).toBeNull()
+    expect(precioDeTexto('-3')).toBeNull()
+  })
+
+  it('convierte la semana del editor y comprueba sus tramos', () => {
+    const semana = semanaDe([{ diaSemana: 1, tramos: [{ inicio: '09:00', fin: '14:00' }] }], null)
+    expect(semana[1]).toHaveLength(1)
+    expect(semana[2]).toBeNull()
+    expect(diasDe(semana)).toEqual([{ diaSemana: 1, tramos: [{ inicio: '09:00', fin: '14:00' }] }])
+    expect(diasDe(semanaDe([], []))).toHaveLength(7)
+
+    expect(erroresDeSemana({ 1: [{ inicio: '09:00', fin: '14:00' }] })).toEqual({})
+    expect(erroresDeSemana({ 1: [{ inicio: '14:00', fin: '09:00' }] })[1]).toMatch(/anterior/)
+    expect(erroresDeSemana({ 2: [{ inicio: '09:02', fin: '14:00' }] })[2]).toMatch(/múltiplos de 5/)
+    expect(erroresDeSemana({ 3: [{ inicio: '', fin: '14:00' }] })[3]).toMatch(/Indica/)
   })
 })

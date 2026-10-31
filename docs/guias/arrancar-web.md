@@ -205,7 +205,44 @@ Entra con el administrador (`ADMIN_EMAIL` y `ADMIN_PASSWORD` de tu `.env`).
 6. Entra como ese cliente: la cita reservada por el admin sale en "Mis
    citas".
 
-### 4.9 Desde el móvil (RNF-008)
+### 4.9 Panel del administrador: servicios, empleados, horarios y negocio (B9c)
+
+Como administrador, con el menú **Servicios**, **Empleados**, **Horarios** y
+**Negocio**:
+
+1. **Servicios:** la lista solo muestra los activos; marca "Ver también los
+   desactivados". **Nuevo servicio:** la duración se elige de una lista con
+   los múltiplos del intervalo (con 30 min: 30 min, 1 h, 1 h 30 min...). Pon
+   el precio con coma (`12,50`). Crea uno con el nombre de otro: "Ya existe un
+   servicio con ese nombre" debajo del nombre. **Desactívalo**: desaparece de
+   la zona pública (`/servicios`) y las citas ya reservadas se mantienen.
+2. **Empleados → Dar de alta:** rellena los datos y marca sus servicios. Al
+   guardar se muestra **la contraseña temporal una sola vez** (botón
+   "Copiar"). Entra con ella en otra ventana privada: te pide cambiarla.
+3. **Ficha de un empleado:** corrige sus datos; quítale un servicio del que
+   tenga citas futuras y verás el aviso. **Desactivar** a un empleado con
+   citas futuras confirmadas da el error con "Ver sus citas confirmadas". En
+   "Cuenta", **Generar otra contraseña temporal**.
+4. **Su horario** (desde la ficha): cada día "Como el horario general" o
+   "Horario propio". Pon el lunes como propio y quita sus tramos: "No trabaja
+   este día". Al guardar, "Lo que trabaja cada semana" lo refleja y en
+   "Horarios libres" ese lunes ya no tiene horas para él.
+5. **Horarios → Horario general:** cambia una hora, quita o añade tramos (como
+   mucho 4 por día). Pon un fin anterior al inicio: el error sale en ese día.
+   Haz que dos tramos se toquen (14:00–16:00 y 16:00–20:00): el servidor lo
+   rechaza nombrando el día. Si alguna cita confirmada queda fuera, se lista
+   con enlace ("No se han cancelado: revísalas").
+6. **Días de cierre:** añade uno de todo el negocio y otro de un empleado
+   (con motivo). Repetir el mismo día da "Ya hay un cierre ese día"; un día
+   pasado da su error. **Quitar** pide confirmación. En la agenda del
+   empleado ese día sale "Cerrado (día de cierre)".
+7. **Negocio:** cambia el nombre: la cabecera cambia al guardar. Cambiar el
+   intervalo o la zona horaria pide confirmación. Con un servicio de 30 min,
+   pon el intervalo en 60: el error sale debajo del intervalo (RN-011).
+8. En el ordenador (1024 px o más) el menú del admin cabe en una línea; en el
+   móvil va en el botón ☰.
+
+### 4.10 Desde el móvil (RNF-008)
 
 - **Rápido, en el PC:** F12 → icono del móvil (Ctrl+Shift+M) → elige un
   iPhone o un Pixel. El menú pasa a un botón ☰.

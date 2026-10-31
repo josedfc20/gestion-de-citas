@@ -86,6 +86,7 @@
   color: var(--color-texto);
   text-decoration: none;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .enlace:hover {
@@ -167,5 +168,18 @@
     border-top: 0;
     padding-top: 0;
     margin-top: 0;
+  }
+}
+
+/* B9c: el menú del admin es el más largo; entre 1024 y 1279 px el saludo se oculta para que quepa en una línea. */
+@media (min-width: 1024px) {
+  .cuenta button {
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .saludo {
+    display: none;
   }
 }

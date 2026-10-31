@@ -126,3 +126,55 @@ export type DatosFormularioRestablecer = z.infer<typeof esquemaRestablecerPasswo
 export const esquemaCancelacionGestion = z.object({
   motivo: z.string().trim().min(1, 'Indica el motivo de la cancelación.').max(MOTIVO_MAX, `Como máximo ${MOTIVO_MAX} caracteres.`),
 })
+
+// ---- Panel del administrador (B9c). Los campos numéricos se guardan como texto
+// en el formulario y se convierten al enviar. ----
+
+/** "15", "15,5" o "15.50" → 15.5; null si no es un precio válido (0 a 9999,99 con dos decimales). */
+export function precioDeTexto(texto: string): number | null {
+  const limpio = texto.trim().replace(',', '.')
+  if (!/^\d{1,4}(\.\d{1,2})?$/.test(limpio)) return null
+  return Number(limpio)
+}
+
+/** ServicioRequest. RN-011 la asegura la lista de duraciones; el servidor la vuelve a comprobar (422). */
+export const esquemaServicio = z.object({
+  nombre: z.string().trim().min(1, 'Escribe el nombre del servicio.').max(120, 'Como mucho 120 caracteres.'),
+  descripcion: z.string().trim().max(1000, 'Como mucho 1000 caracteres.'),
+  duracionMinutos: z.string().min(1, 'Elige la duración.'),
+  precio: z.string().refine((valor) => precioDeTexto(valor) !== null, 'Precio no válido: de 0 a 9999,99 con dos decimales como mucho.'),
+})
+export type DatosFormularioServicio = z.infer<typeof esquemaServicio>
+
+/** DatosEmpleadoRequest y AltaEmpleadoRequest (sin los servicios, que van en casillas). */
+export const esquemaEmpleado = z.object({
+  nombre: z.string().trim().min(1, 'Escribe el nombre.').max(80, 'Como mucho 80 caracteres.'),
+  apellidos: z.string().trim().min(1, 'Escribe los apellidos.').max(120, 'Como mucho 120 caracteres.'),
+  email: correo,
+  telefono,
+})
+export type DatosFormularioEmpleado = z.infer<typeof esquemaEmpleado>
+
+/** DiaCierreRequest. Que no sea pasado lo comprueba el servidor (422) en la zona del negocio. */
+export const esquemaDiaCierre = z.object({
+  fecha: z.string().min(1, 'Elige el día.'),
+  empleadoId: z.string(),
+  motivo: z.string().trim().max(200, 'Como mucho 200 caracteres.'),
+})
+export type DatosFormularioDiaCierre = z.infer<typeof esquemaDiaCierre>
+
+export const INTERVALOS = [5, 10, 15, 20, 30, 60] as const
+
+const entero = (minimo: number, maximo: number, mensaje: string) =>
+  z.string().refine((valor) => /^\d+$/.test(valor.trim()) && Number(valor) >= minimo && Number(valor) <= maximo, mensaje)
+
+/** NegocioRequest. */
+export const esquemaNegocio = z.object({
+  nombre: z.string().trim().min(1, 'Escribe el nombre del negocio.').max(120, 'Como mucho 120 caracteres.'),
+  zonaHoraria: z.string().min(1, 'Elige la zona horaria.').max(50),
+  intervaloMinutos: z.string().refine((valor) => INTERVALOS.some((intervalo) => String(intervalo) === valor), 'Elige un intervalo.'),
+  antelacionMaxDias: entero(1, 365, 'Entre 1 y 365 días.'),
+  horasMinCancelacion: entero(0, 168, 'Entre 0 y 168 horas (una semana).'),
+  edadMinimaCuenta: entero(14, 18, 'Entre 14 y 18 años.'),
+})
+export type DatosFormularioNegocio = z.infer<typeof esquemaNegocio>

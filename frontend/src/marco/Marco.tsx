@@ -32,12 +32,13 @@ const ENLACES_EMPLEADO = [
   { a: '/horarios', texto: 'Horarios libres' },
 ]
 
-// B9b: el admin reserva por un cliente desde los horarios libres. B9c añade su panel.
+// El admin gestiona el negocio (B9c). "Nueva reserva" está en la página de Reservas (B9b).
 const ENLACES_ADMIN = [
   { a: '/admin/reservas', texto: 'Reservas' },
-  { a: '/horarios', texto: 'Nueva reserva' },
-  { a: '/servicios', texto: 'Servicios' },
-  { a: '/profesionales', texto: 'Profesionales' },
+  { a: '/admin/servicios', texto: 'Servicios' },
+  { a: '/admin/empleados', texto: 'Empleados' },
+  { a: '/admin/horarios', texto: 'Horarios' },
+  { a: '/admin/negocio', texto: 'Negocio' },
 ]
 
 const ENLACES_POR_ROL = { CLIENTE: ENLACES_CLIENTE, EMPLEADO: ENLACES_EMPLEADO, ADMIN: ENLACES_ADMIN }
