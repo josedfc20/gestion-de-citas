@@ -1,0 +1,171 @@
+.saltar {
+  position: absolute;
+  left: var(--espacio-4);
+  top: -3rem;
+  z-index: 10;
+  padding: var(--espacio-2) var(--espacio-4);
+  background: var(--color-superficie);
+  border-radius: var(--radio);
+}
+
+.saltar:focus {
+  top: var(--espacio-2);
+}
+
+.cabecera {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--color-superficie);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-4);
+  max-width: var(--ancho-max);
+  margin: 0 auto;
+  padding: var(--espacio-2) var(--espacio-4);
+  min-height: 3.5rem;
+}
+
+.marca {
+  font-weight: 700;
+  font-size: var(--texto-l);
+  color: var(--color-texto);
+  text-decoration: none;
+}
+
+.botonMenu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  background: transparent;
+  color: var(--color-texto);
+  cursor: pointer;
+}
+
+.menu {
+  display: none;
+  flex-direction: column;
+  gap: var(--espacio-1);
+  padding: 0 var(--espacio-4) var(--espacio-4);
+}
+
+.menuAbierto {
+  display: flex;
+}
+
+.enlaces,
+.cuenta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cuenta {
+  border-top: 1px solid var(--color-borde);
+  padding-top: var(--espacio-3);
+  margin-top: var(--espacio-2);
+  gap: var(--espacio-2);
+}
+
+.enlace {
+  display: block;
+  padding: var(--espacio-2) var(--espacio-3);
+  border-radius: var(--radio);
+  color: var(--color-texto);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.enlace:hover {
+  background: var(--color-superficie-2);
+  color: var(--color-texto);
+}
+
+.enlace[aria-current='page'] {
+  color: var(--color-primario);
+  background: var(--color-primario-suave);
+}
+
+.saludo {
+  color: var(--color-texto-suave);
+  font-size: var(--texto-s);
+  padding: 0 var(--espacio-3);
+}
+
+.principal {
+  max-width: var(--ancho-max);
+  margin: 0 auto;
+  padding: var(--espacio-5) var(--espacio-4) var(--espacio-7);
+}
+
+.pie {
+  border-top: 1px solid var(--color-borde);
+  color: var(--color-texto-suave);
+  font-size: var(--texto-s);
+}
+
+.pie div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--espacio-2);
+  max-width: var(--ancho-max);
+  margin: 0 auto;
+  padding: var(--espacio-4);
+}
+
+/* Escritorio: el menú siempre visible en una línea. */
+@media (min-width: 1024px) {
+  .barra {
+    padding-block: 0;
+  }
+
+  .botonMenu {
+    display: none;
+  }
+
+  .contenidoCabecera {
+    display: flex;
+    align-items: center;
+    max-width: var(--ancho-max);
+    margin: 0 auto;
+  }
+
+  .contenidoCabecera .barra {
+    margin: 0;
+    flex: 0 0 auto;
+  }
+
+  .menu {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--espacio-4) 0 0;
+  }
+
+  .enlaces,
+  .cuenta {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .cuenta {
+    border-top: 0;
+    padding-top: 0;
+    margin-top: 0;
+  }
+}

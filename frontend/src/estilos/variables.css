@@ -1,0 +1,68 @@
+/*
+ * Tema de la web. Para adaptar la web a otro negocio basta con cambiar estos
+ * valores (colores, tipografía, radios). Modo oscuro según el sistema.
+ */
+:root {
+  --color-fondo: #f7f7f5;
+  --color-superficie: #ffffff;
+  --color-superficie-2: #f0f0ec;
+  --color-texto: #1c1c1a;
+  --color-texto-suave: #5b5b56;
+  --color-borde: #d9d9d3;
+  --color-primario: #0f766e;
+  --color-primario-hover: #115e59;
+  --color-sobre-primario: #ffffff;
+  --color-primario-suave: #e6f2f0;
+  --color-error: #b42318;
+  --color-error-fondo: #fdecea;
+  --color-exito: #166534;
+  --color-exito-fondo: #e8f5ec;
+  --color-info-fondo: #eaf1fb;
+  --color-info: #1d4ed8;
+  --color-foco: #2563eb;
+
+  --fuente: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --texto-xs: 0.8125rem;
+  --texto-s: 0.9375rem;
+  --texto-m: 1rem;
+  --texto-l: 1.25rem;
+  --texto-xl: 1.75rem;
+  --texto-xxl: 2.25rem;
+
+  --espacio-1: 0.25rem;
+  --espacio-2: 0.5rem;
+  --espacio-3: 0.75rem;
+  --espacio-4: 1rem;
+  --espacio-5: 1.5rem;
+  --espacio-6: 2rem;
+  --espacio-7: 3rem;
+
+  --radio: 0.5rem;
+  --radio-l: 0.875rem;
+  --sombra: 0 1px 2px rgb(0 0 0 / 0.06), 0 2px 8px rgb(0 0 0 / 0.05);
+  --ancho-max: 72rem;
+  --ancho-formulario: 28rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-fondo: #141413;
+    --color-superficie: #1e1e1c;
+    --color-superficie-2: #282826;
+    --color-texto: #ededea;
+    --color-texto-suave: #a8a8a1;
+    --color-borde: #3a3a37;
+    --color-primario: #2dd4bf;
+    --color-primario-hover: #5eead4;
+    --color-sobre-primario: #062a26;
+    --color-primario-suave: #123a35;
+    --color-error: #f97066;
+    --color-error-fondo: #3a1a17;
+    --color-exito: #4ade80;
+    --color-exito-fondo: #15301f;
+    --color-info-fondo: #172338;
+    --color-info: #93b4f5;
+    --color-foco: #93b4f5;
+    --sombra: none;
+  }
+}

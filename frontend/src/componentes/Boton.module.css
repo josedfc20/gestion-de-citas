@@ -1,0 +1,53 @@
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-2);
+  min-height: 2.75rem; /* objetivo táctil cómodo en el móvil */
+  padding: var(--espacio-2) var(--espacio-5);
+  border: 1px solid transparent;
+  border-radius: var(--radio);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.boton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.primario {
+  background: var(--color-primario);
+  color: var(--color-sobre-primario);
+}
+
+.primario:hover:not(:disabled) {
+  background: var(--color-primario-hover);
+  color: var(--color-sobre-primario);
+}
+
+.secundario {
+  background: transparent;
+  color: var(--color-primario);
+  border-color: var(--color-primario);
+}
+
+.secundario:hover:not(:disabled) {
+  background: var(--color-primario-suave);
+}
+
+.enlace {
+  background: transparent;
+  color: var(--color-primario);
+  padding-inline: var(--espacio-2);
+}
+
+.enlace:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.ancho {
+  width: 100%;
+}

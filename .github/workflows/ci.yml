@@ -1,5 +1,4 @@
 # Compila y ejecuta las pruebas en cada push y en cada pull request.
-# El job del frontend se añadirá en el bloque B7.
 name: CI
 
 on:
@@ -34,3 +33,35 @@ jobs:
       # Testcontainers usa el Docker que ya trae el runner de Ubuntu.
       - name: Compilar y ejecutar las pruebas
         run: ./mvnw -B verify
+
+  frontend:
+    name: Frontend (Node 24 + Vite)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Comprobar tipos
+        run: npm run typecheck
+
+      # Vitest + Testing Library + MSW: no necesitan el backend.
+      - name: Pruebas
+        run: npm test
+
+      - name: Compilar
+        run: npm run build

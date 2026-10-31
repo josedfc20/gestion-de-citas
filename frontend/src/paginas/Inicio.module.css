@@ -1,0 +1,9 @@
+.portada {
+  padding: var(--espacio-5) 0 var(--espacio-6);
+}
+
+@media (min-width: 640px) {
+  .portada {
+    padding: var(--espacio-7) 0;
+  }
+}
