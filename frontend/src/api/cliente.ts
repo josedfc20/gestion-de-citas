@@ -120,8 +120,8 @@ async function enviar(ruta: string, opciones: OpcionesPeticion): Promise<Respons
   }
 }
 
-/** Hace una petición a la API y devuelve el JSON de la respuesta (o undefined si no hay cuerpo). */
-export async function pedir<T>(ruta: string, opciones: OpcionesPeticion = {}): Promise<T> {
+/** Envía la petición y, si el token ha caducado, renueva la sesión y la repite una vez. */
+async function responder(ruta: string, opciones: OpcionesPeticion): Promise<Response> {
   const conToken = accessToken !== null
   let respuesta = await enviar(ruta, opciones)
 
@@ -138,7 +138,22 @@ export async function pedir<T>(ruta: string, opciones: OpcionesPeticion = {}): P
   }
 
   if (!respuesta.ok) throw await errorDesdeRespuesta(respuesta)
+  return respuesta
+}
+
+/** Hace una petición a la API y devuelve el JSON de la respuesta (o undefined si no hay cuerpo). */
+export async function pedir<T>(ruta: string, opciones: OpcionesPeticion = {}): Promise<T> {
+  const respuesta = await responder(ruta, opciones)
   if (respuesta.status === 204) return undefined as T
   const texto = await respuesta.text()
   return (texto ? JSON.parse(texto) : undefined) as T
+}
+
+/**
+ * Pide un archivo con el token (por ejemplo, GET /me/datos). Un enlace normal
+ * no serviría: el navegador no le añadiría la cabecera Authorization.
+ */
+export async function pedirArchivo(ruta: string, opciones: OpcionesPeticion = {}): Promise<Blob> {
+  const respuesta = await responder(ruta, opciones)
+  return respuesta.blob()
 }

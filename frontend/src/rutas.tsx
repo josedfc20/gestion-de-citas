@@ -7,13 +7,16 @@ import { Horarios } from './paginas/Horarios'
 import { Inicio } from './paginas/Inicio'
 import { Login } from './paginas/Login'
 import { Menores } from './paginas/Menores'
+import { Perfil } from './paginas/Perfil'
 import { MiArea } from './paginas/MiArea'
 import { MisCitas } from './paginas/MisCitas'
 import { NoEncontrada } from './paginas/NoEncontrada'
 import { Privacidad } from './paginas/Privacidad'
 import { Profesionales } from './paginas/Profesionales'
+import { RecuperarPassword } from './paginas/RecuperarPassword'
 import { Registro } from './paginas/Registro'
 import { Reservar } from './paginas/Reservar'
+import { RestablecerPassword } from './paginas/RestablecerPassword'
 import { Servicios } from './paginas/Servicios'
 import { RutaProtegida, SoloSinSesion } from './sesion/RutaProtegida'
 
@@ -39,6 +42,10 @@ export const rutas: RouteObject[] = [
       { path: 'mis-citas', element: <RutaProtegida roles={['CLIENTE']}><MisCitas /></RutaProtegida> },
       { path: 'mis-citas/:id', element: <RutaProtegida roles={['CLIENTE']}><DetalleCita /></RutaProtegida> },
       { path: 'menores', element: <RutaProtegida roles={['CLIENTE']}><Menores /></RutaProtegida> },
+      // B8b · cuenta (los tres roles) y recuperar la contraseña
+      { path: 'perfil', element: <RutaProtegida><Perfil /></RutaProtegida> },
+      { path: 'recuperar-password', element: <SoloSinSesion><RecuperarPassword /></SoloSinSesion> },
+      { path: 'restablecer-password', element: <RestablecerPassword /> },
       { path: '*', element: <NoEncontrada /> },
     ],
   },

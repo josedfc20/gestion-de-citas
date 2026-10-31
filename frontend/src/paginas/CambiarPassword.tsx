@@ -18,7 +18,7 @@ const CAMPOS = ['passwordActual', 'passwordNueva', 'confirmacionPassword'] as co
 
 /**
  * Cambio de contraseña. Obligatorio mientras el usuario tenga una contraseña
- * temporal (RN-005); el perfil completo (CU-004) llega en el B8.
+ * temporal (RN-005). Desde el perfil (CU-004) es el enlace "Cambiar contraseña".
  */
 export function CambiarPassword() {
   useTitulo('Cambiar contraseña')
@@ -40,7 +40,8 @@ export function CambiarPassword() {
     setErrorGeneral(null)
     try {
       const actualizado = await cambiarPassword(datos)
-      navigate(rutaInicialDe(actualizado), { replace: true, state: { passwordCambiada: true } })
+      // La temporal (RN-005) lleva a su área; un cambio normal vuelve al perfil.
+      navigate(obligatoria ? rutaInicialDe(actualizado) : '/perfil', { replace: true, state: { passwordCambiada: true } })
     } catch (error) {
       if (error instanceof ApiError && error.status === 422) {
         // "La contraseña actual no es correcta."

@@ -1,6 +1,6 @@
 // Datos de ejemplo para las pruebas (como los de la demo del backend).
 
-import type { Beneficiario, Cita, Negocio, Pagina, Profesional, Servicio, SesionResponse, UsuarioResumen } from '../api/tipos'
+import type { Beneficiario, Cita, Negocio, Pagina, Perfil, Profesional, Servicio, SesionResponse, UsuarioResumen } from '../api/tipos'
 
 export const negocio: Negocio = {
   nombre: 'Peluquería Demo',
@@ -56,4 +56,15 @@ export function citaDe(cambios: Partial<Cita> = {}): Cita {
 
 export function paginaDe<T>(contenido: T[], pagina = 0, totalPaginas = 1): Pagina<T> {
   return { contenido, pagina, tamano: 20, totalElementos: contenido.length, totalPaginas }
+}
+
+export const perfilCliente: Perfil = {
+  id: 5,
+  rol: 'CLIENTE',
+  nombre: 'Marta',
+  apellidos: 'Pérez Gil',
+  email: 'marta@ejemplo.es',
+  telefono: '600000000',
+  fechaNacimiento: '1990-04-12',
+  debeCambiarPassword: false,
 }

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 
 import { consultaNegocio } from '../api/catalogo'
@@ -27,7 +27,7 @@ const ENLACES_CLIENTE = [
 
 /** Estructura común de todas las páginas: cabecera con menú, contenido y pie. */
 export function Marco() {
-  const { cargando, usuario, cerrarSesion } = useSesion()
+  const { cargando, usuario, cerrarSesion, cerrarSesionLocal } = useSesion()
   const { data: negocio } = useQuery(consultaNegocio)
   const [menuAbierto, setMenuAbierto] = useState(false)
   const [rutaDelMenu, setRutaDelMenu] = useState('')
@@ -39,6 +39,13 @@ export function Marco() {
     setRutaDelMenu(location.pathname)
     setMenuAbierto(false)
   }
+
+  // Tras eliminar la cuenta (B8b) se llega aquí con la sesión ya cerrada en el
+  // servidor: se borra en la web cuando la página privada ya no está en pantalla.
+  const cerrarAlLlegar = (location.state as { cerrarSesion?: boolean } | null)?.cerrarSesion === true
+  useEffect(() => {
+    if (cerrarAlLlegar && usuario) cerrarSesionLocal()
+  }, [cerrarAlLlegar, usuario, cerrarSesionLocal])
 
   // RN-005: con la contraseña temporal solo se puede cambiar la contraseña.
   if (usuario?.debeCambiarPassword && location.pathname !== '/cambiar-password') {
@@ -93,9 +100,16 @@ export function Marco() {
               <ul className={estilos.cuenta}>
                 {usuario ? (
                   <>
+                    {usuario.rol !== 'CLIENTE' && (
+                      <li>
+                        <NavLink to="/mi-area" className={estilos.enlace}>
+                          Mi área
+                        </NavLink>
+                      </li>
+                    )}
                     <li>
-                      <NavLink to="/mi-area" className={estilos.enlace}>
-                        Mi área <span className={estilos.saludo}>({usuario.nombre})</span>
+                      <NavLink to="/perfil" className={estilos.enlace}>
+                        Mi perfil <span className={estilos.saludo}>({usuario.nombre})</span>
                       </NavLink>
                     </li>
                     <li>

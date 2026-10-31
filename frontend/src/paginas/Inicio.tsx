@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router'
+import { Link, useLocation } from 'react-router'
 
 import { consultaNegocio } from '../api/catalogo'
+import { Aviso } from '../componentes/Aviso'
 import { EnlaceBoton } from '../componentes/Boton'
 import { useTitulo } from '../utilidades/useTitulo'
 import estilos from './Paginas.module.css'
@@ -16,9 +17,11 @@ const SECCIONES = [
 export function Inicio() {
   const { data: negocio } = useQuery(consultaNegocio)
   useTitulo('Inicio')
+  const cuentaEliminada = (useLocation().state as { cuentaEliminada?: boolean } | null)?.cuentaEliminada
 
   return (
     <>
+      {cuentaEliminada && <Aviso tipo="exito">Tu cuenta se ha eliminado. Gracias por haber confiado en nosotros.</Aviso>}
       <section className={propias.portada}>
         <h1>{negocio?.nombre ?? 'Reserva tu cita'}</h1>
         <p className={estilos.subtitulo}>Consulta nuestros servicios y las horas libres de cada profesional, y reserva tu cita en línea.</p>

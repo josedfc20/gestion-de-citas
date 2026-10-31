@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 
 import * as auth from '../api/auth'
-import { escucharSesion, renovarSesion } from '../api/cliente'
+import { establecerSesion, escucharSesion, renovarSesion } from '../api/cliente'
 import type { DatosCambioPassword, UsuarioResumen } from '../api/tipos'
 import { ContextoSesion, type MotivoFinSesion, type ValorSesion } from './contexto'
 
@@ -83,9 +83,20 @@ export function SesionProvider({ children }: { children: ReactNode }) {
     return sesion.usuario
   }, [])
 
+  const actualizarUsuario = useCallback((cambios: Partial<Pick<UsuarioResumen, 'nombre'>>) => {
+    setUsuario((actual) => (actual ? { ...actual, ...cambios } : actual))
+  }, [])
+
+  const cerrarSesionLocal = useCallback(() => {
+    establecerSesion(null)
+    queryClient.clear()
+    setMotivoFin(null)
+    setUsuario(null)
+  }, [queryClient])
+
   const valor = useMemo<ValorSesion>(
-    () => ({ cargando, usuario, motivoFin, iniciarSesion, cerrarSesion, cambiarPassword }),
-    [cargando, usuario, motivoFin, iniciarSesion, cerrarSesion, cambiarPassword],
+    () => ({ cargando, usuario, motivoFin, iniciarSesion, cerrarSesion, cambiarPassword, actualizarUsuario, cerrarSesionLocal }),
+    [cargando, usuario, motivoFin, iniciarSesion, cerrarSesion, cambiarPassword, actualizarUsuario, cerrarSesionLocal],
   )
 
   return <ContextoSesion.Provider value={valor}>{children}</ContextoSesion.Provider>
