@@ -1,6 +1,6 @@
 # Matriz de trazabilidad
 
-> Fase 5, paso 5a (31/10/2026); actualizada en el 5b, el 5c y el 5d. Relaciona cada caso de uso, regla de negocio
+> Fase 5, paso 5a (31/10/2026); actualizada en el 5b, el 5c, el 5d y el 5e. Relaciona cada caso de uso, regla de negocio
 > y requisito no funcional con las pruebas que lo cubren. Se actualiza en cada
 > PR que añade pruebas.
 >
@@ -62,7 +62,7 @@
 | RNF-002 | Permisos por rol | **`PermisosTest`**: los 54 endpoints con 5 perfiles (anónimo, cliente, empleado, empleado con contraseña temporal y admin) y la comprobación de que la tabla tiene todos los endpoints; `SeguridadTest` (tokens manipulados o caducados) y las pruebas "solo…" de cada clase (lo ajeno es 404). Web: **`Permisos.test`**, las 33 rutas con 5 perfiles y la comprobación de que la tabla tiene todas las rutas | ✅ |
 | RNF-003 | Sin reservas incompatibles, también a la vez | `ReservasTest` (dosReservasALaVezDelMismoHuecoSoloConfirmanUna, laRestriccionDeLaBaseDeDatos…), `RestriccionSolapeTest`; E2E: **`concurrencia`** (dos navegadores confirman la misma hora a la vez: uno la consigue y el otro ve "Ese horario ya no está disponible") | ✅ |
 | RNF-004 | HTTPS en el entorno desplegado | — (fase 7) | — |
-| RNF-005 | Pruebas de las funcionalidades principales | Esta matriz, la cobertura en la CI y el informe de la fase 5 | 🟡 fase 5 |
+| RNF-005 | Pruebas de las funcionalidades principales | Esta matriz, la cobertura en la CI, la prueba manual (`pruebas-manuales.md`) y el informe de la fase 5 | 🟡 fase 5 |
 | RNF-006 | Código modular | **`ArquitecturaTest`** (ArchUnit): los controllers no usan repositories ni devuelven entidades, `usuario` y `beneficiario` no dependen de `cita`, nadie lee la hora sin el `Clock` y `CalculoDisponibilidad` no depende de Spring | ✅ |
 | RNF-007 | RGPD y LOPDGDD | `RegistroTest` (sinAceptarLaPrivacidad…), `DatosPersonalesTest`, `BeneficiariosTest` (conCitasSeAnonimiza…), `CorreoRecuperacionListenerTest` (el token nunca va al log); web: `Cuenta.test`; E2E: `rgpd` (el JSON descargado no lleva contraseñas) | ✅ |
 | RNF-008 | Web responsive y usable en el móvil | E2E: proyecto **`movil`** (390 px) con los flujos del cliente; **`movil`** (ninguna página se sale de la pantalla y lo que se toca mide 44 × 44 px o más); **`accesibilidad`** (axe con WCAG 2.1 A y AA en 33 páginas, en modo claro y oscuro) | ✅ |
