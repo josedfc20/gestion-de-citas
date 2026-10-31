@@ -1,6 +1,6 @@
 # Guía · Arrancar y probar la web en tu PC
 
-> Bloques B7 y B8. Para Windows, con el entorno instalado (`instalacion-entorno.md`)
+> Bloques B7, B8 y B9. Para Windows, con el entorno instalado (`instalacion-entorno.md`)
 > y el backend funcionando (`arrancar-backend.md`). Los comandos van en
 > **PowerShell**.
 
@@ -81,7 +81,8 @@ están en la misma dirección y la cookie de sesión funciona sin más.
 ### 4.3 Login, sesión y cerrar sesión (CU-002, CU-003)
 
 1. Entra con `cliente@demo.invalid` y tu `DEMO_PASSWORD`: llegas a "Mis
-   citas" (el empleado y el admin siguen llegando a "Mi área" hasta el B9).
+   citas"; el empleado llega a su **Agenda** (el admin sigue llegando a "Mi
+   área" hasta el B9b).
 2. **Recarga la página (F5):** sigues dentro. El access token solo estaba en
    memoria y se ha perdido, pero la web ha pedido otro con la cookie
    `refresh_token` (F12 → Aplicación → Cookies: verás que es `HttpOnly` y que
@@ -98,7 +99,7 @@ están en la misma dirección y la cookie de sesión funciona sin más.
    alta un empleado y copia su `passwordTemporal`.
 2. Entra en la web con ese empleado: te lleva a **Cambiar contraseña** y, si
    intentas ir a otra página, vuelve ahí.
-3. Cámbiala: llegas a "Mi área" con "Contraseña cambiada correctamente".
+3. Cámbiala: llegas a tu **Agenda** con "Contraseña cambiada correctamente".
 
 ### 4.5 Zona del cliente: reservar, mis citas y menores (B8a)
 
@@ -153,10 +154,35 @@ hay dependencias nuevas.
    una contraseña mal (error debajo del campo) y luego la buena. Vuelves al
    inicio con "Tu cuenta se ha eliminado" y sin sesión; ya no puedes entrar
    con ese correo.
-7. Como **empleado o admin**, el perfil no tiene "Eliminar mi cuenta", y "Mi
-   área" sigue en el menú.
+7. Como **empleado o admin**, el perfil no tiene "Eliminar mi cuenta".
 
-### 4.7 Desde el móvil (RNF-008)
+### 4.7 Zona del empleado: agenda, citas y estados (B9a)
+
+Entra con un empleado de la demo (`ana@demo.invalid` y tu `DEMO_PASSWORD`).
+Antes, como cliente, reserva un par de citas con Ana (una para hoy si aún
+quedan horas) para tener algo que ver.
+
+1. **Agenda:** llegas a la semana actual, con hoy resaltado. Cada día muestra
+   su horario ("09:00–14:00 · 16:00–20:00"), "No trabajas" o "Cerrado (día de
+   cierre)" y sus citas con hora, servicio y cliente (o "Lucía (menor), a
+   cargo de ..."). Prueba **Semana siguiente**, **Semana anterior** y **Hoy**.
+   En el ordenador los siete días van en columnas; en el móvil (F12), uno
+   debajo de otro.
+2. **Mis citas** (menú): tarjetas con el cliente y su teléfono. Filtra por
+   estado o por fechas: los filtros quedan en la dirección y "Atrás" los
+   recupera. Un rango al revés da el aviso del servidor.
+3. **Detalle de una cita futura:** el teléfono es un enlace para llamar
+   (`tel:`); dice "Podrás marcarla como completada o no presentado a partir de
+   las ..." y solo ofrece **Cancelar cita**. Pulsa confirmar sin motivo: "Indica
+   el motivo de la cancelación". Con motivo, pasa a "Cancelada" y la hora
+   vuelve a estar libre en los horarios.
+4. **Detalle de una cita ya empezada** (la de hoy, cuando llegue su hora):
+   **Marcar como completada** o **No se presentó**, con confirmación.
+5. Entra como cliente en la cita cancelada por el empleado: ves el motivo.
+6. **Mis servicios:** los que el admin le asignó, con duración y precio.
+7. Como cliente, `/empleado/agenda` dice "No tienes acceso a esta página".
+
+### 4.8 Desde el móvil (RNF-008)
 
 - **Rápido, en el PC:** F12 → icono del móvil (Ctrl+Shift+M) → elige un
   iPhone o un Pixel. El menú pasa a un botón ☰.
