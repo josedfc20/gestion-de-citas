@@ -91,7 +91,7 @@ avanza a la siguiente.
   - [x] 5b · Huecos de la matriz, matrices de permisos (RNF-002), ArchUnit y umbral de cobertura (`test/huecos-permisos`, `docs/propuestas/5.2-5b-huecos-y-permisos.md`)
   - [x] 5c · Pruebas de punta a punta con Playwright: 7 flujos en Chromium y trabajo `e2e` en la CI (`test/e2e`, `docs/propuestas/5.3-5c-pruebas-e2e.md`)
   - [x] 5d · Móvil, accesibilidad, reserva simultánea y seguridad básica (`test/e2e-no-funcionales`, `docs/propuestas/5.4-5d-pruebas-no-funcionales.md`)
-  - [ ] 5e · Pruebas manuales y defectos (`fix/...`)
+  - [ ] 5e · Pruebas manuales y defectos: lista en `docs/pruebas/pruebas-manuales.md` (`test/pruebas-manuales`, `docs/propuestas/5.5-5e-pruebas-manuales.md`); defectos en `fix/...`
   - [ ] 5f · Informe de pruebas y cierre de la fase
 - [ ] FASE 6: Documentación
 - [ ] FASE 7: Despliegue
@@ -331,3 +331,5 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 | 2026-10-31 | 5c aprobado: pruebas de punta a punta con Playwright en `e2e/` (7 flujos, uno por archivo). Límite de inicios de sesión subido solo en las E2E con `APP_SECURITY_INTENTOSLOGINPORMINUTO=1000`; solo Chromium; base de datos aparte `gestion_de_citas_e2e` en el PC; trabajo `e2e` en la CI en cada PR y en cada push a `main`, después del backend y la web. Sin cambios en el código de la aplicación. |
 | 2026-10-31 | 5c fusionado (PR #17). |
 | 2026-10-31 | 5d aprobado: proyecto `movil` (390 px) solo con los flujos del cliente; axe en todas las páginas en modo claro y oscuro, con los fallos graves pequeños arreglados en el mismo PR; reserva simultánea desde dos navegadores; seguridad básica (cookie, almacenamiento, cabeceras del backend, sin hashes). Las cabeceras de la web y el análisis de dependencias, en la fase 7. |
+| 2026-10-31 | 5d fusionado (PR #18). |
+| 2026-10-31 | 5e aprobado: lista de pruebas manuales de una hora (`docs/pruebas/pruebas-manuales.md`, bloques A a H) que pasa el usuario de una vez con el perfil `demo`, en Chrome o Edge, Firefox y el navegador de su móvil. Los defectos se apuntan como M-1, M-2… y se arreglan en `fix/...` con una prueba que los reproduzca (o la línea de la lista, si no se puede automatizar); las mejoras se apuntan para después de la primera versión. |

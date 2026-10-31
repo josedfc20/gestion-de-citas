@@ -1,6 +1,6 @@
 # Plan de pruebas
 
-> Fase 5 (Pruebas), paso 5a; actualizado en el 5b, el 5c y el 5d. Plan aprobado el 31/10/2026 en
+> Fase 5 (Pruebas), paso 5a; actualizado en el 5b, el 5c, el 5d y el 5e. Plan aprobado el 31/10/2026 en
 > `docs/propuestas/5.0-plan-de-pruebas.md`.
 
 ## 1. Objetivo
@@ -19,7 +19,7 @@ ejecuta en cada push y en cada PR.
 | **Arquitectura (backend)** | Las reglas del paso 3.2 sobre el código compilado (capas, DTO, dependencias entre paquetes, `Clock`) | ArchUnit | `ArquitecturaTest` | `./mvnw test` |
 | **Componentes (web)** | Cada pantalla con la API simulada: formularios, errores del servidor, rutas por rol, sesión y renovación del token | Vitest, Testing Library, MSW | `frontend/src/**/*.test.ts(x)` | `npm test` |
 | **De punta a punta** | Los flujos principales con la web, el backend, PostgreSQL y Mailpit reales, en Chromium (5c); móvil, accesibilidad y reserva simultánea (5d) | Playwright, axe | `e2e/pruebas` | `npm test` en `e2e/` (guía `docs/guias/pruebas-e2e.md`) |
-| **Manuales** | Lo que una máquina no juzga bien: que se entienda, que se vea bien, los correos | Lista de comprobación con el perfil `demo` | `docs/pruebas/pruebas-manuales.md` (paso 5e) | pendiente |
+| **Manuales** | Lo que una máquina no juzga bien: que se entienda, que se vea bien, los correos | Lista de comprobación con el perfil `demo` | `docs/pruebas/pruebas-manuales.md` (paso 5e) | La pasa el usuario en su PC: una hora, ocho bloques (A a H) |
 
 Las reglas se prueban con PostgreSQL real, que es más fiable que simular los
 repositorios. Mockito solo se usa donde una prueba de integración no llega
@@ -130,8 +130,8 @@ El paso 5d añade, en la misma carpeta:
 | 5a | Este plan, matriz de trazabilidad, cobertura en la CI y prueba intermitente arreglada | hecho (PR #15) |
 | 5b | Huecos de la matriz, matrices de permisos (RNF-002), ArchUnit y umbral de cobertura | hecho (PR #16) |
 | 5c | Pruebas de punta a punta con Playwright: 7 flujos en Chromium y trabajo `e2e` en la CI | hecho (PR #17) |
-| 5d | Móvil, accesibilidad, reserva simultánea y comprobaciones de seguridad | en curso |
-| 5e | Pruebas manuales y defectos | pendiente |
+| 5d | Móvil, accesibilidad, reserva simultánea y comprobaciones de seguridad | hecho (PR #18) |
+| 5e | Pruebas manuales (`pruebas-manuales.md`) y arreglo de los defectos que salgan; las mejoras se apuntan para después de la primera versión | en curso |
 | 5f | Informe de pruebas y cierre de la fase | pendiente |
 
 ## 7. Defectos encontrados
