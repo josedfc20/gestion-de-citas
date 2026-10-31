@@ -46,11 +46,12 @@ public class ReservaService {
     private final NegocioRepository negocios;
     private final BeneficiarioService beneficiarios;
     private final DisponibilidadService disponibilidad;
+    private final AutoresDeCambios autores;
     private final Clock clock;
 
     public ReservaService(CitaRepository citas, UsuarioRepository usuarios, ServicioRepository servicios,
             EmpleadoRepository empleados, NegocioRepository negocios, BeneficiarioService beneficiarios,
-            DisponibilidadService disponibilidad, Clock clock) {
+            DisponibilidadService disponibilidad, AutoresDeCambios autores, Clock clock) {
         this.citas = citas;
         this.usuarios = usuarios;
         this.servicios = servicios;
@@ -58,6 +59,7 @@ public class ReservaService {
         this.negocios = negocios;
         this.beneficiarios = beneficiarios;
         this.disponibilidad = disponibilidad;
+        this.autores = autores;
         this.clock = clock;
     }
 
@@ -75,7 +77,7 @@ public class ReservaService {
         Negocio negocio = negocio();
         Cita cita = guardar(clienteId, datos, adminId, negocio);
         return CitaResponse.paraAdmin(cita, negocio.getZonaHoraria(), negocio.plazoCancelacion(),
-                cita.getCreadaEn(), true);
+                cita.getCreadaEn(), autores.de(cita));
     }
 
     /**

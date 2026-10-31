@@ -95,6 +95,11 @@ class EstadosCitaTest {
                 .andExpect(jsonPath("$.estado").value("CANCELADA"))
                 .andExpect(jsonPath("$.motivoCancelacion").value("Baja del profesional"));
         r.disponibilidad(r.corte, r.empleado, r.fecha).andExpect(jsonPath("$.horas", hasItem("10:00")));
+        // El admin ve en el historial quién hizo cada cambio (B9b).
+        r.leer("/api/v1/citas/" + cita, r.admin)
+                .andExpect(jsonPath("$.cambios[0].realizadoPorNombre").value("Cliente"))
+                .andExpect(jsonPath("$.cambios[1].realizadoPor").value(r.empleado))
+                .andExpect(jsonPath("$.cambios[1].realizadoPorNombre").value("Luis G."));
     }
 
     @Test

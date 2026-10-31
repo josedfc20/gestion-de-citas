@@ -58,6 +58,7 @@ class AdminCitasTest {
                         .andExpect(jsonPath("$.beneficiario.nombre").value("Lucía"))
                         .andExpect(jsonPath("$.cliente.email").value(cliente.email()))
                         .andExpect(jsonPath("$.cambios[0].realizadoPor").value(adminId))
+                        .andExpect(jsonPath("$.cambios[0].realizadoPorNombre").value("Administrador"))
                         .andReturn()).get("id").asLong();
 
         // El cliente la ve entre sus citas.

@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Map;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -31,11 +32,13 @@ public class CitaService {
 
     private final CitaRepository citas;
     private final NegocioRepository negocios;
+    private final AutoresDeCambios autores;
     private final Clock clock;
 
-    public CitaService(CitaRepository citas, NegocioRepository negocios, Clock clock) {
+    public CitaService(CitaRepository citas, NegocioRepository negocios, AutoresDeCambios autores, Clock clock) {
         this.citas = citas;
         this.negocios = negocios;
+        this.autores = autores;
         this.clock = clock;
     }
 
@@ -99,7 +102,7 @@ public class CitaService {
                 hasta == null ? null : hasta.plusDays(1).atStartOfDay(zona).toInstant());
         var peticion = PageRequest.of(pagina, tamano, Sort.by("inicio", "id"));
         return Pagina.de(citas.findAll(filtro.comoSpecification(), peticion), c -> respuesta(c, rol, negocio,
-                clock.instant(), false));
+                clock.instant(), null));
     }
 
     private static boolean esVisible(Cita cita, Long usuarioId, Rol rol) {
@@ -111,16 +114,20 @@ public class CitaService {
     }
 
     private CitaResponse respuesta(Cita cita, Rol rol) {
-        return respuesta(cita, rol, negocio(), clock.instant(), true);
+        return respuesta(cita, rol, negocio(), clock.instant(), rol == Rol.ADMIN ? autores.de(cita) : null);
     }
 
-    /** Lo que ve cada rol de una cita; {@code conCambios}, el historial para el admin (solo en el detalle). */
-    static CitaResponse respuesta(Cita cita, Rol rol, Negocio negocio, Instant ahora, boolean conCambios) {
+    /**
+     * Lo que ve cada rol de una cita. Con {@code autoresCambios} (solo en el detalle
+     * del admin) sale el historial con el nombre de quien hizo cada cambio.
+     */
+    static CitaResponse respuesta(Cita cita, Rol rol, Negocio negocio, Instant ahora,
+            Map<Long, String> autoresCambios) {
         ZoneId zona = negocio.getZonaHoraria();
         return switch (rol) {
             case CLIENTE -> CitaResponse.de(cita, zona, negocio.plazoCancelacion(), ahora);
             case EMPLEADO -> CitaResponse.paraEmpleado(cita, zona, negocio.plazoCancelacion(), ahora);
-            case ADMIN -> CitaResponse.paraAdmin(cita, zona, negocio.plazoCancelacion(), ahora, conCambios);
+            case ADMIN -> CitaResponse.paraAdmin(cita, zona, negocio.plazoCancelacion(), ahora, autoresCambios);
         };
     }
 
