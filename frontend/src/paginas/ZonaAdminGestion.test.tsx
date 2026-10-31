@@ -309,7 +309,7 @@ describe('horarios (CU-018, RN-002)', () => {
 
     // El sábado queda cerrado y el domingo abre por la mañana.
     await usuario.click(within(sabado).getByRole('button', { name: 'Quitar el tramo 1 del sábado' }))
-    await usuario.click(screen.getByRole('button', { name: 'Añadir un tramo al domingo' }))
+    await usuario.click(screen.getByRole('button', { name: 'Añadir tramo al domingo' }))
     await usuario.click(screen.getByRole('button', { name: 'Guardar horario general' }))
 
     expect(await screen.findByText('Horario general guardado.')).toBeInTheDocument()

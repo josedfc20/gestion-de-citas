@@ -39,7 +39,7 @@ export function Empleados() {
                 {empleado.debeCambiarPassword && <li className={estilos.etiqueta}>Contraseña temporal pendiente</li>}
               </ul>
               <p>{empleado.servicios.length === 0 ? 'Sin servicios asignados' : empleado.servicios.map((s) => s.nombre).join(', ')}</p>
-              <Link to={`/admin/empleados/${empleado.id}`} aria-label={`Ver la ficha de ${empleado.nombre} ${empleado.apellidos}`}>
+              <Link to={`/admin/empleados/${empleado.id}`} aria-label={`Ver ficha de ${empleado.nombre} ${empleado.apellidos}`}>
                 Ver ficha
               </Link>
             </li>

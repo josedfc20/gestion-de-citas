@@ -1,6 +1,6 @@
 # Guía · Pruebas de punta a punta (Playwright) en tu PC
 
-> Fase 5, paso 5c. Para Windows, con el entorno instalado (`instalacion-entorno.md`)
+> Fase 5, pasos 5c y 5d. Para Windows, con el entorno instalado (`instalacion-entorno.md`)
 > y el backend y la web funcionando (`arrancar-backend.md`, `arrancar-web.md`).
 > Los comandos van en **PowerShell**.
 
@@ -73,13 +73,16 @@ Desde `e2e`:
 npm test
 ```
 
-Tarda alrededor de un minuto: unos 20 segundos en arrancar el backend y la
-web, y el resto en los 7 flujos. Al terminar sale una línea por prueba. Si
+Tarda alrededor de un minuto y medio: unos 20 segundos en arrancar el backend
+y la web, y el resto en las pruebas. Cada prueba sale con su proyecto delante:
+`[chromium]` es el navegador de escritorio y `[movil]`, el mismo Chromium con
+una pantalla de móvil de 390 px (los flujos del cliente y `movil.spec.ts`). Al terminar sale una línea por prueba. Si
 alguna falla, se abre en el navegador el **informe de Playwright** con la
 captura de pantalla, el vídeo y la traza de la prueba que falló; también se
 abre después con `npm run informe`.
 
-Para ejecutar solo un archivo: `npx playwright test cliente`.
+Para ejecutar solo un archivo: `npx playwright test cliente`. Solo el móvil:
+`npx playwright test --project=movil`.
 
 ### Ver las pruebas paso a paso
 
@@ -102,6 +105,13 @@ cómoda de revisar qué hace cada una.
 | `reserva-admin.spec.ts` | El admin reserva para un cliente desde `/horarios`; historial "por Administrador" |
 | `recuperar-password.spec.ts` | Enlace por correo (lo lee de Mailpit), contraseña nueva, la antigua ya no sirve y el enlace no se puede reutilizar |
 | `rgpd.spec.ts` | Descarga de datos (JSON sin contraseñas) y eliminación de la cuenta |
+| `movil.spec.ts` | Solo en `[movil]`: ninguna página se sale de la pantalla y lo que se toca mide al menos 44 × 44 px |
+| `accesibilidad.spec.ts` | axe en 33 páginas de los cuatro perfiles, en modo claro y oscuro; falla con los fallos graves y críticos |
+| `concurrencia.spec.ts` | Dos navegadores confirman la misma hora a la vez: solo uno la consigue |
+| `seguridad.spec.ts` | La cookie de la sesión, que el token no se guarde en el navegador, las cabeceras del backend y que ninguna respuesta lleve hashes |
+
+Si `accesibilidad` falla, el informe dice qué regla de axe no se cumple, en
+qué página y en qué elemento, con un enlace a la explicación de la regla.
 
 Cada prueba crea sus propios datos con nombres únicos, así que pueden ir en
 paralelo y repetirse sin limpiar la base de datos. Si algún día quieres

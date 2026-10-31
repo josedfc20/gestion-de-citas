@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 import { ApiAdmin, diaSemana, hoyEnZona, sumarDias, type Escenario } from '../utilidades/api.ts'
 import { ADMIN_EMAIL, ADMIN_PASSWORD } from '../utilidades/entorno.ts'
-import { abrirHorarios, iniciarSesion } from '../utilidades/web.ts'
+import { abrirHorarios, iniciarSesion, irA } from '../utilidades/web.ts'
 
 // CU-018, RN-002 y CU-007. Solo cambia el horario y los cierres de su propio
 // empleado, nunca el horario general: las demás pruebas van en paralelo.
@@ -47,7 +47,7 @@ test('el horario propio y un día de cierre cambian las horas libres', async ({ 
   })
 
   await test.step('el admin cierra ese día para el empleado', async () => {
-    await page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Horarios' }).click()
+    await irA(page, 'Horarios')
     await page.getByLabel('Día', { exact: true }).fill(fecha)
     await page.getByLabel('Quién cierra').selectOption({ label: empleado.nombreCompleto })
     await page.getByLabel(/^Motivo/).fill('Vacaciones')

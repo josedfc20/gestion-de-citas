@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 import { registrarCliente } from '../utilidades/api.ts'
 import { PASSWORD, WEB_URL } from '../utilidades/entorno.ts'
 import { ultimoCorreo } from '../utilidades/mailpit.ts'
-import { iniciarSesion } from '../utilidades/web.ts'
+import { cerrarSesion, iniciarSesion } from '../utilidades/web.ts'
 
 // CU-020: recuperar la contraseña con el enlace del correo (Mailpit hace de buzón).
 
@@ -49,7 +49,7 @@ test('un cliente recupera la contraseña con el enlace del correo', async ({ pag
   })
 
   await test.step('el enlace solo sirve una vez', async () => {
-    await page.getByRole('button', { name: 'Cerrar sesión' }).click()
+    await cerrarSesion(page)
     await page.goto(enlace)
     await page.getByLabel('Contraseña nueva', { exact: true }).fill(PASSWORD)
     await page.getByLabel('Repite la contraseña nueva').fill(PASSWORD)
