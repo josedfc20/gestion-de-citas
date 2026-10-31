@@ -164,6 +164,18 @@ class DisponibilidadTest {
     }
 
     @Test
+    void elUltimoDiaPermitidoSinHuecosNoSugiereOtroDia() throws Exception {
+        LocalDate ultimo = hoy.plusDays(60);
+        cerrar(ultimo, empleado);
+
+        // Después del último día no se puede reservar (RN-009), así que no hay "siguiente día".
+        consultar(corte, empleado, ultimo)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.horas").isEmpty())
+                .andExpect(jsonPath("$.siguienteFechaConHuecos").doesNotExist());
+    }
+
+    @Test
     void soloAdmiteFechasDeHoyHastaLaAntelacionMaxima() throws Exception {
         consultar(corte, empleado, hoy.minusDays(1))
                 .andExpect(status().isUnprocessableContent())
