@@ -51,7 +51,7 @@ avanza a la siguiente.
 | 6    | Documentación | Registrar decisiones técnicas y preparar el README.      |
 | 7    | Despliegue    | Preparar una versión que pueda utilizarse y demostrarse. |
 
-**Fase actual: 4. Desarrollo**
+**Fase actual: 5. Pruebas** (la fase 4 se cerró con el B9)
 
 - [x] FASE 1: Análisis
 - [x] FASE 2: Diseño
@@ -67,7 +67,7 @@ avanza a la siguiente.
   - [x] 3.3 Diseño de la API REST (`docs/propuestas/3.3-api-rest.md`)
   - [x] 3.4 Seguridad y autenticación (`docs/propuestas/3.4-seguridad.md`)
   - [x] 3.5 Estructura del repositorio y entorno (`docs/propuestas/3.5-repositorio-y-entorno.md`)
-- [ ] FASE 4: Desarrollo (plan en `docs/propuestas/4.0-plan-de-bloques.md`)
+- [x] FASE 4: Desarrollo (plan en `docs/propuestas/4.0-plan-de-bloques.md`)
   - [x] 4.0 Plan de bloques: backend primero (B1 a B6) y web después (B7 a B9)
   - [x] B1 · Esqueleto: Spring Boot, docker-compose, Flyway V1/V2, CI (`feature/esqueleto-backend`, `docs/propuestas/4.1-B1-esqueleto-backend.md`)
   - [x] B2 · Autenticación: registro, login, JWT + refresh con rotación, roles, /me, admin inicial (`feature/autenticacion`, `docs/propuestas/4.2-B2-autenticacion.md`)
@@ -81,10 +81,10 @@ avanza a la siguiente.
   - [x] B8 · Web: cliente (`docs/propuestas/4.8-B8-web-cliente.md`)
     - [x] B8a · Reservar, mis citas, detalle, cancelar y menores a cargo (`feature/web-cliente`)
     - [x] B8b · Perfil, exportar datos, eliminar cuenta y recuperar contraseña (`feature/web-cliente-perfil`)
-  - [ ] B9 · Web: empleado y administrador (`docs/propuestas/4.9-B9-web-empleado-admin.md`)
+  - [x] B9 · Web: empleado y administrador (`docs/propuestas/4.9-B9-web-empleado-admin.md`)
     - [x] B9a · Empleado: agenda semanal, citas asignadas, cambio de estado y mis servicios (`feature/web-empleado`)
     - [x] B9b · Admin: reservas, historial y reservar por un cliente (`feature/web-admin-reservas`)
-    - [ ] B9c · Admin: servicios, empleados, horarios, cierres y negocio (`feature/web-admin-gestion`)
+    - [x] B9c · Admin: servicios, empleados, horarios, cierres y negocio (`feature/web-admin-gestion`)
 - [ ] FASE 5: Pruebas
 - [ ] FASE 6: Documentación
 - [ ] FASE 7: Despliegue
@@ -136,6 +136,7 @@ avanza a la siguiente.
 - Web, cuenta (B8b): `/perfil` para los tres roles (datos con `PUT /me`, enlace a `/cambiar-password`, que después vuelve al perfil, y "Descargar mis datos"); "Eliminar mi cuenta" solo para el cliente, con la contraseña. Los archivos que piden el token se descargan con `pedirArchivo` (Blob) y `guardarArchivo`, nunca con un enlace directo. Cuando el servidor ya ha cerrado la sesión (cuenta eliminada, contraseña restablecida) la web usa `cerrarSesionLocal()` sin llamar al logout; tras eliminar la cuenta se navega a `/` con `state.cerrarSesion` y el `Marco` borra la sesión al llegar, para que la página privada no lleve al login. `/recuperar-password` nunca dice si el correo existe; `/restablecer-password` lee el token del `#`, lo quita de la dirección y, con 422, ofrece pedir otro enlace.
 - Web, zona del empleado (B9a): rutas `/empleado/agenda` (semana de lunes a domingo, `?desde=` normalizado al lunes; 7 columnas desde 1024 px), `/empleado/citas` (filtros de estado y fechas en la URL), `/empleado/citas/:id` y `/empleado/servicios`; el empleado entra a su agenda. Los tres detalles de cita comparten `<FichaCita>` (vista `cliente` o `gestion`, con el teléfono como enlace `tel:`). `<CambioEstado>` ofrece Completada y No presentado solo desde la hora de inicio (`yaHaEmpezado`, una ayuda: decide el servidor) y Cancelar con motivo obligatorio (Zod); tras cambiar se invalidan agenda, listas, reservas y disponibilidad (`invalidarTrasGestion`).
 - Web, reservas del admin (B9b): el admin entra a `/admin/reservas` (filtros de estado, fechas, profesional y cliente en la URL; sin `desde`, de hoy en adelante) y `/mi-area` ya solo redirige a la página de inicio de cada rol. Reserva por un cliente desde `/horarios`, cuyas horas le llevan a `/admin/reservas/nueva?servicio=&profesional=&fecha=&hora=`; allí elige al cliente con `<BuscadorCliente>` (busca al pulsar, 3 letras o más) y para quién es (él o uno de sus menores; el admin no crea clientes ni menores). El detalle (`/admin/reservas/:id`) muestra el correo y el historial; cada cambio trae `realizadoPorNombre` ("Cliente", "Luis G." o "Administrador"), que calcula `AutoresDeCambios` en el backend con una consulta por cita y solo en el detalle del admin.
+- Web, panel del admin (B9c): `/admin/servicios` (también los desactivados con `?inactivos=si`; alta y edición en `/admin/servicios/nuevo` y `/:id`; la duración se elige de una lista con los múltiplos del intervalo, RN-011, y el precio admite coma), `/admin/empleados` (alta con la contraseña temporal mostrada una sola vez y nunca guardada en la web; ficha con datos, servicios, cuenta y enlace al horario; solo se asignan servicios activos; el 409 al desactivar enlaza a sus citas confirmadas), `/admin/empleados/:id/horario` y `/admin/horarios` con `<EditorSemana>` (en el horario de un empleado cada día es "como el general" o propio; `erroresDeSemana` comprueba lo básico y los solapes los decide el servidor), días de cierre (próximos y, a petición, los de los últimos 90 días) y `/admin/negocio` (cambiar el intervalo o la zona pide confirmación; al guardar se actualiza la caché de `negocio`). Las citas que quedan fuera al guardar horarios o cierres se listan con `<CitasAfectadas>`; nunca se cancelan. Menú del admin: Reservas, Servicios, Empleados, Horarios y Negocio ("Nueva reserva" está en Reservas).
 - Correo detrás de la interfaz `EnvioCorreo` (`shared/correo`); en las pruebas, buzón en memoria (`CorreosDePrueba`). El proveedor SMTP real se elige en la fase 7.
 - Configuración técnica y secretos en `application.yml` / variables de entorno, nunca en Git.
 - El backend lee el `.env` de la raíz al arrancar; los valores del negocio están en la tabla `negocio`.
@@ -309,3 +310,5 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 | 2026-10-31 | B8b fusionado (PR #11). |
 | 2026-10-31 | B9 aprobado: zonas del empleado y del admin en tres PR (`feature/web-empleado`, `feature/web-admin-reservas`, `feature/web-admin-gestion`). El admin reserva por un cliente desde `/horarios`; el historial de cambios mostrará quién lo hizo con un `realizadoPorNombre` nuevo en el backend (B9b); agenda por semanas; Completada y No presentado solo desde la hora de inicio; duración del servicio elegida de una lista de múltiplos del intervalo. |
 | 2026-10-31 | B9a fusionado (PR #12). |
+| 2026-10-31 | B9b fusionado (PR #13). |
+| 2026-10-31 | B9c terminado (`feature/web-admin-gestion`): panel del admin. Con él termina el B9 y se cierra la FASE 4 (Desarrollo); la siguiente es la FASE 5 (Pruebas). "Nueva reserva" sale del menú del admin (está en Reservas) para que el menú quepa en una línea. |
