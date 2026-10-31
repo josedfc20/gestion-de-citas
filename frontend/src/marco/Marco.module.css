@@ -80,7 +80,9 @@
 }
 
 .enlace {
-  display: block;
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem; /* objetivo táctil cómodo en el móvil, como los botones */
   padding: var(--espacio-2) var(--espacio-3);
   border-radius: var(--radio);
   color: var(--color-texto);

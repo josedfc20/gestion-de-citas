@@ -82,7 +82,7 @@ export function EditorSemana({ semana, onCambiar, errores = {}, general }: Props
                   {tramos.length < MAX_TRAMOS && (
                     <Boton
                       variante="enlace"
-                      aria-label={`Añadir un tramo al ${nombre.toLowerCase()}`}
+                      aria-label={`Añadir tramo al ${nombre.toLowerCase()}`}
                       onClick={() => cambiarDia(dia, [...tramos, tramos.length === 0 ? { inicio: '09:00', fin: '14:00' } : { inicio: '', fin: '' }])}
                     >
                       Añadir tramo
