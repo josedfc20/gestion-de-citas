@@ -16,6 +16,15 @@ const ENLACES = [
   { a: '/horarios', texto: 'Horarios libres' },
 ]
 
+// El cliente reserva desde los horarios libres (B8).
+const ENLACES_CLIENTE = [
+  { a: '/servicios', texto: 'Servicios' },
+  { a: '/profesionales', texto: 'Profesionales' },
+  { a: '/horarios', texto: 'Reservar' },
+  { a: '/mis-citas', texto: 'Mis citas' },
+  { a: '/menores', texto: 'Menores a mi cargo' },
+]
+
 /** Estructura común de todas las páginas: cabecera con menú, contenido y pie. */
 export function Marco() {
   const { cargando, usuario, cerrarSesion } = useSesion()
@@ -44,6 +53,7 @@ export function Marco() {
   }
 
   const nombreNegocio = negocio?.nombre ?? 'Reserva tu cita'
+  const enlaces = usuario?.rol === 'CLIENTE' ? ENLACES_CLIENTE : ENLACES
 
   return (
     <>
@@ -71,7 +81,7 @@ export function Marco() {
           </div>
           <nav id="menu-principal" aria-label="Principal" className={`${estilos.menu} ${menuAbierto ? estilos.menuAbierto : ''}`}>
             <ul className={estilos.enlaces}>
-              {ENLACES.map((enlace) => (
+              {enlaces.map((enlace) => (
                 <li key={enlace.a}>
                   <NavLink to={enlace.a} className={estilos.enlace}>
                     {enlace.texto}

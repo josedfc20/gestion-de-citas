@@ -64,3 +64,27 @@ export const esquemaCambioPassword = z
     message: 'Las contraseñas no coinciden.',
   })
 export type DatosFormularioCambioPassword = z.infer<typeof esquemaCambioPassword>
+
+const FECHA_ISO = /^\d{4}-\d{2}-\d{2}$/
+
+/**
+ * Menor a cargo (BeneficiarioRequest). Que sea menor de la edad mínima lo
+ * comprueba también el servidor (422), aquí solo se avisa antes.
+ */
+export function esquemaBeneficiario(hoy: string, edadMinima: number) {
+  return z.object({
+    nombre: z.string().trim().min(1, 'Escribe su nombre.').max(80, 'Como mucho 80 caracteres.'),
+    apellidos: z.string().trim().min(1, 'Escribe sus apellidos.').max(120, 'Como mucho 120 caracteres.'),
+    fechaNacimiento: z
+      .string()
+      .min(1, 'Indica su fecha de nacimiento.')
+      .refine((valor) => FECHA_ISO.test(valor) && valor <= hoy, 'La fecha no puede ser futura.')
+      .refine(
+        (valor) => !FECHA_ISO.test(valor) || valor > hoy || edadEn(valor, hoy) < edadMinima,
+        `Con ${edadMinima} años o más necesita su propia cuenta.`,
+      ),
+  })
+}
+export type DatosFormularioBeneficiario = z.infer<ReturnType<typeof esquemaBeneficiario>>
+
+export const MOTIVO_MAX = 300

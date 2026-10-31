@@ -4,7 +4,7 @@
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 
-import { negocio, problema, profesionales, servicios } from './datos'
+import { negocio, paginaDe, problema, profesionales, servicios } from './datos'
 
 export const API = '/api/v1'
 
@@ -20,6 +20,9 @@ export const manejadoresPorDefecto = [
     const fecha = new URL(request.url).searchParams.get('fecha')
     return HttpResponse.json({ fecha, zonaHoraria: 'Europe/Madrid', horas: ['09:00', '09:30', '16:00'], siguienteFechaConHuecos: null })
   }),
+  // Zona del cliente (B8): por defecto, sin citas ni menores.
+  http.get(`${API}/me/citas`, () => HttpResponse.json(paginaDe([]))),
+  http.get(`${API}/me/beneficiarios`, () => HttpResponse.json([])),
   // Por defecto, sin cookie: visitante.
   http.post(`${API}/auth/refresh`, () => HttpResponse.json(problema(401, 'Sesión no válida.'), { status: 401 })),
   http.post(`${API}/auth/logout`, () => new HttpResponse(null, { status: 204 })),

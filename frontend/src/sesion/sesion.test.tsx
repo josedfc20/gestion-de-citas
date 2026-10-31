@@ -14,9 +14,9 @@ function conCookieDe(usuario = cliente) {
 describe('sesión', () => {
   it('al abrir la web con una cookie válida entra sin pedir la contraseña', async () => {
     conCookieDe(cliente)
-    renderizarApp('/mi-area')
+    renderizarApp('/mis-citas')
 
-    expect(await screen.findByRole('heading', { name: 'Hola, Marta' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Mis citas', level: 1 })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Cerrar sesión' })).toBeInTheDocument()
     expect(tokenActual()).toBe('token-1')
   })
@@ -92,8 +92,8 @@ describe('sesión', () => {
 
   it('si la sesión caduca en mitad del uso, lleva al login con un aviso', async () => {
     conCookieDe(cliente)
-    const { router } = renderizarApp('/mi-area')
-    await screen.findByRole('heading', { name: 'Hola, Marta' })
+    const { router } = renderizarApp('/mis-citas')
+    await screen.findByRole('heading', { name: 'Mis citas', level: 1 })
 
     // La cookie ya no vale y el token tampoco: cualquier petición da 401.
     servidor.use(
@@ -102,7 +102,7 @@ describe('sesión', () => {
     )
     await router.navigate('/servicios')
     await screen.findByRole('heading', { name: 'Servicios y precios' })
-    await router.navigate('/mi-area')
+    await router.navigate('/mis-citas')
 
     expect(await screen.findByText(/Tu sesión ha caducado/)).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/login')

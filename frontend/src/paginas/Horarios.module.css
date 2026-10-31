@@ -36,6 +36,16 @@
   font-variant-numeric: tabular-nums;
 }
 
+.horaEnlace {
+  text-decoration: none;
+  transition: background-color 0.15s;
+}
+
+.horaEnlace:hover {
+  background: var(--color-primario);
+  color: var(--color-sobre-primario);
+}
+
 .nota {
   font-size: var(--texto-s);
   color: var(--color-texto-suave);

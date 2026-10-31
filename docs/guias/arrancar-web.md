@@ -1,6 +1,6 @@
 # Guía · Arrancar y probar la web en tu PC
 
-> Bloque B7. Para Windows, con el entorno instalado (`instalacion-entorno.md`)
+> Bloques B7 y B8. Para Windows, con el entorno instalado (`instalacion-entorno.md`)
 > y el backend funcionando (`arrancar-backend.md`). Los comandos van en
 > **PowerShell**.
 
@@ -13,7 +13,7 @@ profesionales y horas libres con los datos de demostración.
 ```powershell
 cd C:\Users\josef\Downloads\Proyectos\Aplicaciones\gestion-de-citas
 git fetch origin
-git switch feature/web-base     # o, si ya está fusionado: git switch main; git pull
+git switch feature/web-cliente  # o, si ya está fusionado: git switch main; git pull
 ```
 
 Ahora hay una carpeta nueva, `frontend`.
@@ -80,8 +80,8 @@ están en la misma dirección y la cookie de sesión funciona sin más.
 
 ### 4.3 Login, sesión y cerrar sesión (CU-002, CU-003)
 
-1. Entra con `cliente@demo.invalid` y tu `DEMO_PASSWORD`: llegas a "Mi área"
-   (provisional; en el B8 será la zona del cliente).
+1. Entra con `cliente@demo.invalid` y tu `DEMO_PASSWORD`: llegas a "Mis
+   citas" (el empleado y el admin siguen llegando a "Mi área" hasta el B9).
 2. **Recarga la página (F5):** sigues dentro. El access token solo estaba en
    memoria y se ha perdido, pero la web ha pedido otro con la cookie
    `refresh_token` (F12 → Aplicación → Cookies: verás que es `HttpOnly` y que
@@ -100,7 +100,37 @@ están en la misma dirección y la cookie de sesión funciona sin más.
    intentas ir a otra página, vuelve ahí.
 3. Cámbiala: llegas a "Mi área" con "Contraseña cambiada correctamente".
 
-### 4.5 Desde el móvil (RNF-008)
+### 4.5 Zona del cliente: reservar, mis citas y menores (B8a)
+
+Si cambias de rama con la web en marcha, ejecuta antes `npm install` por si
+hay dependencias nuevas.
+
+1. **Reservar sin sesión:** cierra sesión, ve a **Horarios libres**, elige
+   servicio, profesional y día, y pulsa una hora. Te pide iniciar sesión; entra
+   con `cliente@demo.invalid` y vuelves a **Reservar cita** con esa hora.
+2. **Reservar para ti:** revisa el resumen (la hora es la del negocio,
+   Europe/Madrid), deja "Para mí" y pulsa **Confirmar reserva**: llegas al
+   detalle con "Cita reservada". Vuelve a los horarios de ese día: esa hora ya
+   no sale.
+3. **Reservar para un menor:** en otra hora, pulsa "Añadir un menor a cargo",
+   rellena sus datos (menor de 14 años) y guárdalo: queda elegido. Confirma.
+   Prueba también una fecha de nacimiento de un adulto: el formulario lo avisa.
+4. **Hora ocupada (409):** abre la misma hora en dos pestañas y confirma en
+   las dos. La segunda dice "Ese horario ya no está disponible" y ofrece
+   **Elegir otra hora**.
+5. **Mis citas:** "Próximas" en orden, con el estado y "Para ..." si es de un
+   menor. La pestaña **Historial** muestra las pasadas (con la demo puede estar
+   vacía).
+6. **Cancelar:** abre una cita de dentro de más de 24 h, pulsa **Cancelar
+   cita**, escribe un motivo y confirma: pasa a "Cancelada" y la hora vuelve a
+   estar libre en los horarios. Una cita de dentro de menos de 24 h dice "Ya
+   no puedes cancelarla online".
+7. **Menores a mi cargo** (menú): corrige los apellidos de un menor y luego
+   elimínalo; si tenía citas próximas, en "Mis citas" salen canceladas.
+8. Como **empleado o admin**, las horas de "Horarios libres" son solo
+   etiquetas y `/reservar` dice "No tienes acceso a esta página".
+
+### 4.6 Desde el móvil (RNF-008)
 
 - **Rápido, en el PC:** F12 → icono del móvil (Ctrl+Shift+M) → elige un
   iPhone o un Pixel. El menú pasa a un botón ☰.

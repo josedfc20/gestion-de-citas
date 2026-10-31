@@ -2,14 +2,18 @@ import type { RouteObject } from 'react-router'
 
 import { Marco } from './marco/Marco'
 import { CambiarPassword } from './paginas/CambiarPassword'
+import { DetalleCita } from './paginas/DetalleCita'
 import { Horarios } from './paginas/Horarios'
 import { Inicio } from './paginas/Inicio'
 import { Login } from './paginas/Login'
+import { Menores } from './paginas/Menores'
 import { MiArea } from './paginas/MiArea'
+import { MisCitas } from './paginas/MisCitas'
 import { NoEncontrada } from './paginas/NoEncontrada'
 import { Privacidad } from './paginas/Privacidad'
 import { Profesionales } from './paginas/Profesionales'
 import { Registro } from './paginas/Registro'
+import { Reservar } from './paginas/Reservar'
 import { Servicios } from './paginas/Servicios'
 import { RutaProtegida, SoloSinSesion } from './sesion/RutaProtegida'
 
@@ -30,6 +34,11 @@ export const rutas: RouteObject[] = [
       { path: 'registro', element: <SoloSinSesion><Registro /></SoloSinSesion> },
       { path: 'cambiar-password', element: <RutaProtegida><CambiarPassword /></RutaProtegida> },
       { path: 'mi-area', element: <RutaProtegida><MiArea /></RutaProtegida> },
+      // B8 · zona del cliente
+      { path: 'reservar', element: <RutaProtegida roles={['CLIENTE']}><Reservar /></RutaProtegida> },
+      { path: 'mis-citas', element: <RutaProtegida roles={['CLIENTE']}><MisCitas /></RutaProtegida> },
+      { path: 'mis-citas/:id', element: <RutaProtegida roles={['CLIENTE']}><DetalleCita /></RutaProtegida> },
+      { path: 'menores', element: <RutaProtegida roles={['CLIENTE']}><Menores /></RutaProtegida> },
       { path: '*', element: <NoEncontrada /> },
     ],
   },

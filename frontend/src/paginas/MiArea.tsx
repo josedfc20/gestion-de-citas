@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router'
+import { Navigate, useLocation } from 'react-router'
 
 import { Aviso } from '../componentes/Aviso'
 import { EnlaceBoton } from '../componentes/Boton'
@@ -8,17 +8,17 @@ import { useTitulo } from '../utilidades/useTitulo'
 import estilos from './Paginas.module.css'
 
 const TEXTO_POR_ROL = {
-  CLIENTE: 'Aquí verás tus próximas citas, podrás reservar y gestionar tu perfil.',
   EMPLEADO: 'Aquí verás tu agenda, tus citas asignadas y tus servicios.',
   ADMIN: 'Aquí gestionarás los servicios, los empleados, los horarios y las reservas.',
 } as const
 
-/** Página provisional tras iniciar sesión. B8 (cliente) y B9 (empleado y admin) la sustituyen. */
+/** Página provisional del empleado y el admin hasta el B9. El cliente ya tiene "Mis citas" (B8). */
 export function MiArea() {
   useTitulo('Mi área')
   const { usuario } = useSesion()
   const passwordCambiada = (useLocation().state as { passwordCambiada?: boolean } | null)?.passwordCambiada
   if (!usuario) return null
+  if (usuario.rol === 'CLIENTE') return <Navigate to="/mis-citas" replace state={passwordCambiada ? { passwordCambiada } : undefined} />
 
   return (
     <section className={estilos.texto}>

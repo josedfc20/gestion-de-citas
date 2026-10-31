@@ -1,5 +1,7 @@
 // Formatos en español para precios, duraciones y fechas.
 
+import { partesDeInstante } from './fechas'
+
 const euros = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' })
 
 export function formatearPrecio(precio: number): string {
@@ -25,4 +27,15 @@ export function formatearFechaLarga(isoFecha: string): string {
   return new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
     fechaLocal(isoFecha),
   )
+}
+
+/** "2026-11-03" → "martes, 3 de noviembre" (sin el año, para las citas). */
+export function formatearDia(isoFecha: string): string {
+  return new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }).format(fechaLocal(isoFecha))
+}
+
+/** "2026-11-03T10:00:00+01:00" → "martes, 3 de noviembre de 2026 a las 10:00" (hora del negocio). */
+export function formatearInstante(instante: string, conAnio = true): string {
+  const { fecha, hora } = partesDeInstante(instante)
+  return `${conAnio ? formatearFechaLarga(fecha) : formatearDia(fecha)} a las ${hora}`
 }
