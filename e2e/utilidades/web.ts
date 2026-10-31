@@ -13,10 +13,34 @@ export async function abrirMenu(page: Page) {
   if (await boton.isVisible()) await boton.click()
 }
 
-/** Un enlace del menú principal, como lo pulsaría el usuario en cualquier tamaño de pantalla. */
-export async function irA(page: Page, enlace: string) {
+/**
+ * Espera a que se vea la página nueva (su título h1) tras pulsar un enlace.
+ *
+ * D-4 (registro de defectos): React Router cambia de página dentro de una
+ * transición, así que la dirección cambia antes de que se pinte la página nueva.
+ * Si la prueba rellena un campo justo después de pulsar, puede escribir en uno
+ * de la página anterior con la misma etiqueta ("Día", "Correo electrónico"), que
+ * desaparece al llegar la nueva, y el formulario se envía vacío.
+ */
+async function esperarPagina(page: Page, titulo: string) {
+  await expect(page.getByRole('heading', { level: 1, name: titulo, exact: true })).toBeVisible()
+}
+
+/**
+ * Un enlace del menú principal, como lo pulsaría el usuario en cualquier tamaño
+ * de pantalla. Vuelve cuando se ve la página nueva (por defecto, con el título
+ * igual que el enlace).
+ */
+export async function irA(page: Page, enlace: string, titulo = enlace) {
   await abrirMenu(page)
   await page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: enlace, exact: true }).click()
+  await esperarPagina(page, titulo)
+}
+
+/** Pulsa un enlace de la página y vuelve cuando se ve la página nueva, con ese título. */
+export async function pulsarEnlace(page: Page, enlace: string, titulo: string) {
+  await page.getByRole('link', { name: enlace, exact: true }).click()
+  await esperarPagina(page, titulo)
 }
 
 export async function cerrarSesion(page: Page) {

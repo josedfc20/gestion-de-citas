@@ -1,9 +1,9 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from '../utilidades/prueba.ts'
 
 import { registrarCliente } from '../utilidades/api.ts'
 import { PASSWORD, WEB_URL } from '../utilidades/entorno.ts'
 import { ultimoCorreo } from '../utilidades/mailpit.ts'
-import { cerrarSesion, iniciarSesion } from '../utilidades/web.ts'
+import { cerrarSesion, iniciarSesion, pulsarEnlace } from '../utilidades/web.ts'
 
 // CU-020: recuperar la contraseña con el enlace del correo (Mailpit hace de buzón).
 
@@ -13,7 +13,7 @@ test('un cliente recupera la contraseña con el enlace del correo', async ({ pag
 
   await test.step('pide el enlace', async () => {
     await page.goto('/login')
-    await page.getByRole('link', { name: '¿Has olvidado la contraseña?' }).click()
+    await pulsarEnlace(page, '¿Has olvidado la contraseña?', 'Recuperar contraseña')
     await page.getByLabel('Correo electrónico').fill(cliente.email)
     await page.getByRole('button', { name: 'Enviar enlace' }).click()
     await expect(page.getByText(/Si el correo está registrado, recibirás un enlace/)).toBeVisible()

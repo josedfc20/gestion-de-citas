@@ -25,6 +25,8 @@ function leerEnv(): Record<string, string> {
 
 const env = { ...leerEnv(), ...process.env }
 const enCI = Boolean(process.env.CI)
+/** E2E_CPU_LENTA=<n>: Chromium n veces más lento para buscar prisas en las pruebas (utilidades/prueba.ts). */
+const cpuLenta = Number(env.E2E_CPU_LENTA ?? 0) > 1
 
 /** Variables del backend: todas explícitas, para que el .env de desarrollo no cuele su base de datos. */
 const entornoBackend: Record<string, string> = {
@@ -49,6 +51,9 @@ const entornoBackend: Record<string, string> = {
   APP_SECURITY_INTENTOSLOGINPORMINUTO: '1000',
   // Nunca los datos de demo, aunque el .env de desarrollo (que el backend también lee) active ese perfil.
   SPRING_PROFILES_ACTIVE: 'default',
+  // D-4: el registro del backend, para ver qué pasó si una prueba falla. La CI lo
+  // guarda junto al informe de Playwright; en el PC se va añadiendo y Spring lo rota a los 10 MB.
+  LOGGING_FILE_NAME: `${raiz}e2e/registros/backend.log`,
 }
 
 export default defineConfig({
@@ -58,8 +63,9 @@ export default defineConfig({
   // Sin reintentos: una prueba que falla a veces es un defecto (plan de pruebas, §4).
   retries: 0,
   workers: enCI ? 2 : undefined,
-  timeout: 60_000,
-  expect: { timeout: 10_000 },
+  // Con la CPU lenta todo tarda más, pero las prisas se siguen notando: fallan igual.
+  timeout: cpuLenta ? 300_000 : 60_000,
+  expect: { timeout: cpuLenta ? 30_000 : 10_000 },
   reporter: enCI ? [['list'], ['html', { open: 'never' }]] : [['list'], ['html', { open: 'on-failure' }]],
   use: {
     baseURL: WEB_URL,
