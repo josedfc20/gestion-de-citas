@@ -120,12 +120,15 @@ describe('servicios (CU-016)', () => {
 
   it('desactiva un servicio tras confirmarlo', async () => {
     conAdmin()
+    // El servidor simulado recuerda el cambio: tras desactivar, la web vuelve a pedir
+    // el servicio (invalidarServicios) y debe recibirlo ya desactivado, como haría el backend.
     let activo: boolean | undefined
     servidor.use(
       http.patch(`${API}/admin/servicios/1/activo`, async ({ request }) => {
         activo = ((await request.json()) as { activo: boolean }).activo
         return HttpResponse.json({ ...corte, activo })
       }),
+      http.get(`${API}/admin/servicios/1`, () => HttpResponse.json({ ...corte, activo: activo ?? corte.activo })),
     )
     const { usuario } = renderizarApp('/admin/servicios/1')
 
