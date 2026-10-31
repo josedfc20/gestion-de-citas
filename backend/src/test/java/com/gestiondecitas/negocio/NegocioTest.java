@@ -64,6 +64,16 @@ class NegocioTest {
     }
 
     @Test
+    void laConfiguracionPublicaSeVeSinSesion() throws Exception {
+        mockMvc.perform(get("/api/v1/negocio"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nombre").isNotEmpty())
+                .andExpect(jsonPath("$.zonaHoraria").value("Europe/Madrid"))
+                .andExpect(jsonPath("$.antelacionMaxDias").value(60))
+                .andExpect(jsonPath("$.edadMinimaCuenta").value(14));
+    }
+
+    @Test
     void elAdminVeYCambiaLaConfiguracion() throws Exception {
         mockMvc.perform(get("/api/v1/admin/negocio").header(HttpHeaders.AUTHORIZATION, admin))
                 .andExpect(status().isOk())

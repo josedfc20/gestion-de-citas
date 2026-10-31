@@ -50,8 +50,9 @@ public class SecurityConfig {
         "/api/v1/auth/restablecer-password"
     };
 
-    /** Catálogo público: los endpoints llegan en B4 y B5. */
+    /** Catálogo público (B4, B5) y configuración pública del negocio (B7). */
     private static final String[] CONSULTAS_PUBLICAS = {
+        "/api/v1/negocio",
         "/api/v1/servicios/**",
         "/api/v1/profesionales/**",
         "/api/v1/disponibilidad"

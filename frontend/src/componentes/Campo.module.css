@@ -1,0 +1,62 @@
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-1);
+  margin-bottom: var(--espacio-4);
+}
+
+.etiqueta {
+  font-weight: 600;
+  font-size: var(--texto-s);
+}
+
+.opcional {
+  font-weight: 400;
+  color: var(--color-texto-suave);
+}
+
+.control {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--espacio-2) var(--espacio-3);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+}
+
+.control:hover {
+  border-color: var(--color-texto-suave);
+}
+
+.control[aria-invalid='true'] {
+  border-color: var(--color-error);
+}
+
+.ayuda {
+  font-size: var(--texto-xs);
+  color: var(--color-texto-suave);
+  margin: 0;
+}
+
+.error {
+  font-size: var(--texto-xs);
+  color: var(--color-error);
+  font-weight: 600;
+  margin: 0;
+}
+
+.casilla {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--espacio-2);
+  font-size: var(--texto-s);
+}
+
+.casilla input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0.125rem 0 0;
+  flex-shrink: 0;
+  accent-color: var(--color-primario);
+}

@@ -1,0 +1,25 @@
+.aviso {
+  padding: var(--espacio-3) var(--espacio-4);
+  border-radius: var(--radio);
+  border-left: 4px solid;
+  margin-bottom: var(--espacio-4);
+}
+
+.aviso > :last-child {
+  margin-bottom: 0;
+}
+
+.error {
+  background: var(--color-error-fondo);
+  border-color: var(--color-error);
+}
+
+.exito {
+  background: var(--color-exito-fondo);
+  border-color: var(--color-exito);
+}
+
+.info {
+  background: var(--color-info-fondo);
+  border-color: var(--color-info);
+}

@@ -22,8 +22,8 @@ talleres, consultas, etc.
 |---|---|
 | Backend | Java 21, Spring Boot 4.1, Spring Security (JWT), Spring Data JPA |
 | Base de datos | PostgreSQL 16, Flyway |
-| Frontend | React, TypeScript, Vite, TanStack Query, React Hook Form + Zod |
-| Pruebas | JUnit 5, Mockito, Testcontainers, Vitest, Testing Library |
+| Frontend | React 19, TypeScript, Vite, React Router, TanStack Query, React Hook Form + Zod, CSS Modules |
+| Pruebas | JUnit 5, Mockito, Testcontainers, Vitest, Testing Library, MSW |
 | Infraestructura | Docker Compose, GitHub Actions |
 
 ## Estructura
@@ -32,7 +32,7 @@ talleres, consultas, etc.
 gestion-de-citas/
 ├── AGENTS.md     reglas y especificaciones del proyecto
 ├── backend/      API REST con Spring Boot (fase 4)
-├── frontend/     web con React + TypeScript (fase 4)
+├── frontend/     web con React + TypeScript (Vite)
 └── docs/         documentación, diagramas UML y propuestas aprobadas
 ```
 
@@ -46,10 +46,12 @@ gestion-de-citas/
   cómo preparar el entorno de desarrollo.
 - [`docs/guias/arrancar-backend.md`](docs/guias/arrancar-backend.md):
   cómo arrancar y probar el backend en tu PC.
+- [`docs/guias/arrancar-web.md`](docs/guias/arrancar-web.md):
+  cómo arrancar y probar la web.
 
 ## Arrancar en local
 
-Requisitos: JDK 21, Docker Desktop y Git.
+Requisitos: JDK 21, Node.js 24, Docker Desktop y Git.
 
 ```bash
 cp .env.example .env                    # y cambia contraseñas, JWT_SECRET y ADMIN_*
@@ -62,8 +64,17 @@ cd backend && ./mvnw spring-boot:run    # API en http://localhost:8080
 - Estado: http://localhost:8080/actuator/health
 - Pruebas: `./mvnw verify` (necesita Docker para Testcontainers)
 
-Guía detallada para Windows: [`docs/guias/arrancar-backend.md`](docs/guias/arrancar-backend.md).
-El frontend se añadirá en el bloque B7.
+Con el backend en marcha, en otra terminal:
+
+```bash
+cd frontend && npm install && npm run dev   # web en http://localhost:5173
+```
+
+- Vite reenvía `/api` al backend, así que la web y la API comparten dirección.
+- Pruebas de la web: `npm test` (no necesitan el backend).
+
+Guías detalladas para Windows: [`docs/guias/arrancar-backend.md`](docs/guias/arrancar-backend.md)
+y [`docs/guias/arrancar-web.md`](docs/guias/arrancar-web.md).
 
 ## Autor
 
