@@ -13,7 +13,7 @@ profesionales y horas libres con los datos de demostración.
 ```powershell
 cd C:\Users\josef\Downloads\Proyectos\Aplicaciones\gestion-de-citas
 git fetch origin
-git switch feature/web-cliente  # o, si ya está fusionado: git switch main; git pull
+git switch feature/web-cliente-perfil  # o, si ya está fusionado: git switch main; git pull
 ```
 
 Ahora hay una carpeta nueva, `frontend`.
@@ -130,7 +130,33 @@ hay dependencias nuevas.
 8. Como **empleado o admin**, las horas de "Horarios libres" son solo
    etiquetas y `/reservar` dice "No tienes acceso a esta página".
 
-### 4.6 Desde el móvil (RNF-008)
+### 4.6 Perfil, mis datos y recuperar la contraseña (B8b)
+
+1. Como cliente, pulsa **Mi perfil (tu nombre)** arriba a la derecha. Cambia
+   tu nombre y guarda: "Datos guardados" y la cabecera muestra el nombre nuevo.
+   Pon el correo de otra cuenta (por ejemplo `ana@demo.invalid`): "Ese correo
+   ya lo usa otra cuenta".
+2. **Cambiar contraseña** desde el perfil: al guardar vuelves al perfil con
+   "Contraseña cambiada correctamente".
+3. **Descargar mis datos:** se descarga `mis-datos.json` con tus datos, tus
+   citas y tus menores (sin contraseñas).
+4. **Recuperar la contraseña:** cierra sesión, en el login pulsa "¿Has
+   olvidado la contraseña?" y escribe `cliente@demo.invalid`. Abre Mailpit
+   (http://localhost:8025), pulsa el enlace del correo: se abre "Elegir
+   contraseña nueva" y el token desaparece de la barra de direcciones. Elige
+   una contraseña y entra con ella. Si vuelves a usar el mismo enlace: "El
+   enlace no es válido o ha caducado" con "Pedir otro enlace".
+5. Prueba con un correo que no existe: el mensaje es el mismo (la web no
+   revela qué correos tienen cuenta).
+6. **Eliminar la cuenta** (hazlo con una cuenta de prueba que registres tú,
+   no con la de la demo): en el perfil, "Quiero eliminar mi cuenta", escribe
+   una contraseña mal (error debajo del campo) y luego la buena. Vuelves al
+   inicio con "Tu cuenta se ha eliminado" y sin sesión; ya no puedes entrar
+   con ese correo.
+7. Como **empleado o admin**, el perfil no tiene "Eliminar mi cuenta", y "Mi
+   área" sigue en el menú.
+
+### 4.7 Desde el móvil (RNF-008)
 
 - **Rápido, en el PC:** F12 → icono del móvil (Ctrl+Shift+M) → elige un
   iPhone o un Pixel. El menú pasa a un botón ☰.
