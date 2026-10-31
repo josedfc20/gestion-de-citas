@@ -88,3 +88,36 @@ export function esquemaBeneficiario(hoy: string, edadMinima: number) {
 export type DatosFormularioBeneficiario = z.infer<ReturnType<typeof esquemaBeneficiario>>
 
 export const MOTIVO_MAX = 300
+
+const telefono = z
+  .string()
+  .trim()
+  .refine((valor) => valor === '' || /^\+?[0-9 ]{6,19}$/.test(valor), 'Teléfono no válido: solo números, espacios y un + inicial.')
+
+/** Perfil (ActualizarPerfilRequest): las mismas reglas que el registro. */
+export const esquemaPerfil = z.object({
+  nombre: z.string().trim().min(1, 'Escribe tu nombre.').max(80, 'Como mucho 80 caracteres.'),
+  apellidos: z.string().trim().min(1, 'Escribe tus apellidos.').max(120, 'Como mucho 120 caracteres.'),
+  email: correo,
+  telefono,
+})
+export type DatosFormularioPerfil = z.infer<typeof esquemaPerfil>
+
+export const esquemaEliminarCuenta = z.object({
+  password: z.string().min(1, 'Escribe tu contraseña para confirmar.'),
+})
+export type DatosEliminarCuenta = z.infer<typeof esquemaEliminarCuenta>
+
+export const esquemaRecuperarPassword = z.object({ email: correo })
+export type DatosRecuperarPassword = z.infer<typeof esquemaRecuperarPassword>
+
+export const esquemaRestablecerPassword = z
+  .object({
+    password: passwordNueva,
+    confirmacionPassword: z.string().min(1, 'Repite la contraseña nueva.'),
+  })
+  .refine((datos) => datos.password === datos.confirmacionPassword, {
+    path: ['confirmacionPassword'],
+    message: 'Las contraseñas no coinciden.',
+  })
+export type DatosFormularioRestablecer = z.infer<typeof esquemaRestablecerPassword>

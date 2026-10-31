@@ -17,6 +17,7 @@ import estilos from './Paginas.module.css'
 const AVISOS: Record<NonNullable<EstadoLogin['aviso']>, { tipo: 'info' | 'exito'; texto: string }> = {
   caducada: { tipo: 'info', texto: 'Tu sesión ha caducado. Vuelve a iniciar sesión para continuar.' },
   registrado: { tipo: 'exito', texto: 'Cuenta creada. Ya puedes iniciar sesión.' },
+  restablecida: { tipo: 'exito', texto: 'Contraseña cambiada. Ya puedes iniciar sesión con la nueva.' },
 }
 
 /**
@@ -67,6 +68,9 @@ export function Login() {
           Iniciar sesión
         </Boton>
       </form>
+      <p className={estilos.pieFormulario}>
+        <Link to="/recuperar-password">¿Has olvidado la contraseña?</Link>
+      </p>
       <p className={estilos.pieFormulario}>
         ¿No tienes cuenta? <Link to="/registro">Regístrate</Link>
       </p>

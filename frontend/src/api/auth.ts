@@ -1,5 +1,5 @@
 import { establecerSesion, pedir } from './cliente'
-import type { DatosCambioPassword, DatosRegistro, SesionResponse, UsuarioResumen } from './tipos'
+import type { DatosCambioPassword, DatosRegistro, DatosRestablecerPassword, SesionResponse, UsuarioResumen } from './tipos'
 
 /** CU-002. Guarda el access token en memoria; el refresh token llega en la cookie. */
 export async function login(email: string, password: string): Promise<SesionResponse> {
@@ -31,4 +31,14 @@ export async function cambiarPassword(datos: DatosCambioPassword): Promise<Sesio
   const sesion = await pedir<SesionResponse>('/me/password', { metodo: 'PUT', cuerpo: datos })
   establecerSesion(sesion)
   return sesion
+}
+
+/** CU-020, paso 1. El servidor responde 202 igual exista o no el correo. */
+export async function recuperarPassword(email: string): Promise<void> {
+  await pedir<unknown>('/auth/recuperar-password', { metodo: 'POST', cuerpo: { email }, renovarSiCaduca: false })
+}
+
+/** CU-020, paso 4. Cierra todas las sesiones y no inicia sesión. */
+export function restablecerPassword(datos: DatosRestablecerPassword): Promise<void> {
+  return pedir<void>('/auth/restablecer-password', { metodo: 'POST', cuerpo: datos, renovarSiCaduca: false })
 }

@@ -122,3 +122,28 @@ export interface DatosBeneficiario {
   apellidos: string
   fechaNacimiento: string
 }
+
+/** Datos del usuario actual (GET /me). La fecha de nacimiento solo existe para clientes. */
+export interface Perfil {
+  id: number
+  rol: Rol
+  nombre: string
+  apellidos: string
+  email: string
+  telefono: string | null
+  fechaNacimiento?: string | null
+  debeCambiarPassword: boolean
+}
+
+export interface DatosPerfil {
+  nombre: string
+  apellidos: string
+  email: string
+  telefono: string | null
+}
+
+export interface DatosRestablecerPassword {
+  token: string
+  password: string
+  confirmacionPassword: string
+}

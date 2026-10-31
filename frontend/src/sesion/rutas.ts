@@ -3,7 +3,7 @@ import type { Rol, UsuarioResumen } from '../api/tipos'
 /** Estado que se pasa al login para volver después a la página de origen. */
 export interface EstadoLogin {
   desde?: string
-  aviso?: 'caducada' | 'registrado'
+  aviso?: 'caducada' | 'registrado' | 'restablecida'
   email?: string
 }
 
@@ -21,7 +21,7 @@ export function rutaInicialDe(usuario: UsuarioResumen): string {
 /** Solo se vuelve a rutas internas de la web (nunca a otra dirección). */
 export function destinoSeguro(desde: string | undefined): string | null {
   if (!desde || !desde.startsWith('/') || desde.startsWith('//')) return null
-  if (desde.startsWith('/login') || desde.startsWith('/registro')) return null
+  if (['/login', '/registro', '/recuperar-password', '/restablecer-password'].some((ruta) => desde.startsWith(ruta))) return null
   return desde
 }
 

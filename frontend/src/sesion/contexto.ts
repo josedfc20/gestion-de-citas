@@ -13,6 +13,13 @@ export interface ValorSesion {
   iniciarSesion: (email: string, password: string) => Promise<UsuarioResumen>
   cerrarSesion: () => Promise<void>
   cambiarPassword: (datos: DatosCambioPassword) => Promise<UsuarioResumen>
+  /** Tras guardar el perfil: el nombre de la cabecera cambia sin pedir otra sesión. */
+  actualizarUsuario: (cambios: Partial<Pick<UsuarioResumen, 'nombre'>>) => void
+  /**
+   * Borra la sesión solo en la web, cuando el servidor ya la ha cerrado
+   * (cuenta eliminada o contraseña restablecida): no hace falta pedir el logout.
+   */
+  cerrarSesionLocal: () => void
 }
 
 export const ContextoSesion = createContext<ValorSesion | null>(null)
