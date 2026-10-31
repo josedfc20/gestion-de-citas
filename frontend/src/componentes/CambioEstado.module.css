@@ -1,0 +1,20 @@
+.cambio {
+  display: grid;
+  gap: var(--espacio-3);
+  margin-bottom: var(--espacio-5);
+}
+
+.cambio h2 {
+  margin: 0;
+  font-size: var(--texto-l);
+}
+
+.cambio p {
+  margin: 0;
+}
+
+.botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-3);
+}

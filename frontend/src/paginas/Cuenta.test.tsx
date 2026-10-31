@@ -139,7 +139,7 @@ describe('perfil (CU-004)', () => {
 
     expect(await screen.findByRole('heading', { name: 'Mis datos' })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Eliminar mi cuenta' })).not.toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Mi área' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Agenda' })).toBeInTheDocument()
   })
 })
 

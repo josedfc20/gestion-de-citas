@@ -18,12 +18,13 @@ import { Registro } from './paginas/Registro'
 import { Reservar } from './paginas/Reservar'
 import { RestablecerPassword } from './paginas/RestablecerPassword'
 import { Servicios } from './paginas/Servicios'
+import { Agenda } from './paginas/empleado/Agenda'
+import { CitasAsignadas } from './paginas/empleado/CitasAsignadas'
+import { DetalleCitaEmpleado } from './paginas/empleado/DetalleCitaEmpleado'
+import { MisServicios } from './paginas/empleado/MisServicios'
 import { RutaProtegida, SoloSinSesion } from './sesion/RutaProtegida'
 
-/**
- * Todas las rutas de la web. B8 y B9 añaden aquí las suyas dentro de
- * <RutaProtegida roles={[...]}>.
- */
+/** Todas las rutas de la web; las privadas, dentro de <RutaProtegida roles={[...]}>. */
 export const rutas: RouteObject[] = [
   {
     element: <Marco />,
@@ -46,6 +47,11 @@ export const rutas: RouteObject[] = [
       { path: 'perfil', element: <RutaProtegida><Perfil /></RutaProtegida> },
       { path: 'recuperar-password', element: <SoloSinSesion><RecuperarPassword /></SoloSinSesion> },
       { path: 'restablecer-password', element: <RestablecerPassword /> },
+      // B9a · zona del empleado
+      { path: 'empleado/agenda', element: <RutaProtegida roles={['EMPLEADO']}><Agenda /></RutaProtegida> },
+      { path: 'empleado/citas', element: <RutaProtegida roles={['EMPLEADO']}><CitasAsignadas /></RutaProtegida> },
+      { path: 'empleado/citas/:id', element: <RutaProtegida roles={['EMPLEADO']}><DetalleCitaEmpleado /></RutaProtegida> },
+      { path: 'empleado/servicios', element: <RutaProtegida roles={['EMPLEADO']}><MisServicios /></RutaProtegida> },
       { path: '*', element: <NoEncontrada /> },
     ],
   },

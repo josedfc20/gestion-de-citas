@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { edadEn, hoyEnZona, sumarDias } from './fechas'
-import { formatearDuracion, formatearFechaLarga, formatearPrecio } from './formato'
+import { edadEn, hoyEnZona, lunesDe, sumarDias, yaHaEmpezado } from './fechas'
+import { formatearDuracion, formatearFechaLarga, formatearPrecio, formatearTramos, personaDeLaCita } from './formato'
 
 describe('formatos', () => {
   it('formatea duraciones', () => {
@@ -35,5 +35,27 @@ describe('fechas', () => {
   it('calcula la edad cumplida (el día del cumpleaños ya cuenta)', () => {
     expect(edadEn('2012-10-31', '2026-10-31')).toBe(14)
     expect(edadEn('2012-11-01', '2026-10-31')).toBe(13)
+  })
+})
+
+describe('semana y hora de inicio (B9a)', () => {
+  it('el lunes de la semana, también si es domingo o ya es lunes', () => {
+    expect(lunesDe('2026-11-05')).toBe('2026-11-02')
+    expect(lunesDe('2026-11-08')).toBe('2026-11-02')
+    expect(lunesDe('2026-11-02')).toBe('2026-11-02')
+    expect(lunesDe('2027-01-01')).toBe('2026-12-28')
+  })
+
+  it('compara la hora de inicio con su desfase', () => {
+    const ahora = Date.parse('2026-11-03T09:00:00Z')
+    expect(yaHaEmpezado('2026-11-03T10:00:00+01:00', ahora)).toBe(true)
+    expect(yaHaEmpezado('2026-11-03T10:30:00+01:00', ahora)).toBe(false)
+  })
+
+  it('para quién es la cita, visto por el empleado', () => {
+    const cliente = { nombre: 'Marta', apellidos: 'Pérez' }
+    expect(personaDeLaCita({ cliente, beneficiario: null })).toBe('Marta Pérez')
+    expect(personaDeLaCita({ cliente, beneficiario: { nombre: 'Lucía' } })).toBe('Lucía (menor), a cargo de Marta Pérez')
+    expect(formatearTramos([{ inicio: '09:00', fin: '14:00' }, { inicio: '16:00', fin: '20:00' }])).toBe('09:00–14:00 · 16:00–20:00')
   })
 })

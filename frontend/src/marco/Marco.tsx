@@ -25,6 +25,15 @@ const ENLACES_CLIENTE = [
   { a: '/menores', texto: 'Menores a mi cargo' },
 ]
 
+const ENLACES_EMPLEADO = [
+  { a: '/empleado/agenda', texto: 'Agenda' },
+  { a: '/empleado/citas', texto: 'Mis citas' },
+  { a: '/empleado/servicios', texto: 'Mis servicios' },
+  { a: '/horarios', texto: 'Horarios libres' },
+]
+
+const ENLACES_POR_ROL = { CLIENTE: ENLACES_CLIENTE, EMPLEADO: ENLACES_EMPLEADO, ADMIN: ENLACES }
+
 /** Estructura común de todas las páginas: cabecera con menú, contenido y pie. */
 export function Marco() {
   const { cargando, usuario, cerrarSesion, cerrarSesionLocal } = useSesion()
@@ -60,7 +69,7 @@ export function Marco() {
   }
 
   const nombreNegocio = negocio?.nombre ?? 'Reserva tu cita'
-  const enlaces = usuario?.rol === 'CLIENTE' ? ENLACES_CLIENTE : ENLACES
+  const enlaces = usuario ? ENLACES_POR_ROL[usuario.rol] : ENLACES
 
   return (
     <>
@@ -100,7 +109,7 @@ export function Marco() {
               <ul className={estilos.cuenta}>
                 {usuario ? (
                   <>
-                    {usuario.rol !== 'CLIENTE' && (
+                    {usuario.rol === 'ADMIN' && (
                       <li>
                         <NavLink to="/mi-area" className={estilos.enlace}>
                           Mi área

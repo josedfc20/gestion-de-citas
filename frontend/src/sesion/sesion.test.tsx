@@ -51,7 +51,7 @@ describe('sesión', () => {
     await usuario.click(screen.getByRole('button', { name: 'Guardar contraseña' }))
 
     expect(await screen.findByText('Contraseña cambiada correctamente.')).toBeInTheDocument()
-    expect(router.state.location.pathname).toBe('/mi-area')
+    expect(router.state.location.pathname).toBe('/empleado/agenda')
     expect(tokenActual()).toBe('token-2')
   })
 

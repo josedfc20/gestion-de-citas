@@ -99,6 +99,45 @@ export interface Cita {
   /** RN-004 calculada por el servidor: la web no repite la regla de las 24 h. */
   puedeCancelar: boolean
   cancelableHasta: string
+  /** Solo para el empleado y el admin (CU-014, CU-019); el correo, solo para el admin. */
+  cliente?: DatosClienteCita
+  /** Historial de cambios de estado: solo en el detalle del admin. */
+  cambios?: CambioCita[]
+}
+
+export interface DatosClienteCita {
+  id: number
+  nombre: string
+  apellidos: string
+  telefono?: string | null
+  email?: string
+}
+
+export interface CambioCita {
+  estadoAnterior: EstadoCita | null
+  estadoNuevo: EstadoCita
+  fecha: string
+  realizadoPor: number
+}
+
+/** Tramo de horario en hora del negocio: { inicio: "09:00", fin: "14:00" }. */
+export interface Tramo {
+  inicio: string
+  fin: string
+}
+
+/** Un día de la agenda del empleado (CU-013): sin tramos o con cierre, no trabaja. */
+export interface AgendaDia {
+  fecha: string
+  cierre: boolean
+  tramos: Tramo[]
+  citas: Cita[]
+}
+
+/** Cambio de estado del empleado o el admin (CU-015, CU-019). El motivo, obligatorio al cancelar. */
+export interface DatosCambioEstado {
+  estado: Exclude<EstadoCita, 'CONFIRMADA'>
+  motivo?: string
 }
 
 export interface DatosReserva {

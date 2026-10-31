@@ -11,9 +11,8 @@ import { Campo } from '../componentes/Campo'
 import { Cargando } from '../componentes/Cargando'
 import { Confirmacion } from '../componentes/Confirmacion'
 import { ErrorConsulta } from '../componentes/ErrorConsulta'
-import { EstadoCita } from '../componentes/EstadoCita'
-import { partesDeInstante } from '../utilidades/fechas'
-import { formatearDuracion, formatearInstante, formatearPrecio } from '../utilidades/formato'
+import { FichaCita } from '../componentes/FichaCita'
+import { formatearInstante } from '../utilidades/formato'
 import { useTitulo } from '../utilidades/useTitulo'
 import { MOTIVO_MAX } from './esquemas'
 import estilos from './Paginas.module.css'
@@ -76,39 +75,7 @@ function Detalle({ cita, recargar }: { cita: Cita; recargar: () => void }) {
     <section className={propias.reserva}>
       {reservada && !cancelada && <Aviso tipo="exito">Cita reservada. ¡Te esperamos!</Aviso>}
       {cancelada && <Aviso tipo="exito">Cita cancelada.</Aviso>}
-      <header className={estilos.cabecera}>
-        <h1>{cita.servicio.nombre}</h1>
-        <EstadoCita estado={cita.estado} />
-      </header>
-
-      <dl className={propias.resumen}>
-        <div>
-          <dt>Día y hora</dt>
-          <dd>
-            {formatearInstante(cita.inicio)} (hasta las {partesDeInstante(cita.fin).hora})
-          </dd>
-        </div>
-        <div>
-          <dt>Profesional</dt>
-          <dd>{cita.profesional.nombre}</dd>
-        </div>
-        <div>
-          <dt>Para quién es</dt>
-          <dd>{cita.beneficiario ? cita.beneficiario.nombre : 'Para ti'}</dd>
-        </div>
-        <div>
-          <dt>Duración y precio</dt>
-          <dd>
-            {formatearDuracion(cita.servicio.duracionMinutos)} · {formatearPrecio(cita.precio)}
-          </dd>
-        </div>
-        {cita.estado === 'CANCELADA' && cita.motivoCancelacion && (
-          <div>
-            <dt>Motivo de la cancelación</dt>
-            <dd>{cita.motivoCancelacion}</dd>
-          </div>
-        )}
-      </dl>
+      <FichaCita cita={cita} />
 
       {error && <Aviso tipo="error">{error}</Aviso>}
 

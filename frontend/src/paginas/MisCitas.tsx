@@ -1,14 +1,12 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { Link, useLocation, useSearchParams } from 'react-router'
+import { useLocation, useSearchParams } from 'react-router'
 
 import { consultaMisCitas } from '../api/citas'
-import type { Cita } from '../api/tipos'
 import { Aviso } from '../componentes/Aviso'
 import { Boton, EnlaceBoton } from '../componentes/Boton'
 import { Cargando } from '../componentes/Cargando'
 import { ErrorConsulta } from '../componentes/ErrorConsulta'
-import { EstadoCita } from '../componentes/EstadoCita'
-import { formatearInstante, formatearPrecio } from '../utilidades/formato'
+import { TarjetaCita } from '../componentes/TarjetaCita'
 import { useTitulo } from '../utilidades/useTitulo'
 import propias from './MisCitas.module.css'
 import estilos from './Paginas.module.css'
@@ -59,7 +57,7 @@ export function MisCitas() {
           <ul className={propias.lista}>
             {lista.map((cita) => (
               <li key={cita.id}>
-                <TarjetaCita cita={cita} />
+                <TarjetaCita cita={cita} enlace={`/mis-citas/${cita.id}`} />
               </li>
             ))}
           </ul>
@@ -71,21 +69,5 @@ export function MisCitas() {
         </>
       )}
     </>
-  )
-}
-
-function TarjetaCita({ cita }: { cita: Cita }) {
-  return (
-    <Link to={`/mis-citas/${cita.id}`} className={propias.tarjeta}>
-      <span className={propias.cuando}>{formatearInstante(cita.inicio)}</span>
-      <span className={propias.que}>
-        {cita.servicio.nombre} <span className={estilos.suave}>con {cita.profesional.nombre}</span>
-      </span>
-      {cita.beneficiario && <span className={propias.para}>Para {cita.beneficiario.nombre}</span>}
-      <span className={propias.pie}>
-        <EstadoCita estado={cita.estado} />
-        <span>{formatearPrecio(cita.precio)}</span>
-      </span>
-    </Link>
   )
 }
