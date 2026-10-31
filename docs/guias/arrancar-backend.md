@@ -542,7 +542,9 @@ cd C:\Users\josef\Downloads\Proyectos\Aplicaciones\gestion-de-citas\backend
 ```
 
 Las pruebas crean su **propio** PostgreSQL temporal con Testcontainers y lo
-destruyen al acabar, así que nunca tocan tus datos. Al final debes ver:
+destruyen al acabar, así que nunca tocan tus datos. `verify` también mide la
+**cobertura** con JaCoCo: abre `backend\target\site\jacoco\index.html` en el
+navegador para ver qué líneas ejecutan las pruebas. Al final debes ver:
 
 ```
 Tests run: 173, Failures: 0, Errors: 0, Skipped: 0

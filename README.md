@@ -62,7 +62,7 @@ cd backend && ./mvnw spring-boot:run    # API en http://localhost:8080
 - Swagger: http://localhost:8080/swagger-ui.html (registro, login y botón *Authorize* con el token)
 - Correos de prueba (Mailpit): http://localhost:8025
 - Estado: http://localhost:8080/actuator/health
-- Pruebas: `./mvnw verify` (necesita Docker para Testcontainers)
+- Pruebas: `./mvnw verify` (necesita Docker para Testcontainers; cobertura en `backend/target/site/jacoco`)
 
 Con el backend en marcha, en otra terminal:
 
@@ -71,7 +71,8 @@ cd frontend && npm install && npm run dev   # web en http://localhost:5173
 ```
 
 - Vite reenvía `/api` al backend, así que la web y la API comparten dirección.
-- Pruebas de la web: `npm test` (no necesitan el backend).
+- Pruebas de la web: `npm test` (no necesitan el backend); con cobertura, `npm run test:cobertura`.
+- Plan de pruebas y matriz de trazabilidad: [`docs/pruebas/`](docs/pruebas/).
 
 Guías detalladas para Windows: [`docs/guias/arrancar-backend.md`](docs/guias/arrancar-backend.md)
 y [`docs/guias/arrancar-web.md`](docs/guias/arrancar-web.md).

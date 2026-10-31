@@ -30,6 +30,13 @@ export default defineConfig(({ mode }) => {
       setupFiles: ['./src/pruebas/setup.ts'],
       css: { modules: { classNameStrategy: 'non-scoped' } },
       restoreMocks: true,
+      // Cobertura (fase 5): npm run test:cobertura deja el informe en coverage/.
+      coverage: {
+        provider: 'v8',
+        include: ['src/**/*.{ts,tsx}'],
+        exclude: ['src/**/*.test.{ts,tsx}', 'src/pruebas/**', 'src/main.tsx', 'src/api/tipos.ts'],
+        reporter: ['text-summary', 'html', 'json-summary'],
+      },
     },
   }
 })
