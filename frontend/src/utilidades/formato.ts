@@ -60,3 +60,12 @@ export const NOMBRE_ESTADO: Record<EstadoCita, string> = {
   CANCELADA: 'Cancelada',
   NO_PRESENTADO: 'No presentado',
 }
+
+/** RN-011: duraciones posibles de un servicio, múltiplos del intervalo, hasta 8 horas. */
+export function duracionesPosibles(intervaloMinutos: number, maximo = 480): number[] {
+  const lista: number[] = []
+  for (let minutos = intervaloMinutos; minutos <= maximo; minutos += intervaloMinutos) lista.push(minutos)
+  return lista
+}
+
+export const NOMBRE_DIA = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'] as const

@@ -203,3 +203,92 @@ export interface DatosRestablecerPassword {
   password: string
   confirmacionPassword: string
 }
+
+// ---- Panel del administrador (B9c) ----
+
+/** Servicio en el panel: también los inactivos y cuántos empleados activos lo realizan. */
+export interface ServicioAdmin extends Servicio {
+  activo: boolean
+  empleados: number
+}
+
+export interface DatosServicio {
+  nombre: string
+  descripcion: string | null
+  duracionMinutos: number
+  precio: number
+}
+
+/** Empleado en el panel. `avisos` solo llega al cambiar sus servicios (CU-017, alt. 3). */
+export interface EmpleadoAdmin {
+  id: number
+  nombre: string
+  apellidos: string
+  email: string
+  telefono: string | null
+  activo: boolean
+  debeCambiarPassword: boolean
+  servicios: ServicioResumen[]
+  avisos?: string[]
+}
+
+export interface DatosEmpleado {
+  nombre: string
+  apellidos: string
+  email: string
+  telefono: string | null
+}
+
+export interface DatosAltaEmpleado extends DatosEmpleado {
+  servicioIds: number[]
+}
+
+/** RN-005: la contraseña temporal solo llega en esta respuesta. */
+export interface EmpleadoCreado {
+  empleado: EmpleadoAdmin
+  passwordTemporal: string
+}
+
+/** Cita confirmada que queda fuera del horario o en un día de cierre. No se cancela. */
+export interface CitaAfectada {
+  id: number
+  profesionalId: number
+  profesional: string
+  inicio: string
+  fin: string
+}
+
+/** Un día de la semana (1 = lunes ... 7 = domingo) con sus tramos; sin tramos, cerrado o libre. */
+export interface DiaHorario {
+  diaSemana: number
+  tramos: Tramo[]
+}
+
+export interface HorarioSemana {
+  dias: DiaHorario[]
+  citasAfectadas?: CitaAfectada[]
+}
+
+/** Horario de un empleado (RN-002): sus días ajustados y la semana que resulta. */
+export interface HorarioEmpleado {
+  empleadoId: number
+  ajustes: DiaHorario[]
+  semanaEfectiva: { diaSemana: number; ajustado: boolean; tramos: Tramo[] }[]
+  citasAfectadas?: CitaAfectada[]
+}
+
+/** Día de cierre: de todo el negocio (sin empleado) o de un empleado. */
+export interface DiaCierre {
+  id: number
+  fecha: string
+  empleadoId: number | null
+  empleado: string | null
+  motivo: string | null
+  citasAfectadas?: CitaAfectada[]
+}
+
+export interface DatosDiaCierre {
+  fecha: string
+  empleadoId: number | null
+  motivo: string | null
+}

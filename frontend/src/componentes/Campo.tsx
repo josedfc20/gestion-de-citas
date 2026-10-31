@@ -1,4 +1,4 @@
-import { useId, type InputHTMLAttributes, type ReactNode, type Ref, type SelectHTMLAttributes } from 'react'
+import { useId, type InputHTMLAttributes, type ReactNode, type Ref, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
 
 import estilos from './Campo.module.css'
 
@@ -79,6 +79,22 @@ export function Casilla({ etiqueta, error, ayuda, ref, ...resto }: PropsCasilla)
         <input id={id} ref={ref} type="checkbox" aria-invalid={error ? true : undefined} aria-describedby={describedBy} {...resto} />
         <label htmlFor={id}>{etiqueta}</label>
       </div>
+      <Pie error={error} ayuda={ayuda} idError={idError} idAyuda={idAyuda} />
+    </div>
+  )
+}
+
+type PropsArea = PropsComunes & TextareaHTMLAttributes<HTMLTextAreaElement> & { ref?: Ref<HTMLTextAreaElement> }
+
+/** Texto largo (descripción de un servicio). */
+export function CampoArea({ etiqueta, error, ayuda, opcional, ref, ...resto }: PropsArea) {
+  const { id, idAyuda, idError, describedBy } = useDescripcion(error, ayuda)
+  return (
+    <div className={estilos.campo}>
+      <label htmlFor={id} className={estilos.etiqueta}>
+        {etiqueta} {opcional && <span className={estilos.opcional}>(opcional)</span>}
+      </label>
+      <textarea id={id} ref={ref} rows={3} className={estilos.control} aria-invalid={error ? true : undefined} aria-describedby={describedBy} {...resto} />
       <Pie error={error} ayuda={ayuda} idError={idError} idAyuda={idAyuda} />
     </div>
   )

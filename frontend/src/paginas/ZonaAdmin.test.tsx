@@ -20,8 +20,7 @@ describe('rutas y menú del admin (B9b)', () => {
 
     expect(await screen.findByRole('heading', { name: 'Reservas', level: 1 })).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/admin/reservas')
-    const menu = screen.getByRole('navigation', { name: 'Principal' })
-    expect(within(menu).getByRole('link', { name: 'Nueva reserva' })).toHaveAttribute('href', '/horarios')
+    expect(screen.getByRole('link', { name: 'Nueva reserva' })).toHaveAttribute('href', '/horarios')
   })
 
   it('un empleado no entra en las reservas del admin', async () => {

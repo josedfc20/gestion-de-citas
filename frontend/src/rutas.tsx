@@ -18,9 +18,17 @@ import { Registro } from './paginas/Registro'
 import { Reservar } from './paginas/Reservar'
 import { RestablecerPassword } from './paginas/RestablecerPassword'
 import { Servicios } from './paginas/Servicios'
+import { AltaEmpleado } from './paginas/admin/AltaEmpleado'
 import { DetalleReserva } from './paginas/admin/DetalleReserva'
+import { Empleados } from './paginas/admin/Empleados'
+import { FichaEmpleado } from './paginas/admin/FichaEmpleado'
+import { FichaServicio } from './paginas/admin/FichaServicio'
+import { HorarioEmpleado } from './paginas/admin/HorarioEmpleado'
+import { HorariosAdmin } from './paginas/admin/Horarios'
+import { NegocioAdmin } from './paginas/admin/NegocioAdmin'
 import { NuevaReserva } from './paginas/admin/NuevaReserva'
 import { Reservas } from './paginas/admin/Reservas'
+import { ServiciosAdmin } from './paginas/admin/Servicios'
 import { Agenda } from './paginas/empleado/Agenda'
 import { CitasAsignadas } from './paginas/empleado/CitasAsignadas'
 import { DetalleCitaEmpleado } from './paginas/empleado/DetalleCitaEmpleado'
@@ -60,6 +68,16 @@ export const rutas: RouteObject[] = [
       { path: 'admin/reservas', element: <RutaProtegida roles={['ADMIN']}><Reservas /></RutaProtegida> },
       { path: 'admin/reservas/nueva', element: <RutaProtegida roles={['ADMIN']}><NuevaReserva /></RutaProtegida> },
       { path: 'admin/reservas/:id', element: <RutaProtegida roles={['ADMIN']}><DetalleReserva /></RutaProtegida> },
+      // B9c · panel del administrador
+      { path: 'admin/servicios', element: <RutaProtegida roles={['ADMIN']}><ServiciosAdmin /></RutaProtegida> },
+      { path: 'admin/servicios/nuevo', element: <RutaProtegida roles={['ADMIN']}><FichaServicio /></RutaProtegida> },
+      { path: 'admin/servicios/:id', element: <RutaProtegida roles={['ADMIN']}><FichaServicio /></RutaProtegida> },
+      { path: 'admin/empleados', element: <RutaProtegida roles={['ADMIN']}><Empleados /></RutaProtegida> },
+      { path: 'admin/empleados/nuevo', element: <RutaProtegida roles={['ADMIN']}><AltaEmpleado /></RutaProtegida> },
+      { path: 'admin/empleados/:id', element: <RutaProtegida roles={['ADMIN']}><FichaEmpleado /></RutaProtegida> },
+      { path: 'admin/empleados/:id/horario', element: <RutaProtegida roles={['ADMIN']}><HorarioEmpleado /></RutaProtegida> },
+      { path: 'admin/horarios', element: <RutaProtegida roles={['ADMIN']}><HorariosAdmin /></RutaProtegida> },
+      { path: 'admin/negocio', element: <RutaProtegida roles={['ADMIN']}><NegocioAdmin /></RutaProtegida> },
       { path: '*', element: <NoEncontrada /> },
     ],
   },
