@@ -39,6 +39,9 @@ versión y no tiene ficha aquí.
 | [D-2](#d-2) | 31/10/2026 | `movil.spec.ts` (5d) | Los enlaces del menú del móvil medían 40 px | arreglado (PR #18) |
 | [D-3](#d-3) | 31/10/2026 | `accesibilidad.spec.ts` (5d) | Dos `aria-label` no contenían el texto visible | arreglado (PR #18) |
 | [D-4](#d-4) | 31/10/2026 | CI del PR #19 (5e) | Tres pruebas de punta a punta fallaron una vez | arreglado (PR #20) |
+| [D-5](#d-5) | 05/11/2026 | Prueba manual, M-2 (5e) | Con el backend parado salía "error inesperado" | arreglado (PR #21) |
+| [D-6](#d-6) | 05/11/2026 | Prueba manual, M-7 (5e) | Al registrarse se perdía la hora elegida | arreglado (PR #21) |
+| [D-7](#d-7) | 05/11/2026 | Prueba manual, M-5 (5e) | "Buscar cliente" del admin no se entendía | arreglado (PR #21) |
 
 ## Fichas
 
@@ -137,3 +140,75 @@ versión y no tiene ficha aquí.
   - Que la dirección haya cambiado no basta.
   - Una prueba que solo falla en la CI suele ser una prisa: frenar el
     navegador la reproduce en el PC.
+
+### D-5
+
+**Con el backend parado, la web decía "Ha ocurrido un error inesperado"**
+
+- **Dónde salió:** la prueba manual de jose, bloque D, en el móvil (M-2).
+  Al reiniciar el backend y la web volvió a funcionar.
+- **Qué se vio:** "Cargando" y después "Ha ocurrido un error inesperado.
+  Inténtalo de nuevo más tarde." en Servicios, Horarios y el resto de
+  páginas que piden datos.
+- **Causa:** la web no habla directamente con el backend, sino con el proxy
+  que tiene delante (Vite en el PC, el servidor web en producción). Con el
+  backend parado, el proxy responde él mismo con un 502 y un texto que no es
+  Problem Details. `errorDesdeRespuesta` lo trataba como un error 5xx del
+  backend y mostraba el mensaje genérico. El aviso de "sin conexión" solo
+  salía si fallaba la red entre el navegador y el proxy.
+- **Solución:** un 502, 503 o 504 **sin** Problem Details se trata como
+  falta de conexión: "No se puede conectar con el servidor. Comprueba tu
+  conexión e inténtalo de nuevo.". Si el backend responde un 503 con su
+  Problem Details (por ejemplo, el correo no responde), se conserva su
+  mensaje.
+- **PR:** #21.
+- **Prueba que lo vigila:** `cliente.test.ts`, "un 502/503/504 del proxy sin
+  Problem Details es un error de red" (fallaban las tres antes del arreglo) y
+  "un 503 con Problem Details del backend conserva su mensaje".
+- **Lo aprendido:** entre la web y el backend hay un proxy, y cuando el
+  backend falta es el proxy quien responde. Las pruebas simulaban la red
+  caída, pero no el backend caído detrás del proxy.
+
+### D-6
+
+**Al registrarse desde una reserva se perdía la hora elegida**
+
+- **Dónde salió:** la prueba manual de jose, A3 (M-7).
+- **Qué se vio:** sin cuenta, al elegir una hora la web lleva a "Iniciar
+  sesión". Desde allí, "Regístrate", crear la cuenta e iniciar sesión ya no
+  volvía a la hora elegida, y había que buscarla otra vez.
+- **Causa:** el login recibe la hora en el estado de la navegación
+  (`desde`), pero el enlace "Regístrate" no lo pasaba al registro, y el
+  registro, al terminar, volvía al login sin él. Las pruebas cubrían "login
+  → hora" y "registro → login" por separado, nunca el camino entero.
+- **Solución:** el enlace "Regístrate" lleva `desde` al registro, y el
+  registro lo devuelve al login junto con el aviso de cuenta creada.
+- **PR:** #21.
+- **Prueba que lo vigila:** `Registro.test.tsx`, "quien llega al login desde
+  una hora y se registra vuelve al login con esa hora" (fallaba antes del
+  arreglo).
+- **Lo aprendido:** un dato que viaja entre páginas hay que seguirlo por
+  todos los caminos que puede tomar quien usa la web, no solo por el más
+  corto.
+
+### D-7
+
+**"Buscar cliente" en la reserva del admin no se entendía**
+
+- **Dónde salió:** la prueba manual de jose, al reservar desde la zona del
+  admin (M-5).
+- **Qué se vio:** no se entendía para qué era el campo ni por qué no dejaba
+  confirmar la cita sin encontrar al cliente.
+- **Causa:** es intencionado: el admin solo reserva para clientes con
+  cuenta (CU-019), porque así el cliente ha aceptado la política de
+  privacidad. Pero la página no lo decía; la
+  ayuda del campo solo explicaba por qué datos buscar.
+- **Solución:** la ayuda del campo dice "Solo clientes con cuenta. Búscalo
+  por nombre, apellidos, correo o teléfono; si aún no tiene, debe
+  registrarse antes.". La ayuda va unida al campo (`aria-describedby`), así
+  que también la oye quien usa un lector de pantalla.
+- **PR:** #21.
+- **Prueba que lo vigila:** `ZonaAdmin.test.tsx`, "antes de buscar explica que
+  solo se reserva para clientes con cuenta" (fallaba antes del arreglo).
+- **Lo aprendido:** una regla del negocio que limita lo que se puede hacer
+  tiene que estar escrita en la pantalla donde se nota el límite.

@@ -16,14 +16,34 @@ versión). Ante la duda, cuéntalo: es mejor apuntar de más.
 
 ## 0. Preparar la demo
 
+**Todo se prueba en la web, http://localhost:5173**, como lo haría un cliente
+o alguien de la peluquería. Swagger (`/swagger-ui`) es una herramienta para
+programadores: lo que hagas allí no cuenta como prueba de la web y puede
+dejar datos que estropeen la demo (M-1).
+
+### La primera vez
+
 1. Trae lo último: `git switch main` y `git pull`.
-2. Con Docker Desktop abierto: `docker compose up -d`.
-3. **Base de datos vacía**, para que se creen los datos de demostración (solo
-   se crean si no hay ningún servicio). Si tu base de datos ya tiene datos de
-   pruebas anteriores: `docker compose down -v` y otra vez `docker compose up -d`.
-4. Comprueba que tu `.env` tiene `DEMO_PASSWORD` (apartado 7.10 de
-   `arrancar-backend.md`).
-5. Backend con la demo, en una ventana de PowerShell:
+2. **Revisa tu `.env`** comparándolo con `.env.example`: cada línea que haya
+   en `.env.example` tiene que estar también en el tuyo, con tu valor. Si tu
+   `.env` es de una fase anterior, seguramente le faltan estas:
+   - `COOKIE_SECURE=true` (vale también en tu PC: los navegadores aceptan
+     estas cookies en `localhost`);
+   - `ADMIN_EMAIL`, `ADMIN_PASSWORD` y `ADMIN_NOMBRE`;
+   - `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` y `MAIL_FROM`;
+   - `APP_WEB_URL=http://localhost:5173`;
+   - `DEMO_PASSWORD`.
+
+   Las contraseñas (`ADMIN_PASSWORD` y `DEMO_PASSWORD`) deben tener **entre 10
+   y 64 caracteres** y no ser una contraseña común; si no, el backend no
+   arranca y lo dice en el error.
+3. Abre Docker Desktop y espera a que diga que está en marcha. Después, en
+   una ventana **nueva** de PowerShell: `docker compose up -d`.
+4. **Base de datos vacía**: los datos de demostración solo se crean si no hay
+   ningún servicio. Si ya has usado la aplicación (o Swagger) antes:
+   `docker compose down -v` y otra vez `docker compose up -d`.
+5. Backend con la demo, en una ventana de PowerShell (las dos líneas en la
+   **misma** ventana: el perfil solo vale para esa ventana):
 
    ```powershell
    cd backend
@@ -31,8 +51,26 @@ versión). Ante la duda, cuéntalo: es mejor apuntar de más.
    .\mvnw spring-boot:run
    ```
 
-6. Web, en otra ventana: `cd frontend`, `npm install` y `npm run dev`. Abre
-   **http://localhost:5173**.
+6. **Comprueba que la demo se ha cargado.** En lo que escribe el backend al
+   arrancar tiene que salir una línea que empieza por `Datos de demostración
+   creados: 6 servicios, 3 profesionales…`. Si no sale, el backend arrancó
+   sin el perfil `demo` o la base de datos no estaba vacía: páralo
+   (`Ctrl+C`) y repite los pasos 4 y 5.
+7. Web, en otra ventana: `cd frontend`, `npm install` (solo la primera vez o
+   tras un `git pull`) y `npm run dev`. Abre **http://localhost:5173**: en
+   "Profesionales" tienen que salir Luis, Ana y Marta.
+
+### Cada vez que vuelvas a probar
+
+Tres cosas, en este orden:
+
+1. Docker Desktop abierto y `docker compose up -d`.
+2. El backend con el perfil `demo` (paso 5). Los datos de la demo siguen ahí;
+   no hace falta vaciar la base de datos.
+3. La web con `npm run dev` (paso 7, sin `npm install`).
+
+Si la web dice "No se puede conectar con el servidor", es que el backend no
+está en marcha: mira su ventana.
 
 **Quién es quién en la demo** (todos con la contraseña `DEMO_PASSWORD` de tu
 `.env`, salvo el admin):
@@ -148,9 +186,20 @@ En el PC, sin tocar el ratón.
 
 ## Defectos y mejoras encontrados
 
+Resultado de la pasada de jose del 05/11/2026 (Chrome en Windows y Chrome
+en un iPhone 15 Pro Max).
+
 | Nº | Línea | Qué pasa | Tipo | Ficha | Estado |
 |---|---|---|---|---|---|
-| | | | | | |
+| M-1 | 0 | Los pasos de preparación no decían que se prueba en la web y no en Swagger, ni qué faltaba en un `.env` antiguo, ni cómo saber si la demo se había cargado | Defecto | — (documento) | arreglado en esta lista |
+| M-2 | D | Con el backend parado, la web decía "Ha ocurrido un error inesperado" en vez de "No se puede conectar con el servidor" | Defecto | [D-5](registro-de-defectos.md#d-5) | arreglado |
+| M-3 | A1 | La página de inicio y los servicios no tienen fotos | Mejora | — | después de la v1 |
+| M-4 | A1 | Ver los servicios en un carrusel. Propuesta: mantener la cuadrícula con una foto en cada tarjeta, que en el móvil se lee mejor que un carrusel | Mejora | — | después de la v1 |
+| M-5 | A1–A2 (admin) | En "Nueva reserva" del admin no se entendía para qué es "Buscar cliente" ni por qué no deja confirmar sin encontrarlo | Defecto | [D-7](registro-de-defectos.md#d-7) | arreglado |
+| M-6 | A3 | Se pudo crear la cuenta sin marcar la privacidad | Por confirmar | — | la web y el backend lo rechazan y hay pruebas; parece hecho desde Swagger |
+| M-7 | A3 | Tras registrarse e iniciar sesión no se volvía a la hora elegida | Defecto | [D-6](registro-de-defectos.md#d-6) | arreglado |
+| M-8 | A3 | Un botón con un ojo para ver la contraseña que se escribe | Mejora | — | después de la v1 |
+| M-9 | E1–E4 | El tabulador no parecía recorrer la página | Por confirmar | — | en Chrome funciona con borde azul de 3 px; falta saber el navegador y repetirlo tras pulsar en la página |
 
 **Tipo:**
 - *Defecto*: no cumple un caso de uso, una regla o un requisito, o confunde o
@@ -159,3 +208,15 @@ En el PC, sin tocar el ratón.
   con una prueba que lo reproduzca.
 - *Mejora*: funciona, pero podría ser mejor. Se apunta para después de la
   primera versión.
+- *Por confirmar*: no se ha podido reproducir. Se repite con más datos antes
+  de clasificarlo.
+
+## Mejoras para después de la primera versión
+
+Ninguna se hace en la fase 5 (decisión del 5e). Quedan aquí para planificarlas.
+
+- **Fotos** en la página de inicio y en cada servicio (M-3). Necesita decidir
+  de dónde salen las fotos y cómo las sube el admin.
+- **Tarjetas de servicio con foto** en lugar de un carrusel (M-4): en un
+  carrusel solo se ve un servicio a la vez y en el móvil cuesta compararlos.
+- **Ver la contraseña** con un botón de ojo en los campos de contraseña (M-8).

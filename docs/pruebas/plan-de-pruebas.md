@@ -146,3 +146,6 @@ documento explica también cómo se apunta y se arregla un defecto nuevo.
 | D-2 | Enlaces del menú del móvil de 40 px | 5d |
 | D-3 | Dos `aria-label` sin el texto visible | 5d |
 | D-4 | Pruebas de punta a punta que rellenaban el campo de la página anterior (intermitentes en la CI) | 5e |
+| D-5 | Con el backend parado, la web decía "error inesperado" en vez de "sin conexión" | 5e |
+| D-6 | Al registrarse desde una reserva se perdía la hora elegida | 5e |
+| D-7 | "Buscar cliente" en la reserva del admin no explicaba que solo vale para clientes con cuenta | 5e |
