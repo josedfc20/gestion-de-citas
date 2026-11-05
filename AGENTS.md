@@ -51,7 +51,7 @@ avanza a la siguiente.
 | 6    | Documentación | Registrar decisiones técnicas y preparar el README.      |
 | 7    | Despliegue    | Preparar una versión que pueda utilizarse y demostrarse. |
 
-**Fase actual: 5. Pruebas** (la fase 4 se cerró con el B9)
+**Fase actual: 6. Documentación** (la fase 5 se cerró con el 5f; falta su propuesta)
 
 - [x] FASE 1: Análisis
 - [x] FASE 2: Diseño
@@ -85,18 +85,18 @@ avanza a la siguiente.
     - [x] B9a · Empleado: agenda semanal, citas asignadas, cambio de estado y mis servicios (`feature/web-empleado`)
     - [x] B9b · Admin: reservas, historial y reservar por un cliente (`feature/web-admin-reservas`)
     - [x] B9c · Admin: servicios, empleados, horarios, cierres y negocio (`feature/web-admin-gestion`)
-- [ ] FASE 5: Pruebas (plan en `docs/propuestas/5.0-plan-de-pruebas.md`)
+- [x] FASE 5: Pruebas (plan en `docs/propuestas/5.0-plan-de-pruebas.md`)
   - [x] 5.0 Plan de la fase: seis pasos, Playwright para las E2E y umbral de cobertura tras cubrir los huecos
   - [x] 5a · Plan de pruebas, matriz de trazabilidad y cobertura en la CI (`test/cobertura-trazabilidad`, `docs/pruebas/`)
   - [x] 5b · Huecos de la matriz, matrices de permisos (RNF-002), ArchUnit y umbral de cobertura (`test/huecos-permisos`, `docs/propuestas/5.2-5b-huecos-y-permisos.md`)
   - [x] 5c · Pruebas de punta a punta con Playwright: 7 flujos en Chromium y trabajo `e2e` en la CI (`test/e2e`, `docs/propuestas/5.3-5c-pruebas-e2e.md`)
   - [x] 5d · Móvil, accesibilidad, reserva simultánea y seguridad básica (`test/e2e-no-funcionales`, `docs/propuestas/5.4-5d-pruebas-no-funcionales.md`)
-  - [ ] 5e · Pruebas manuales y defectos: lista en `docs/pruebas/pruebas-manuales.md` (`test/pruebas-manuales`, `docs/propuestas/5.5-5e-pruebas-manuales.md`); defectos en `fix/...`, cada uno con su ficha en `docs/pruebas/registro-de-defectos.md`
+  - [x] 5e · Pruebas manuales y defectos: lista en `docs/pruebas/pruebas-manuales.md` (`test/pruebas-manuales`, `docs/propuestas/5.5-5e-pruebas-manuales.md`); defectos en `fix/...`, cada uno con su ficha en `docs/pruebas/registro-de-defectos.md`
     - [x] D-4 · Pruebas E2E que rellenaban el campo de la página anterior (`fix/e2e-intermitente`, `docs/propuestas/5.6-5e-fix-e2e-intermitente.md`)
     - [x] Lista pasada por el usuario (05/11): M-1 a M-9 en la tabla de `pruebas-manuales.md`; mejoras para después de la v1 apuntadas allí
     - [x] D-5, D-6, D-7 y M-1 · Defectos de la prueba manual (`fix/pruebas-manuales`)
     - [x] M-6 y M-9 · Repetidos por el usuario: no eran defectos (privacidad en el registro y teclado)
-  - [ ] 5f · Informe de pruebas y cierre de la fase
+  - [x] 5f · Informe de pruebas y cierre de la fase (`docs/pruebas/informe-de-pruebas.md`, `docs/propuestas/5.7-5f-informe-y-cierre.md`)
 - [ ] FASE 6: Documentación
 - [ ] FASE 7: Despliegue
 
@@ -340,3 +340,6 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 | 2026-10-31 | Lista de pruebas manuales fusionada (PR #19). |
 | 2026-10-31 | D-4 aprobado y arreglado (`fix/e2e-intermitente`): tres pruebas E2E fallaron una vez en la CI del PR #19 porque rellenaban un campo de la página anterior con la misma etiqueta antes de que React Router pintase la nueva. `irA` y `pulsarEnlace` esperan al título h1; adjunto `peticiones-api` en los fallos, registro del backend en el artefacto de la CI y modo `E2E_CPU_LENTA`. Nuevo `docs/pruebas/registro-de-defectos.md` con una ficha por defecto (causa, solución, PR, prueba y lo aprendido), con D-1 a D-3 pasados a fichas. |
 | 2026-11-05 | Lista de pruebas manuales pasada por el usuario (Chrome en Windows y en iPhone). Defectos arreglados en `fix/pruebas-manuales`: D-5 (con el backend parado, el 502/503/504 del proxy sin Problem Details se muestra como "sin conexión"), D-6 (la hora elegida sigue por "Regístrate" y vuelve al login), D-7 (la ayuda de "Buscar cliente" dice que solo vale para clientes con cuenta, CU-019) y M-1 (apartado 0 de la lista: usar la web y no Swagger, variables nuevas del `.env`, cómo comprobar la demo y qué arrancar cada vez). Mejoras para después de la v1: fotos, tarjetas de servicio con foto en vez de carrusel y botón para ver la contraseña. M-6 (privacidad) y M-9 (teclado) repetidos por el usuario: no eran defectos. |
+| 2026-11-05 | 5e fusionado (PR #21). |
+| 2026-11-05 | 5f aprobado: informe de pruebas (`docs/pruebas/informe-de-pruebas.md`) con las cifras de la CI de `main` tras el PR #21; sin pruebas de carga (pocos usuarios a la vez y la reserva simultánea ya está probada); la fase se cierra al fusionar el PR del informe. |
+| 2026-11-05 | Fase 5 cerrada: 512 pruebas en el backend (98,1 % líneas, 88,7 % ramas), 299 en la web (92,6 %, 82,2 %) y 25 de punta a punta, todas en verde; 7 defectos encontrados y arreglados (D-1 a D-7). Queda para la fase 7: HTTPS, cabeceras de la web y análisis de dependencias. |

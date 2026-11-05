@@ -1,6 +1,6 @@
 # Plan de pruebas
 
-> Fase 5 (Pruebas), paso 5a; actualizado en el 5b, el 5c, el 5d y el 5e. Plan aprobado el 31/10/2026 en
+> Fase 5 (Pruebas), paso 5a; actualizado en el 5b, el 5c, el 5d, el 5e y el 5f. Plan aprobado el 31/10/2026 en
 > `docs/propuestas/5.0-plan-de-pruebas.md`.
 
 ## 1. Objetivo
@@ -131,8 +131,8 @@ El paso 5d añade, en la misma carpeta:
 | 5b | Huecos de la matriz, matrices de permisos (RNF-002), ArchUnit y umbral de cobertura | hecho (PR #16) |
 | 5c | Pruebas de punta a punta con Playwright: 7 flujos en Chromium y trabajo `e2e` en la CI | hecho (PR #17) |
 | 5d | Móvil, accesibilidad, reserva simultánea y comprobaciones de seguridad | hecho (PR #18) |
-| 5e | Pruebas manuales (`pruebas-manuales.md`) y arreglo de los defectos que salgan; las mejoras se apuntan para después de la primera versión | en curso |
-| 5f | Informe de pruebas y cierre de la fase | pendiente |
+| 5e | Pruebas manuales (`pruebas-manuales.md`) y arreglo de los defectos que salgan; las mejoras se apuntan para después de la primera versión | hecho (PR #19, #20 y #21) |
+| 5f | Informe de pruebas y cierre de la fase (`informe-de-pruebas.md`) | hecho |
 
 ## 7. Defectos encontrados
 
