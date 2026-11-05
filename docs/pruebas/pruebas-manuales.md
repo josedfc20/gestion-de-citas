@@ -196,10 +196,10 @@ en un iPhone 15 Pro Max).
 | M-3 | A1 | La página de inicio y los servicios no tienen fotos | Mejora | — | después de la v1 |
 | M-4 | A1 | Ver los servicios en un carrusel. Propuesta: mantener la cuadrícula con una foto en cada tarjeta, que en el móvil se lee mejor que un carrusel | Mejora | — | después de la v1 |
 | M-5 | A1–A2 (admin) | En "Nueva reserva" del admin no se entendía para qué es "Buscar cliente" ni por qué no deja confirmar sin encontrarlo | Defecto | [D-7](registro-de-defectos.md#d-7) | arreglado |
-| M-6 | A3 | Se pudo crear la cuenta sin marcar la privacidad | Por confirmar | — | la web y el backend lo rechazan y hay pruebas; parece hecho desde Swagger |
+| M-6 | A3 | Parecía que se podía crear la cuenta sin marcar la privacidad | No era un defecto | — | repetido en la web, funciona: la web y el backend lo rechazan |
 | M-7 | A3 | Tras registrarse e iniciar sesión no se volvía a la hora elegida | Defecto | [D-6](registro-de-defectos.md#d-6) | arreglado |
 | M-8 | A3 | Un botón con un ojo para ver la contraseña que se escribe | Mejora | — | después de la v1 |
-| M-9 | E1–E4 | El tabulador no parecía recorrer la página | Por confirmar | — | en Chrome funciona con borde azul de 3 px; falta saber el navegador y repetirlo tras pulsar en la página |
+| M-9 | E1–E4 | El teclado no parecía recorrer la página | No era un defecto | — | se probó con la barra espaciadora; con el tabulador todo el bloque E funciona |
 
 **Tipo:**
 - *Defecto*: no cumple un caso de uso, una regla o un requisito, o confunde o
@@ -208,8 +208,8 @@ en un iPhone 15 Pro Max).
   con una prueba que lo reproduzca.
 - *Mejora*: funciona, pero podría ser mejor. Se apunta para después de la
   primera versión.
-- *Por confirmar*: no se ha podido reproducir. Se repite con más datos antes
-  de clasificarlo.
+- *No era un defecto*: al repetirlo, la aplicación hace lo que debe. Se
+  deja en la tabla para que conste que se revisó.
 
 ## Mejoras para después de la primera versión
 
