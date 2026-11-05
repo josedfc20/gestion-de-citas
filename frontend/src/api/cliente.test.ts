@@ -141,6 +141,25 @@ describe('cliente de la API', () => {
     expect((error as ApiError).message).toMatch(/No se puede conectar/)
   })
 
+  // D-5: con el backend parado, el proxy (Vite en local, el servidor web en producción)
+  // responde él mismo con 502, 503 o 504 y un texto que no es Problem Details.
+  it.each([502, 503, 504])('un %i del proxy sin Problem Details es un error de red, no uno inesperado', async (status) => {
+    servidor.use(http.get(`${API}/servicios`, () => new HttpResponse('Bad Gateway', { status, headers: { 'Content-Type': 'text/plain' } })))
+
+    const error = await pedir('/servicios').catch((e: unknown) => e)
+
+    expect(error).toMatchObject({ status: 0, esDeRed: true })
+    expect((error as ApiError).message).toMatch(/No se puede conectar/)
+  })
+
+  it('un 503 con Problem Details del backend conserva su mensaje', async () => {
+    servidor.use(http.get(`${API}/servicios`, () => HttpResponse.json(problema(503, 'El servicio de correo no responde.'), { status: 503 })))
+
+    const error = await pedir('/servicios').catch((e: unknown) => e)
+
+    expect(error).toMatchObject({ status: 503, esDeRed: false, message: 'El servicio de correo no responde.' })
+  })
+
   it('omite los parámetros vacíos de la URL', async () => {
     let busqueda = ''
     servidor.use(

@@ -29,6 +29,8 @@ export class ApiError extends Error {
 
 export const MENSAJE_SIN_CONEXION = 'No se puede conectar con el servidor. Comprueba tu conexión e inténtalo de nuevo.'
 const MENSAJE_GENERICO = 'Ha ocurrido un error inesperado. Inténtalo de nuevo más tarde.'
+/** Bad Gateway, Service Unavailable y Gateway Timeout: los que da un proxy sin backend detrás. */
+const ESTADOS_DE_PROXY = [502, 503, 504]
 
 export function errorDeRed(): ApiError {
   return new ApiError(0, MENSAJE_SIN_CONEXION, 'Sin conexión')
@@ -44,6 +46,9 @@ export async function errorDesdeRespuesta(respuesta: Response): Promise<ApiError
     cuerpo = {}
   }
   const { detail, title, errores, status: _status, type: _type, instance: _instance, ...resto } = cuerpo
+  // D-5: si el backend está parado, responde el proxy que hay delante (502, 503 o 504)
+  // sin Problem Details. Para quien usa la web es lo mismo que no tener conexión.
+  if (ESTADOS_DE_PROXY.includes(respuesta.status) && typeof detail !== 'string') return errorDeRed()
   const detalle = typeof detail === 'string' && detail ? detail : respuesta.status >= 500 ? MENSAJE_GENERICO : `Error ${respuesta.status}`
   const lista = Array.isArray(errores) ? (errores as ErrorCampo[]).map(normalizarCampo) : []
   return new ApiError(respuesta.status, detalle, typeof title === 'string' ? title : '', lista, resto)

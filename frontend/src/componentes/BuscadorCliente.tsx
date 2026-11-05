@@ -14,6 +14,8 @@ const MINIMO = 3
 interface Props {
   onElegir: (cliente: ClienteEncontrado) => void
   etiqueta?: string
+  /** Texto de ayuda bajo el campo; por defecto, por qué datos se puede buscar. */
+  ayuda?: string
 }
 
 /**
@@ -21,7 +23,7 @@ interface Props {
  * teléfono: 3 letras o más y hasta 20 resultados, con sus menores a cargo.
  * Busca al pulsar "Buscar", no con cada letra.
  */
-export function BuscadorCliente({ onElegir, etiqueta = 'Buscar cliente' }: Props) {
+export function BuscadorCliente({ onElegir, etiqueta = 'Buscar cliente', ayuda = 'Nombre, apellidos, correo o teléfono.' }: Props) {
   const [texto, setTexto] = useState('')
   const [buscado, setBuscado] = useState('')
   const [aviso, setAviso] = useState<string | undefined>()
@@ -43,7 +45,7 @@ export function BuscadorCliente({ onElegir, etiqueta = 'Buscar cliente' }: Props
       <form className={estilos.fila} onSubmit={buscar} role="search">
         <Campo
           etiqueta={etiqueta}
-          ayuda="Nombre, apellidos, correo o teléfono."
+          ayuda={ayuda}
           value={texto}
           error={aviso}
           onChange={(evento) => setTexto(evento.target.value)}

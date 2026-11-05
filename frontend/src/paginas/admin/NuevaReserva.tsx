@@ -146,7 +146,11 @@ function Confirmar({ negocio, eleccion }: { negocio: Negocio; eleccion: Eleccion
             </Boton>
           </p>
         ) : (
-          <BuscadorCliente onElegir={elegir} />
+          // D-7: la cita solo puede ser para un cliente con cuenta (CU-019): así ha aceptado la privacidad.
+          <BuscadorCliente
+            onElegir={elegir}
+            ayuda="Solo clientes con cuenta. Búscalo por nombre, apellidos, correo o teléfono; si aún no tiene, debe registrarse antes."
+          />
         )}
       </fieldset>
 

@@ -187,6 +187,15 @@ describe('reservar por un cliente (CU-019, alternativa 1)', () => {
     expect(screen.getByRole('link', { name: 'Elegir otra hora' })).toHaveAttribute('href', '/horarios?servicio=1&profesional=10&fecha=2026-11-03')
   })
 
+  // D-7: antes de buscar ya se explica que la cita solo puede ser para un cliente con cuenta.
+  it('antes de buscar explica que solo se reserva para clientes con cuenta', async () => {
+    conSesion()
+    renderizarApp(NUEVA)
+
+    const campo = await screen.findByLabelText('Buscar cliente')
+    expect(campo).toHaveAccessibleDescription(/Solo clientes con cuenta.*si aún no tiene, debe registrarse antes/i)
+  })
+
   it('sin coincidencias explica que el cliente debe registrarse', async () => {
     conSesion()
     const { usuario } = renderizarApp(NUEVA)
