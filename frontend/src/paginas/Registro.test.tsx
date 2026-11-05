@@ -23,6 +23,28 @@ async function rellenar(usuario: UserEvent, cambios: Partial<Record<string, stri
 }
 
 describe('registro (CU-001)', () => {
+  // D-6: sin cuenta, la hora elegida se guarda al ir al login; registrarse por el
+  // camino no debe perderla, para que al iniciar sesión se vuelva a esa hora.
+  it('quien llega al login desde una hora y se registra vuelve al login con esa hora', async () => {
+    servidor.use(
+      http.post(`${API}/auth/registro`, () =>
+        HttpResponse.json({ id: 9, nombre: 'Marta', rol: 'CLIENTE', debeCambiarPassword: false }, { status: 201 }),
+      ),
+    )
+    const hora = '/reservar?servicio=1&profesional=2&fecha=2030-01-10&hora=10:00'
+    const { usuario, router } = renderizarApp(hora)
+    expect(await screen.findByRole('heading', { name: 'Iniciar sesión' })).toBeInTheDocument()
+
+    await usuario.click(screen.getByRole('link', { name: 'Regístrate' }))
+    await rellenar(usuario)
+    await usuario.click(screen.getByLabelText(/He leído y acepto/))
+    await usuario.click(screen.getByRole('button', { name: 'Crear cuenta' }))
+
+    expect(await screen.findByText('Cuenta creada. Ya puedes iniciar sesión.')).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/login')
+    expect(router.state.location.state).toMatchObject({ desde: hora, aviso: 'registrado' })
+  })
+
   it('crea la cuenta y lleva al login con el aviso y el correo puesto', async () => {
     let cuerpo: Record<string, unknown> = {}
     servidor.use(

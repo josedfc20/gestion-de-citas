@@ -72,7 +72,8 @@ export function Login() {
         <Link to="/recuperar-password">¿Has olvidado la contraseña?</Link>
       </p>
       <p className={estilos.pieFormulario}>
-        ¿No tienes cuenta? <Link to="/registro">Regístrate</Link>
+        {/* D-6: la hora que se estaba eligiendo sigue al registro y vuelve aquí. */}
+        ¿No tienes cuenta? <Link to="/registro" state={{ desde: estado.desde } satisfies EstadoLogin}>Regístrate</Link>
       </p>
     </div>
   )

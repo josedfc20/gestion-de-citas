@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router'
 
 import { registrar } from '../api/auth'
 import { consultaNegocio } from '../api/catalogo'
@@ -27,6 +27,8 @@ const CAMPOS = ['nombre', 'apellidos', 'email', 'telefono', 'fechaNacimiento', '
 export function Registro() {
   useTitulo('Crear cuenta')
   const navigate = useNavigate()
+  /** D-6: a dónde volver tras iniciar sesión, si se llegó al registro desde el login. */
+  const desde = (useLocation().state as EstadoLogin | null)?.desde
   const { data: negocio } = useQuery(consultaNegocio)
   const edadMinima = negocio?.edadMinimaCuenta ?? EDAD_MINIMA_POR_DEFECTO
   const hoy = hoyEnZona(negocio?.zonaHoraria ?? ZONA_POR_DEFECTO)
@@ -56,7 +58,7 @@ export function Registro() {
     setErrorGeneral(null)
     try {
       await registrar({ ...datos, telefono: datos.telefono || null })
-      const estado: EstadoLogin = { aviso: 'registrado', email: datos.email }
+      const estado: EstadoLogin = { aviso: 'registrado', email: datos.email, desde }
       navigate('/login', { replace: true, state: estado })
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
