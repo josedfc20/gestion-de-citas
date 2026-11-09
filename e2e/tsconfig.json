@@ -13,5 +13,5 @@
     "noUnusedParameters": true,
     "skipLibCheck": true
   },
-  "include": ["playwright.config.ts", "utilidades", "pruebas"]
+  "include": ["playwright.config.ts", "playwright.capturas.config.ts", "utilidades", "pruebas", "capturas"]
 }

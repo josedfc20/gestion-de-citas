@@ -101,7 +101,7 @@ avanza a la siguiente.
   - [x] 6.0 Plan de la fase: cuatro pasos (6a a 6d), ADR, API en OpenAPI y README en español e inglés
   - [x] 6a · Decisiones técnicas: ADR-001 a ADR-016 en `docs/decisiones/` (`docs/decisiones`)
   - [x] 6b · Documentación técnica al día: ER, clases, diagrama de contenedores, OpenAPI y avisos en las propuestas (`docs/tecnica-al-dia`, `docs/propuestas/6.2-6b-tecnica-al-dia.md`)
-  - [ ] 6c · README (español e inglés), manual de usuario e índice de `docs/` (`docs/readme`)
+  - [x] 6c · README (español e inglés), licencia MIT, manual de usuario, índice de `docs/` y capturas (`docs/readme`, `docs/propuestas/6.3-6c-readme-y-manual.md`)
   - [ ] 6d · Cierre: `Doc.docx`, `AGENTS.md` y fase cerrada
 - [ ] FASE 7: Despliegue
 
@@ -166,6 +166,7 @@ avanza a la siguiente.
 
 - Decisiones técnicas (6a): una ficha ADR por decisión en `docs/decisiones/` (contexto, decisión, alternativas descartadas y consecuencias), con índice en `docs/decisiones/README.md`. **Una decisión técnica nueva lleva su ADR en el mismo PR.** Un ADR nunca se borra ni se reescribe: si la decisión cambia, se escribe otro y el antiguo pasa a "sustituida por". El registro de decisiones (§13) sigue siendo el diario del proyecto.
 - Documentación técnica al día (6b): `docs/api/openapi.json` es la especificación de la API y **`OpenApiActualizadoTest` falla si no coincide con la API real**; un PR que cambia un endpoint o un DTO la regenera con `./mvnw test -Dtest=OpenApiActualizadoTest -Dopenapi.actualizar=true` (ADR-017). Las descripciones de Swagger (`@Tag`, `@Operation`) van en español. Una migración nueva pone al día `docs/diagramas/ER-BaseDeDatos.mmd` (y su `.png`); el diagrama de clases vive en `Clases.drawio`. Las propuestas antiguas no se reescriben: llevan un aviso que manda a lo construido.
+- README y manual (6c): `README.md` y `README.en.md` dicen lo mismo, así que **un cambio en uno va también en el otro**. Licencia MIT. `docs/README.md` es el índice de la documentación y `docs/guias/manual-de-usuario.md` el manual por perfil. Las capturas de `docs/capturas/` se regeneran con `cd e2e && npm run capturas` (perfil `demo` en la base de datos `gestion_de_citas_capturas`, fuera de la CI) cuando cambia una pantalla que sale en ellos.
 
 ## 5c. Continuidad entre hilos
 
@@ -356,3 +357,5 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 | 2026-11-09 | 6a terminado (`docs/decisiones`): ADR-001 a ADR-016 en `docs/decisiones/`, escritos a partir de las propuestas, con índice y regla para los nuevos. |
 | 2026-11-09 | 6a fusionado (PR #23). |
 | 2026-11-09 | 6b aprobado y terminado (`docs/tecnica-al-dia`): diagrama ER rehecho desde las migraciones V1 a V7, diagrama de clases al día en draw.io (se hizo también en Mermaid para comparar), diagrama de contenedores nuevo, `docs/api/openapi.json` con `OpenApiActualizadoTest`, que falla si se desfasa (ADR-017), y avisos en las propuestas 2.4, 2.6, 3.2, 3.3 y 3.4. Swagger ya tenía `@Tag` y `@Operation` desde la fase 4: la revisión del 6.0 se equivocó. |
+| 2026-11-09 | 6b fusionado (PR #24). Se queda el diagrama de clases en draw.io. |
+| 2026-11-09 | 6c aprobado y terminado (`docs/readme`): README nuevo en español e inglés con capturas e insignias de la CI y la licencia, `LICENSE` MIT, índice `docs/README.md`, manual de usuario por perfil y 13 capturas sacadas con `npm run capturas` (Playwright, perfil `demo`, fuera de la CI; fechas que cambian en cada regeneración, modo claro y una en oscuro). |
