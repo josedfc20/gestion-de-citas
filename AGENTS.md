@@ -51,7 +51,7 @@ avanza a la siguiente.
 | 6    | Documentación | Registrar decisiones técnicas y preparar el README.      |
 | 7    | Despliegue    | Preparar una versión que pueda utilizarse y demostrarse. |
 
-**Fase actual: 6. Documentación** (la fase 5 se cerró con el 5f; falta su propuesta)
+**Fase actual: 6. Documentación** (plan en `docs/propuestas/6.0-plan-de-documentacion.md`)
 
 - [x] FASE 1: Análisis
 - [x] FASE 2: Diseño
@@ -97,7 +97,12 @@ avanza a la siguiente.
     - [x] D-5, D-6, D-7 y M-1 · Defectos de la prueba manual (`fix/pruebas-manuales`)
     - [x] M-6 y M-9 · Repetidos por el usuario: no eran defectos (privacidad en el registro y teclado)
   - [x] 5f · Informe de pruebas y cierre de la fase (`docs/pruebas/informe-de-pruebas.md`, `docs/propuestas/5.7-5f-informe-y-cierre.md`)
-- [ ] FASE 6: Documentación
+- [ ] FASE 6: Documentación (plan en `docs/propuestas/6.0-plan-de-documentacion.md`)
+  - [x] 6.0 Plan de la fase: cuatro pasos (6a a 6d), ADR, API en OpenAPI y README en español e inglés
+  - [x] 6a · Decisiones técnicas: ADR-001 a ADR-016 en `docs/decisiones/` (`docs/decisiones`)
+  - [ ] 6b · Documentación técnica al día: ER, clases, diagrama de contenedores, OpenAPI y avisos en las propuestas (`docs/tecnica-al-dia`)
+  - [ ] 6c · README (español e inglés), manual de usuario e índice de `docs/` (`docs/readme`)
+  - [ ] 6d · Cierre: `Doc.docx`, `AGENTS.md` y fase cerrada
 - [ ] FASE 7: Despliegue
 
 ## 4. Problema y objetivo
@@ -158,6 +163,8 @@ avanza a la siguiente.
 - Permisos y arquitectura (5b): **un endpoint nuevo se añade a la tabla de `PermisosTest`** (quién puede usarlo; la prueba falla si falta) y **una ruta nueva de la web, a la de `Permisos.test.tsx`**. `ArquitecturaTest` (ArchUnit) comprueba que los controllers no usan repositories ni devuelven entidades, que `usuario` y `beneficiario` no dependen de `cita`, que nadie llama a `now()` sin el `Clock` y que `CalculoDisponibilidad` no depende de Spring. Mínimo de cobertura que hace fallar la CI: backend 95 % de líneas y 85 % de ramas (`jacoco:check`), web 90 % de líneas y 80 % de ramas (`coverage.thresholds`).
 - Pruebas de punta a punta (5c): carpeta `e2e/` con su propio `package.json` (`@playwright/test` fijado a una versión exacta), guía en `docs/guias/pruebas-e2e.md`. `playwright.config.ts` arranca siempre su backend (el `.jar`) y su web (`vite preview`, puerto 4173), nunca reutiliza los de desarrollo, y les pasa todas las variables (no se fía del `.env`): base de datos aparte `gestion_de_citas_e2e`, su propio administrador, nunca el perfil `demo` y `APP_SECURITY_INTENTOSLOGINPORMINUTO=1000`. PostgreSQL y Mailpit van aparte (Docker en el PC, servicios en la CI). Cada prueba crea sus datos por la API (`utilidades/api.ts`) con nombres únicos y usa la web solo para el flujo que prueba; nunca cambia el horario general ni crea cierres de todo el negocio, porque van en paralelo. Selectores por rol y texto visible, sin `data-testid`. Solo Chromium. Un flujo nuevo importante de la web lleva su prueba en `e2e/pruebas`. Las pruebas importan `test` y `expect` de `utilidades/prueba.ts` (adjunta las peticiones a la API si fallan) y, tras pulsar un enlace, esperan al título de la página nueva con `irA` o `pulsarEnlace` antes de tocar nada (D-4). `E2E_CPU_LENTA=<n>` frena Chromium para sacar prisas en el PC; el registro del backend queda en `e2e/registros/backend.log` y la CI lo guarda si falla.
 - Móvil, accesibilidad y seguridad (5d): proyecto `movil` de Playwright (Chromium a 390 px) con los flujos del cliente; los pasos por el menú usan `irA`, `cerrarSesion` e `iniciarSesion` de `e2e/utilidades/web.ts`, que abren el menú plegado. Lo que se toca mide al menos 44 × 44 px (`min-height: 2.75rem`). axe (WCAG 2.1 A y AA) en todas las páginas, en modo claro y oscuro, sin fallos graves ni críticos: **una página nueva se añade a `accesibilidad.spec.ts`**, y el `aria-label` de un control debe contener su texto visible (WCAG 2.5.3). `seguridad.spec.ts` vigila la cookie del refresh, que el token no se guarde en el navegador, las cabeceras del backend y que ninguna respuesta de la API lleve hashes.
+
+- Decisiones técnicas (6a): una ficha ADR por decisión en `docs/decisiones/` (contexto, decisión, alternativas descartadas y consecuencias), con índice en `docs/decisiones/README.md`. **Una decisión técnica nueva lleva su ADR en el mismo PR.** Un ADR nunca se borra ni se reescribe: si la decisión cambia, se escribe otro y el antiguo pasa a "sustituida por". El registro de decisiones (§13) sigue siendo el diario del proyecto.
 
 ## 5c. Continuidad entre hilos
 
@@ -343,3 +350,6 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 | 2026-11-05 | 5e fusionado (PR #21). |
 | 2026-11-05 | 5f aprobado: informe de pruebas (`docs/pruebas/informe-de-pruebas.md`) con las cifras de la CI de `main` tras el PR #21; sin pruebas de carga (pocos usuarios a la vez y la reserva simultánea ya está probada); la fase se cierra al fusionar el PR del informe. |
 | 2026-11-05 | Fase 5 cerrada: 512 pruebas en el backend (98,1 % líneas, 88,7 % ramas), 299 en la web (92,6 %, 82,2 %) y 25 de punta a punta, todas en verde; 7 defectos encontrados y arreglados (D-1 a D-7). Queda para la fase 7: HTTPS, cabeceras de la web y análisis de dependencias. |
+| 2026-11-05 | 5f fusionado (PR #22). |
+| 2026-11-09 | Paso 6.0 aprobado: plan de la fase 6 (Documentación) en cuatro pasos (6a a 6d). Decisiones técnicas en fichas ADR; Swagger con descripciones y `openapi.json` exportado con una prueba que avise si se desfasa; capturas con un script de Playwright; manual de usuario corto; README también en inglés (`README.en.md`). Licencia MIT (el repositorio servirá de portfolio). Las propuestas antiguas no se reescriben: llevan un aviso. |
+| 2026-11-09 | 6a terminado (`docs/decisiones`): ADR-001 a ADR-016 en `docs/decisiones/`, escritos a partir de las propuestas, con índice y regla para los nuevos. |
