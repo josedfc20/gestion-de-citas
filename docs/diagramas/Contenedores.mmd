@@ -1,0 +1,29 @@
+---
+title: Contenedores de GestionDeCitas
+---
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#DEEAF6", "primaryBorderColor": "#1F4E79", "primaryTextColor": "#000000", "lineColor": "#333333", "fontFamily": "Arial", "edgeLabelBackground": "#ffffff"}}}%%
+flowchart LR
+    usuario(["Visitante, cliente,<br/>empleado o admin"])
+
+    subgraph local["Aplicación"]
+        direction LR
+        web["<b>Web</b><br/>React 19 + TypeScript<br/>Vite (frontend/)"]
+        api["<b>Backend</b><br/>Java 21 + Spring Boot 4.1<br/>API REST /api/v1 (backend/)"]
+        bd[("<b>PostgreSQL 16</b><br/>esquema con Flyway")]
+        correo["<b>Correo</b><br/>Mailpit en local<br/>(SMTP real en la fase 7)"]
+    end
+
+    subgraph ci["CI: GitHub Actions"]
+        direction TB
+        j1["Backend<br/>./mvnw verify + JaCoCo<br/>(cada PR y push a main)"]
+        j2["Frontend<br/>oxlint, tsc, Vitest"]
+        j3["Punta a punta<br/>Playwright (e2e/)"]
+        j1 --> j3
+        j2 --> j3
+    end
+
+    usuario -- "navegador<br/>(HTTPS al desplegar)" --> web
+    web -- "/api (proxy de Vite)<br/>JSON + JWT; cookie del refresh" --> api
+    api -- "JPA / JDBC" --> bd
+    api -- "SMTP: recuperar contraseña" --> correo
+    j3 -. "arranca y prueba<br/>la web y el backend reales" .-> web
