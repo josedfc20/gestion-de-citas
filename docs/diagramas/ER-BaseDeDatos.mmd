@@ -1,3 +1,6 @@
+---
+title: Esquema de la base de datos (migraciones V1 a V7)
+---
 erDiagram
     negocio ||--o{ tramo_horario : "horario general"
     negocio ||--o{ dia_cierre : "cierres"
@@ -13,6 +16,7 @@ erDiagram
     empleado ||--o{ empleado_servicio : ""
     servicio ||--o{ empleado_servicio : ""
     empleado |o--o{ tramo_horario : "ajuste"
+    empleado ||--o{ ajuste_horario : "días ajustados"
     empleado |o--o{ dia_cierre : "vacaciones"
     cita ||--o{ cambio_estado_cita : "historial"
     usuario ||--o{ cambio_estado_cita : "realizado por"
@@ -31,15 +35,16 @@ erDiagram
         varchar rol "CLIENTE, EMPLEADO, ADMIN"
         varchar nombre
         varchar apellidos
-        varchar email UK
+        varchar email UK "sin distinguir mayúsculas"
         varchar telefono
         varchar password_hash
         boolean activo
         timestamptz creado_en
+        timestamptz eliminado_en "NULL = no eliminada"
     }
     cliente {
         bigint usuario_id PK, FK
-        date fecha_nacimiento
+        date fecha_nacimiento "NULL tras anonimizar"
         timestamptz privacidad_aceptada_en
     }
     empleado {
@@ -66,11 +71,12 @@ erDiagram
         bigint cliente_id FK
         varchar nombre
         varchar apellidos
-        date fecha_nacimiento
+        date fecha_nacimiento "NULL tras anonimizar"
+        timestamptz eliminado_en "NULL = sin anonimizar"
     }
     servicio {
         bigint id PK
-        varchar nombre UK
+        varchar nombre UK "sin distinguir mayúsculas"
         text descripcion
         int duracion_minutos
         numeric precio
@@ -79,6 +85,10 @@ erDiagram
     empleado_servicio {
         bigint empleado_id PK, FK
         bigint servicio_id PK, FK
+    }
+    ajuste_horario {
+        bigint empleado_id PK, FK
+        smallint dia_semana PK "el día usa los tramos del empleado"
     }
     tramo_horario {
         bigint id PK

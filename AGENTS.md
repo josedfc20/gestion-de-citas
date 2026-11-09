@@ -100,7 +100,7 @@ avanza a la siguiente.
 - [ ] FASE 6: Documentación (plan en `docs/propuestas/6.0-plan-de-documentacion.md`)
   - [x] 6.0 Plan de la fase: cuatro pasos (6a a 6d), ADR, API en OpenAPI y README en español e inglés
   - [x] 6a · Decisiones técnicas: ADR-001 a ADR-016 en `docs/decisiones/` (`docs/decisiones`)
-  - [ ] 6b · Documentación técnica al día: ER, clases, diagrama de contenedores, OpenAPI y avisos en las propuestas (`docs/tecnica-al-dia`)
+  - [x] 6b · Documentación técnica al día: ER, clases, diagrama de contenedores, OpenAPI y avisos en las propuestas (`docs/tecnica-al-dia`, `docs/propuestas/6.2-6b-tecnica-al-dia.md`)
   - [ ] 6c · README (español e inglés), manual de usuario e índice de `docs/` (`docs/readme`)
   - [ ] 6d · Cierre: `Doc.docx`, `AGENTS.md` y fase cerrada
 - [ ] FASE 7: Despliegue
@@ -165,6 +165,7 @@ avanza a la siguiente.
 - Móvil, accesibilidad y seguridad (5d): proyecto `movil` de Playwright (Chromium a 390 px) con los flujos del cliente; los pasos por el menú usan `irA`, `cerrarSesion` e `iniciarSesion` de `e2e/utilidades/web.ts`, que abren el menú plegado. Lo que se toca mide al menos 44 × 44 px (`min-height: 2.75rem`). axe (WCAG 2.1 A y AA) en todas las páginas, en modo claro y oscuro, sin fallos graves ni críticos: **una página nueva se añade a `accesibilidad.spec.ts`**, y el `aria-label` de un control debe contener su texto visible (WCAG 2.5.3). `seguridad.spec.ts` vigila la cookie del refresh, que el token no se guarde en el navegador, las cabeceras del backend y que ninguna respuesta de la API lleve hashes.
 
 - Decisiones técnicas (6a): una ficha ADR por decisión en `docs/decisiones/` (contexto, decisión, alternativas descartadas y consecuencias), con índice en `docs/decisiones/README.md`. **Una decisión técnica nueva lleva su ADR en el mismo PR.** Un ADR nunca se borra ni se reescribe: si la decisión cambia, se escribe otro y el antiguo pasa a "sustituida por". El registro de decisiones (§13) sigue siendo el diario del proyecto.
+- Documentación técnica al día (6b): `docs/api/openapi.json` es la especificación de la API y **`OpenApiActualizadoTest` falla si no coincide con la API real**; un PR que cambia un endpoint o un DTO la regenera con `./mvnw test -Dtest=OpenApiActualizadoTest -Dopenapi.actualizar=true` (ADR-017). Las descripciones de Swagger (`@Tag`, `@Operation`) van en español. Una migración nueva pone al día `docs/diagramas/ER-BaseDeDatos.mmd` (y su `.png`); el diagrama de clases vive en `Clases.drawio`. Las propuestas antiguas no se reescriben: llevan un aviso que manda a lo construido.
 
 ## 5c. Continuidad entre hilos
 
@@ -353,3 +354,5 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 | 2026-11-05 | 5f fusionado (PR #22). |
 | 2026-11-09 | Paso 6.0 aprobado: plan de la fase 6 (Documentación) en cuatro pasos (6a a 6d). Decisiones técnicas en fichas ADR; Swagger con descripciones y `openapi.json` exportado con una prueba que avise si se desfasa; capturas con un script de Playwright; manual de usuario corto; README también en inglés (`README.en.md`). Licencia MIT (el repositorio servirá de portfolio). Las propuestas antiguas no se reescriben: llevan un aviso. |
 | 2026-11-09 | 6a terminado (`docs/decisiones`): ADR-001 a ADR-016 en `docs/decisiones/`, escritos a partir de las propuestas, con índice y regla para los nuevos. |
+| 2026-11-09 | 6a fusionado (PR #23). |
+| 2026-11-09 | 6b aprobado y terminado (`docs/tecnica-al-dia`): diagrama ER rehecho desde las migraciones V1 a V7, diagrama de clases al día en draw.io (se hizo también en Mermaid para comparar), diagrama de contenedores nuevo, `docs/api/openapi.json` con `OpenApiActualizadoTest`, que falla si se desfasa (ADR-017), y avisos en las propuestas 2.4, 2.6, 3.2, 3.3 y 3.4. Swagger ya tenía `@Tag` y `@Operation` desde la fase 4: la revisión del 6.0 se equivocó. |

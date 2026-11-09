@@ -1,0 +1,2854 @@
+{
+  "components" : {
+    "schemas" : {
+      "ActualizarPerfilRequest" : {
+        "properties" : {
+          "apellidos" : {
+            "maxLength" : 120,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "email" : {
+            "format" : "email",
+            "maxLength" : 254,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "nombre" : {
+            "maxLength" : 80,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "telefono" : {
+            "pattern" : "^\\+?[0-9 ]{6,19}$",
+            "type" : "string"
+          }
+        },
+        "required" : [ "apellidos", "email", "nombre" ],
+        "type" : "object"
+      },
+      "AdminReservaRequest" : {
+        "properties" : {
+          "beneficiarioId" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "clienteId" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "inicio" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "profesionalId" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "servicioId" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "clienteId", "inicio", "profesionalId", "servicioId" ],
+        "type" : "object"
+      },
+      "AgendaDiaResponse" : {
+        "properties" : {
+          "cierre" : {
+            "type" : "boolean"
+          },
+          "citas" : {
+            "items" : {
+              "$ref" : "#/components/schemas/CitaResponse"
+            },
+            "type" : "array"
+          },
+          "fecha" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "tramos" : {
+            "items" : {
+              "$ref" : "#/components/schemas/TramoDto"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "AltaEmpleadoRequest" : {
+        "properties" : {
+          "apellidos" : {
+            "maxLength" : 120,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "email" : {
+            "format" : "email",
+            "maxLength" : 254,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "nombre" : {
+            "maxLength" : 80,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "servicioIds" : {
+            "items" : {
+              "format" : "int64",
+              "type" : "integer"
+            },
+            "type" : "array",
+            "uniqueItems" : true
+          },
+          "telefono" : {
+            "pattern" : "^\\+?[0-9 ]{6,19}$",
+            "type" : "string"
+          }
+        },
+        "required" : [ "apellidos", "email", "nombre", "servicioIds" ],
+        "type" : "object"
+      },
+      "BeneficiarioRequest" : {
+        "properties" : {
+          "apellidos" : {
+            "maxLength" : 120,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "fechaNacimiento" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "nombre" : {
+            "maxLength" : 80,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "apellidos", "fechaNacimiento", "nombre" ],
+        "type" : "object"
+      },
+      "BeneficiarioResponse" : {
+        "properties" : {
+          "apellidos" : {
+            "type" : "string"
+          },
+          "fechaNacimiento" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "nombre" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "Cambio" : {
+        "properties" : {
+          "estadoAnterior" : {
+            "enum" : [ "CONFIRMADA", "COMPLETADA", "CANCELADA", "NO_PRESENTADO" ],
+            "type" : "string"
+          },
+          "estadoNuevo" : {
+            "enum" : [ "CONFIRMADA", "COMPLETADA", "CANCELADA", "NO_PRESENTADO" ],
+            "type" : "string"
+          },
+          "fecha" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "realizadoPor" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "realizadoPorNombre" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "CambioActivoRequest" : {
+        "properties" : {
+          "activo" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "activo" ],
+        "type" : "object"
+      },
+      "CambioEstadoRequest" : {
+        "properties" : {
+          "estado" : {
+            "enum" : [ "CONFIRMADA", "COMPLETADA", "CANCELADA", "NO_PRESENTADO" ],
+            "type" : "string"
+          },
+          "motivo" : {
+            "maxLength" : 300,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "estado" ],
+        "type" : "object"
+      },
+      "CambioPasswordRequest" : {
+        "properties" : {
+          "confirmacionPassword" : {
+            "type" : "string"
+          },
+          "confirmacionPasswordCoincide" : {
+            "type" : "boolean"
+          },
+          "passwordActual" : {
+            "minLength" : 1,
+            "type" : "string"
+          },
+          "passwordNueva" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "confirmacionPassword", "passwordActual", "passwordNueva" ],
+        "type" : "object"
+      },
+      "CancelacionRequest" : {
+        "properties" : {
+          "motivo" : {
+            "maxLength" : 300,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "CitaAfectada" : {
+        "properties" : {
+          "fin" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "inicio" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "profesional" : {
+            "type" : "string"
+          },
+          "profesionalId" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "CitaResponse" : {
+        "properties" : {
+          "beneficiario" : {
+            "$ref" : "#/components/schemas/Referencia"
+          },
+          "cambios" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Cambio"
+            },
+            "type" : "array"
+          },
+          "cancelableHasta" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "cliente" : {
+            "$ref" : "#/components/schemas/DatosCliente"
+          },
+          "estado" : {
+            "enum" : [ "CONFIRMADA", "COMPLETADA", "CANCELADA", "NO_PRESENTADO" ],
+            "type" : "string"
+          },
+          "fin" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "inicio" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "motivoCancelacion" : {
+            "type" : "string"
+          },
+          "precio" : {
+            "type" : "number"
+          },
+          "profesional" : {
+            "$ref" : "#/components/schemas/Referencia"
+          },
+          "puedeCancelar" : {
+            "type" : "boolean"
+          },
+          "servicio" : {
+            "$ref" : "#/components/schemas/ServicioCita"
+          }
+        },
+        "type" : "object"
+      },
+      "ClienteEncontradoResponse" : {
+        "properties" : {
+          "apellidos" : {
+            "type" : "string"
+          },
+          "beneficiarios" : {
+            "items" : {
+              "$ref" : "#/components/schemas/BeneficiarioResponse"
+            },
+            "type" : "array"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "telefono" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "Cuenta" : {
+        "properties" : {
+          "apellidos" : {
+            "type" : "string"
+          },
+          "creadoEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "rol" : {
+            "enum" : [ "CLIENTE", "EMPLEADO", "ADMIN" ],
+            "type" : "string"
+          },
+          "telefono" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "DatosCliente" : {
+        "properties" : {
+          "apellidos" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "telefono" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "DatosEmpleadoRequest" : {
+        "properties" : {
+          "apellidos" : {
+            "maxLength" : 120,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "email" : {
+            "format" : "email",
+            "maxLength" : 254,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "nombre" : {
+            "maxLength" : 80,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "telefono" : {
+            "pattern" : "^\\+?[0-9 ]{6,19}$",
+            "type" : "string"
+          }
+        },
+        "required" : [ "apellidos", "email", "nombre" ],
+        "type" : "object"
+      },
+      "DatosPersonalesResponse" : {
+        "properties" : {
+          "beneficiarios" : {
+            "items" : { },
+            "type" : "array"
+          },
+          "citas" : {
+            "items" : { },
+            "type" : "array"
+          },
+          "cliente" : {
+            "$ref" : "#/components/schemas/DatosCliente"
+          },
+          "cuenta" : {
+            "$ref" : "#/components/schemas/Cuenta"
+          },
+          "generadoEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "sesionesAbiertas" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Sesion"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "DiaCierreRequest" : {
+        "properties" : {
+          "empleadoId" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "fecha" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "motivo" : {
+            "maxLength" : 200,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "fecha" ],
+        "type" : "object"
+      },
+      "DiaCierreResponse" : {
+        "properties" : {
+          "citasAfectadas" : {
+            "items" : {
+              "$ref" : "#/components/schemas/CitaAfectada"
+            },
+            "type" : "array"
+          },
+          "empleado" : {
+            "type" : "string"
+          },
+          "empleadoId" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "fecha" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "motivo" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "DiaEfectivoDto" : {
+        "properties" : {
+          "ajustado" : {
+            "type" : "boolean"
+          },
+          "diaSemana" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "tramos" : {
+            "items" : {
+              "$ref" : "#/components/schemas/TramoDto"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "DiaHorarioDto" : {
+        "properties" : {
+          "diaSemana" : {
+            "format" : "int32",
+            "maximum" : 7,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "tramos" : {
+            "items" : {
+              "$ref" : "#/components/schemas/TramoDto"
+            },
+            "maxItems" : 4,
+            "minItems" : 0,
+            "type" : "array"
+          }
+        },
+        "required" : [ "diaSemana", "tramos" ],
+        "type" : "object"
+      },
+      "DisponibilidadResponse" : {
+        "properties" : {
+          "fecha" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "horas" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "siguienteFechaConHuecos" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "zonaHoraria" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "EliminarCuentaRequest" : {
+        "properties" : {
+          "password" : {
+            "minLength" : 1,
+            "type" : "string"
+          }
+        },
+        "required" : [ "password" ],
+        "type" : "object"
+      },
+      "EmpleadoAdminResponse" : {
+        "properties" : {
+          "activo" : {
+            "type" : "boolean"
+          },
+          "apellidos" : {
+            "type" : "string"
+          },
+          "avisos" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "debeCambiarPassword" : {
+            "type" : "boolean"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "servicios" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ServicioResumen"
+            },
+            "type" : "array"
+          },
+          "telefono" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "EmpleadoCreadoResponse" : {
+        "properties" : {
+          "empleado" : {
+            "$ref" : "#/components/schemas/EmpleadoAdminResponse"
+          },
+          "passwordTemporal" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "HorarioEmpleadoResponse" : {
+        "properties" : {
+          "ajustes" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DiaHorarioDto"
+            },
+            "type" : "array"
+          },
+          "citasAfectadas" : {
+            "items" : {
+              "$ref" : "#/components/schemas/CitaAfectada"
+            },
+            "type" : "array"
+          },
+          "empleadoId" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "semanaEfectiva" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DiaEfectivoDto"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "HorarioSemanaRequest" : {
+        "properties" : {
+          "dias" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DiaHorarioDto"
+            },
+            "maxItems" : 7,
+            "minItems" : 0,
+            "type" : "array"
+          }
+        },
+        "required" : [ "dias" ],
+        "type" : "object"
+      },
+      "HorarioSemanaResponse" : {
+        "properties" : {
+          "citasAfectadas" : {
+            "items" : {
+              "$ref" : "#/components/schemas/CitaAfectada"
+            },
+            "type" : "array"
+          },
+          "dias" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DiaHorarioDto"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "LoginRequest" : {
+        "properties" : {
+          "email" : {
+            "maxLength" : 254,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "password" : {
+            "maxLength" : 200,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "email", "password" ],
+        "type" : "object"
+      },
+      "MensajeResponse" : {
+        "properties" : {
+          "mensaje" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "NegocioRequest" : {
+        "properties" : {
+          "antelacionMaxDias" : {
+            "format" : "int32",
+            "maximum" : 365,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "edadMinimaCuenta" : {
+            "format" : "int32",
+            "maximum" : 18,
+            "minimum" : 14,
+            "type" : "integer"
+          },
+          "horasMinCancelacion" : {
+            "format" : "int32",
+            "maximum" : 168,
+            "minimum" : 0,
+            "type" : "integer"
+          },
+          "intervaloMinutos" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "nombre" : {
+            "maxLength" : 120,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "zonaHoraria" : {
+            "maxLength" : 50,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "antelacionMaxDias", "edadMinimaCuenta", "horasMinCancelacion", "intervaloMinutos", "nombre", "zonaHoraria" ],
+        "type" : "object"
+      },
+      "NegocioResponse" : {
+        "properties" : {
+          "antelacionMaxDias" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "edadMinimaCuenta" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "horasMinCancelacion" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "intervaloMinutos" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "zonaHoraria" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "PaginaCitaResponse" : {
+        "properties" : {
+          "contenido" : {
+            "items" : {
+              "$ref" : "#/components/schemas/CitaResponse"
+            },
+            "type" : "array"
+          },
+          "pagina" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "tamano" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "totalElementos" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "totalPaginas" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "PasswordTemporalResponse" : {
+        "properties" : {
+          "passwordTemporal" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "PerfilResponse" : {
+        "properties" : {
+          "apellidos" : {
+            "type" : "string"
+          },
+          "debeCambiarPassword" : {
+            "type" : "boolean"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "fechaNacimiento" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "rol" : {
+            "enum" : [ "CLIENTE", "EMPLEADO", "ADMIN" ],
+            "type" : "string"
+          },
+          "telefono" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ProfesionalResponse" : {
+        "properties" : {
+          "id" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "servicios" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ServicioResumen"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "RecuperarPasswordRequest" : {
+        "properties" : {
+          "email" : {
+            "format" : "email",
+            "maxLength" : 254,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "email" ],
+        "type" : "object"
+      },
+      "Referencia" : {
+        "properties" : {
+          "id" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "nombre" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "RegistroRequest" : {
+        "properties" : {
+          "aceptaPrivacidad" : {
+            "type" : "boolean"
+          },
+          "apellidos" : {
+            "maxLength" : 120,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "confirmacionPassword" : {
+            "type" : "string"
+          },
+          "confirmacionPasswordCoincide" : {
+            "type" : "boolean"
+          },
+          "email" : {
+            "format" : "email",
+            "maxLength" : 254,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "fechaNacimiento" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "nombre" : {
+            "maxLength" : 80,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "password" : {
+            "type" : "string"
+          },
+          "telefono" : {
+            "pattern" : "^\\+?[0-9 ]{6,19}$",
+            "type" : "string"
+          }
+        },
+        "required" : [ "apellidos", "confirmacionPassword", "email", "fechaNacimiento", "nombre", "password" ],
+        "type" : "object"
+      },
+      "ReservaRequest" : {
+        "properties" : {
+          "beneficiarioId" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "inicio" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "profesionalId" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "servicioId" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "inicio", "profesionalId", "servicioId" ],
+        "type" : "object"
+      },
+      "RestablecerPasswordRequest" : {
+        "properties" : {
+          "confirmacionPassword" : {
+            "type" : "string"
+          },
+          "confirmacionPasswordCoincide" : {
+            "type" : "boolean"
+          },
+          "password" : {
+            "type" : "string"
+          },
+          "token" : {
+            "maxLength" : 100,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "confirmacionPassword", "password", "token" ],
+        "type" : "object"
+      },
+      "ServicioAdminResponse" : {
+        "properties" : {
+          "activo" : {
+            "type" : "boolean"
+          },
+          "descripcion" : {
+            "type" : "string"
+          },
+          "duracionMinutos" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "empleados" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "id" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "precio" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ServicioCita" : {
+        "properties" : {
+          "duracionMinutos" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "id" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "nombre" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ServicioRequest" : {
+        "properties" : {
+          "descripcion" : {
+            "maxLength" : 1000,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "duracionMinutos" : {
+            "format" : "int32",
+            "maximum" : 480,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "nombre" : {
+            "maxLength" : 120,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "precio" : {
+            "maximum" : 9999.99,
+            "minimum" : 0.0,
+            "type" : "number"
+          }
+        },
+        "required" : [ "duracionMinutos", "nombre", "precio" ],
+        "type" : "object"
+      },
+      "ServicioResponse" : {
+        "properties" : {
+          "descripcion" : {
+            "type" : "string"
+          },
+          "duracionMinutos" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "id" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "precio" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ServicioResumen" : {
+        "properties" : {
+          "id" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "nombre" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ServiciosAsignadosRequest" : {
+        "properties" : {
+          "servicioIds" : {
+            "items" : {
+              "format" : "int64",
+              "type" : "integer"
+            },
+            "type" : "array",
+            "uniqueItems" : true
+          }
+        },
+        "required" : [ "servicioIds" ],
+        "type" : "object"
+      },
+      "Sesion" : {
+        "properties" : {
+          "expiraEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "iniciadaEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "SesionResponse" : {
+        "properties" : {
+          "accessToken" : {
+            "type" : "string"
+          },
+          "expiraEnSegundos" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "tokenType" : {
+            "type" : "string"
+          },
+          "usuario" : {
+            "$ref" : "#/components/schemas/UsuarioResumen"
+          }
+        },
+        "type" : "object"
+      },
+      "TramoDto" : {
+        "properties" : {
+          "fin" : {
+            "format" : "time-local",
+            "type" : "string"
+          },
+          "inicio" : {
+            "format" : "time-local",
+            "type" : "string"
+          }
+        },
+        "required" : [ "fin", "inicio" ],
+        "type" : "object"
+      },
+      "UsuarioResumen" : {
+        "properties" : {
+          "debeCambiarPassword" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "rol" : {
+            "enum" : [ "CLIENTE", "EMPLEADO", "ADMIN" ],
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      }
+    },
+    "securitySchemes" : {
+      "bearerAuth" : {
+        "bearerFormat" : "JWT",
+        "scheme" : "bearer",
+        "type" : "http"
+      }
+    }
+  },
+  "info" : {
+    "description" : "API REST para la gestión y reserva de citas.",
+    "title" : "GestionDeCitas API",
+    "version" : "v1"
+  },
+  "openapi" : "3.1.0",
+  "paths" : {
+    "/api/v1/admin/citas" : {
+      "get" : {
+        "description" : "En orden de fecha. Sin desde, de hoy en adelante. Para cancelar o cambiar el estado, PATCH /citas/{id}/estado.",
+        "operationId" : "listar_4",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "desde",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "hasta",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "profesionalId",
+          "required" : false,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "estado",
+          "required" : false,
+          "schema" : {
+            "enum" : [ "CONFIRMADA", "COMPLETADA", "CANCELADA", "NO_PRESENTADO" ],
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "clienteId",
+          "required" : false,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "default" : 0,
+            "format" : "int32",
+            "minimum" : 0,
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "default" : 20,
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 1,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaginaCitaResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Reservas con filtros",
+        "tags" : [ "Admin · Reservas" ]
+      },
+      "post" : {
+        "description" : "Mismas reglas y misma comprobación del hueco que POST /citas.",
+        "operationId" : "reservar_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AdminReservaRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CitaResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Reservar en nombre de un cliente (CU-019, alt. 1)",
+        "tags" : [ "Admin · Reservas" ]
+      }
+    },
+    "/api/v1/admin/clientes" : {
+      "get" : {
+        "description" : "Por nombre, correo o teléfono (al menos 3 letras). Como mucho 20, con sus menores a cargo.",
+        "operationId" : "buscar",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "buscar",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/ClienteEncontradoResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Buscar clientes",
+        "tags" : [ "Admin · Clientes" ]
+      }
+    },
+    "/api/v1/admin/dias-cierre" : {
+      "get" : {
+        "description" : "Sin desde, de hoy en adelante.",
+        "operationId" : "listar_3",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "desde",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "hasta",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/DiaCierreResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Días de cierre del negocio y de empleados",
+        "tags" : [ "Admin · Días de cierre" ]
+      },
+      "post" : {
+        "description" : "Sin empleadoId cierra todo el negocio. Las citas confirmadas de ese día llegan en citasAfectadas y se mantienen.",
+        "operationId" : "crear_2",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DiaCierreRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DiaCierreResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Añadir un día de cierre",
+        "tags" : [ "Admin · Días de cierre" ]
+      }
+    },
+    "/api/v1/admin/dias-cierre/{id}" : {
+      "delete" : {
+        "operationId" : "borrar",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "summary" : "Quitar un día de cierre",
+        "tags" : [ "Admin · Días de cierre" ]
+      },
+      "get" : {
+        "operationId" : "obtener_7",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DiaCierreResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Un día de cierre",
+        "tags" : [ "Admin · Días de cierre" ]
+      }
+    },
+    "/api/v1/admin/empleados" : {
+      "get" : {
+        "operationId" : "listar_2",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/EmpleadoAdminResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Todos los empleados, activos e inactivos",
+        "tags" : [ "Admin · Empleados" ]
+      },
+      "post" : {
+        "description" : "Devuelve la contraseña temporal UNA sola vez; el empleado la cambia al entrar (RN-005).",
+        "operationId" : "alta",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AltaEmpleadoRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EmpleadoCreadoResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Dar de alta un empleado",
+        "tags" : [ "Admin · Empleados" ]
+      }
+    },
+    "/api/v1/admin/empleados/{id}" : {
+      "get" : {
+        "operationId" : "obtener_4",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EmpleadoAdminResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Un empleado",
+        "tags" : [ "Admin · Empleados" ]
+      },
+      "put" : {
+        "operationId" : "actualizar_4",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DatosEmpleadoRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EmpleadoAdminResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modificar los datos de un empleado",
+        "tags" : [ "Admin · Empleados" ]
+      }
+    },
+    "/api/v1/admin/empleados/{id}/activo" : {
+      "patch" : {
+        "description" : "409 si tiene citas futuras confirmadas (citasFuturas). Al desactivar se cierran sus sesiones.",
+        "operationId" : "cambiarActivo_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CambioActivoRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EmpleadoAdminResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Activar o desactivar un empleado",
+        "tags" : [ "Admin · Empleados" ]
+      }
+    },
+    "/api/v1/admin/empleados/{id}/horario" : {
+      "get" : {
+        "operationId" : "deEmpleado",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HorarioEmpleadoResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Ajustes de un empleado y su semana efectiva",
+        "tags" : [ "Admin · Horarios" ]
+      },
+      "put" : {
+        "description" : "Solo los días ajustados; un día con tramos vacíos = no trabaja. Lista vacía = vuelve al horario general. Las citas que quedan fuera llegan en citasAfectadas.",
+        "operationId" : "cambiarDeEmpleado",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/HorarioSemanaRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HorarioEmpleadoResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Reemplazar los ajustes de un empleado",
+        "tags" : [ "Admin · Horarios" ]
+      }
+    },
+    "/api/v1/admin/empleados/{id}/password-temporal" : {
+      "post" : {
+        "description" : "La anterior deja de valer y se cierran sus sesiones. Se devuelve una sola vez.",
+        "operationId" : "nuevaPasswordTemporal",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PasswordTemporalResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Generar otra contraseña temporal",
+        "tags" : [ "Admin · Empleados" ]
+      }
+    },
+    "/api/v1/admin/empleados/{id}/servicios" : {
+      "put" : {
+        "description" : "Reemplaza la lista. Si quitas un servicio con citas futuras, se mantienen y llega un aviso.",
+        "operationId" : "asignarServicios",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ServiciosAsignadosRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EmpleadoAdminResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Asignar los servicios de un empleado",
+        "tags" : [ "Admin · Empleados" ]
+      }
+    },
+    "/api/v1/admin/horario-general" : {
+      "get" : {
+        "operationId" : "general",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HorarioSemanaResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Horario general de lunes a domingo (un día sin tramos está cerrado)",
+        "tags" : [ "Admin · Horarios" ]
+      },
+      "put" : {
+        "description" : "Un día que no se envía queda cerrado. Se guarda aunque haya citas que queden fuera: llegan en citasAfectadas y se mantienen.",
+        "operationId" : "cambiarGeneral",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/HorarioSemanaRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HorarioSemanaResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Reemplazar el horario general",
+        "tags" : [ "Admin · Horarios" ]
+      }
+    },
+    "/api/v1/admin/negocio" : {
+      "get" : {
+        "operationId" : "obtener_3",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NegocioResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Ver la configuración del negocio",
+        "tags" : [ "Admin · Negocio" ]
+      },
+      "put" : {
+        "description" : "Si algún servicio dejaría de ser múltiplo del nuevo intervalo (RN-011), 422 con la lista.",
+        "operationId" : "actualizar_3",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/NegocioRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NegocioResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Cambiar la configuración del negocio",
+        "tags" : [ "Admin · Negocio" ]
+      }
+    },
+    "/api/v1/admin/servicios" : {
+      "get" : {
+        "operationId" : "listar_1",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/ServicioAdminResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Todos los servicios, activos e inactivos",
+        "tags" : [ "Admin · Servicios" ]
+      },
+      "post" : {
+        "description" : "La duración debe ser múltiplo del intervalo de reserva (RN-011); si no, 422.",
+        "operationId" : "crear_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ServicioRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServicioAdminResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Crear un servicio",
+        "tags" : [ "Admin · Servicios" ]
+      }
+    },
+    "/api/v1/admin/servicios/{id}" : {
+      "get" : {
+        "operationId" : "obtener_2",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServicioAdminResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Un servicio",
+        "tags" : [ "Admin · Servicios" ]
+      },
+      "put" : {
+        "description" : "Solo afecta a las reservas nuevas.",
+        "operationId" : "actualizar_2",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ServicioRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServicioAdminResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modificar un servicio",
+        "tags" : [ "Admin · Servicios" ]
+      }
+    },
+    "/api/v1/admin/servicios/{id}/activo" : {
+      "patch" : {
+        "description" : "Desactivado deja de verse y de poder reservarse; las citas ya confirmadas se mantienen.",
+        "operationId" : "cambiarActivo",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CambioActivoRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServicioAdminResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Activar o desactivar un servicio",
+        "tags" : [ "Admin · Servicios" ]
+      }
+    },
+    "/api/v1/auth/login" : {
+      "post" : {
+        "description" : "Devuelve el access token y pone el refresh token en una cookie HttpOnly.",
+        "operationId" : "login",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SesionResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Iniciar sesión (CU-002)",
+        "tags" : [ "Autenticación" ]
+      }
+    },
+    "/api/v1/auth/logout" : {
+      "post" : {
+        "operationId" : "logout",
+        "parameters" : [ {
+          "in" : "cookie",
+          "name" : "refresh_token",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "summary" : "Cerrar sesión (CU-003)",
+        "tags" : [ "Autenticación" ]
+      }
+    },
+    "/api/v1/auth/recuperar-password" : {
+      "post" : {
+        "description" : "Responde siempre lo mismo, exista o no la cuenta. El enlace caduca en 30 minutos.",
+        "operationId" : "recuperarPassword",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RecuperarPasswordRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MensajeResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Pedir un enlace para restablecer la contraseña (CU-020)",
+        "tags" : [ "Autenticación" ]
+      }
+    },
+    "/api/v1/auth/refresh" : {
+      "post" : {
+        "operationId" : "renovar",
+        "parameters" : [ {
+          "in" : "cookie",
+          "name" : "refresh_token",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Renovar el access token con la cookie del refresh token",
+        "tags" : [ "Autenticación" ]
+      }
+    },
+    "/api/v1/auth/registro" : {
+      "post" : {
+        "operationId" : "registrar",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RegistroRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UsuarioResumen"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Crear una cuenta de cliente (CU-001)",
+        "tags" : [ "Autenticación" ]
+      }
+    },
+    "/api/v1/auth/restablecer-password" : {
+      "post" : {
+        "description" : "Cierra todas las sesiones abiertas. No inicia sesión: después hay que hacer login.",
+        "operationId" : "restablecerPassword",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RestablecerPasswordRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "summary" : "Elegir una contraseña nueva con el token del enlace (CU-020)",
+        "tags" : [ "Autenticación" ]
+      }
+    },
+    "/api/v1/citas" : {
+      "post" : {
+        "description" : "La hora debe ser una de GET /disponibilidad. 409 si ya no está libre. Con beneficiarioId, la cita es para un menor a cargo.",
+        "operationId" : "reservar",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ReservaRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CitaResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Reservar una cita (CU-008, CU-009)",
+        "tags" : [ "Citas" ]
+      }
+    },
+    "/api/v1/citas/{id}" : {
+      "get" : {
+        "description" : "El cliente ve las suyas, el empleado las asignadas y el administrador todas.",
+        "operationId" : "detalle",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CitaResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Detalle de una cita (CU-011, CU-014)",
+        "tags" : [ "Citas" ]
+      }
+    },
+    "/api/v1/citas/{id}/cancelacion" : {
+      "post" : {
+        "description" : "Solo si faltan las horas mínimas del negocio (24 h por defecto, RN-004).",
+        "operationId" : "cancelar",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CancelacionRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CitaResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Cancelar mi cita (CU-012)",
+        "tags" : [ "Citas" ]
+      }
+    },
+    "/api/v1/citas/{id}/estado" : {
+      "patch" : {
+        "description" : "Empleado (sus citas) o administrador. COMPLETADA y NO_PRESENTADO desde la hora de inicio; CANCELADA en cualquier momento y con motivo.",
+        "operationId" : "cambiarEstado",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CambioEstadoRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CitaResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Cambiar el estado de una cita (CU-015, CU-019)",
+        "tags" : [ "Citas" ]
+      }
+    },
+    "/api/v1/disponibilidad" : {
+      "get" : {
+        "description" : "Horas en hora local del negocio. Si no hay ninguna, siguienteFechaConHuecos dice el próximo día con huecos (CU-007, RN-009, RN-010).",
+        "operationId" : "consultar",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "servicioId",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "profesionalId",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "fecha",
+          "required" : true,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DisponibilidadResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Horas libres de un profesional para un servicio en una fecha",
+        "tags" : [ "Catálogo" ]
+      }
+    },
+    "/api/v1/empleado/agenda" : {
+      "get" : {
+        "description" : "Por día, mi horario efectivo y mis citas no canceladas. Sin fechas, hoy; como mucho 31 días.",
+        "operationId" : "agenda",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "desde",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "hasta",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/AgendaDiaResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Mi agenda (CU-013)",
+        "tags" : [ "Empleado · Agenda" ]
+      }
+    },
+    "/api/v1/empleado/citas" : {
+      "get" : {
+        "description" : "En orden de fecha, con filtros. Sin desde, de hoy en adelante.",
+        "operationId" : "citas",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "estado",
+          "required" : false,
+          "schema" : {
+            "enum" : [ "CONFIRMADA", "COMPLETADA", "CANCELADA", "NO_PRESENTADO" ],
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "desde",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "hasta",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "default" : 0,
+            "format" : "int32",
+            "minimum" : 0,
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "default" : 20,
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 1,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaginaCitaResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Mis citas asignadas (CU-014)",
+        "tags" : [ "Empleado · Agenda" ]
+      }
+    },
+    "/api/v1/empleado/servicios" : {
+      "get" : {
+        "operationId" : "misServicios",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/ServicioResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Mis servicios asignados (CU-021)",
+        "tags" : [ "Empleado" ]
+      }
+    },
+    "/api/v1/me" : {
+      "delete" : {
+        "description" : "Solo clientes. Pide la contraseña y anonimiza los datos; las citas quedan como historial.",
+        "operationId" : "eliminarCuenta",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/EliminarCuentaRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "summary" : "Eliminar mi cuenta (CU-004, RGPD)",
+        "tags" : [ "Mi perfil" ]
+      },
+      "get" : {
+        "operationId" : "obtener",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PerfilResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Ver mis datos",
+        "tags" : [ "Mi perfil" ]
+      },
+      "put" : {
+        "operationId" : "actualizar",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ActualizarPerfilRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PerfilResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modificar mis datos (CU-004)",
+        "tags" : [ "Mi perfil" ]
+      }
+    },
+    "/api/v1/me/beneficiarios" : {
+      "get" : {
+        "operationId" : "listar",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/BeneficiarioResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Mis menores a cargo",
+        "tags" : [ "Mis beneficiarios" ]
+      },
+      "post" : {
+        "description" : "422 si ya tiene la edad mínima para crear su propia cuenta.",
+        "operationId" : "crear",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BeneficiarioRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BeneficiarioResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Añadir un menor a cargo",
+        "tags" : [ "Mis beneficiarios" ]
+      }
+    },
+    "/api/v1/me/beneficiarios/{id}" : {
+      "delete" : {
+        "description" : "Si tiene citas se anonimiza y se cancelan las que aún no han empezado.",
+        "operationId" : "eliminar",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "summary" : "Eliminar un menor a cargo",
+        "tags" : [ "Mis beneficiarios" ]
+      },
+      "get" : {
+        "operationId" : "obtener_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BeneficiarioResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Un menor a mi cargo",
+        "tags" : [ "Mis beneficiarios" ]
+      },
+      "put" : {
+        "operationId" : "actualizar_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BeneficiarioRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BeneficiarioResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Corregir los datos de un menor a cargo",
+        "tags" : [ "Mis beneficiarios" ]
+      }
+    },
+    "/api/v1/me/citas" : {
+      "get" : {
+        "description" : "Próximas en orden, en todos los estados. Con pasadas=true, el historial.",
+        "operationId" : "misCitas",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "pasadas",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "default" : 0,
+            "format" : "int32",
+            "minimum" : 0,
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "default" : 20,
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 1,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaginaCitaResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Mis citas (CU-010)",
+        "tags" : [ "Citas" ]
+      }
+    },
+    "/api/v1/me/datos" : {
+      "get" : {
+        "description" : "Descarga en JSON los datos personales que guarda el sistema.",
+        "operationId" : "exportarDatos",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DatosPersonalesResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Exportar mis datos personales (RGPD)",
+        "tags" : [ "Mi perfil" ]
+      }
+    },
+    "/api/v1/me/password" : {
+      "put" : {
+        "description" : "Cierra las demás sesiones y devuelve tokens nuevos.",
+        "operationId" : "cambiarPassword",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CambioPasswordRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SesionResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Cambiar mi contraseña (CU-004, RN-005)",
+        "tags" : [ "Autenticación" ]
+      }
+    },
+    "/api/v1/negocio" : {
+      "get" : {
+        "description" : "Zona horaria, intervalo, antelación máxima, plazo de cancelación y edad mínima.",
+        "operationId" : "obtener_6",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NegocioResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Nombre y reglas públicas del negocio",
+        "tags" : [ "Catálogo" ]
+      }
+    },
+    "/api/v1/profesionales" : {
+      "get" : {
+        "description" : "Con servicioId, solo quienes realizan ese servicio. Nombre e inicial del apellido.",
+        "operationId" : "listar_6",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "servicioId",
+          "required" : false,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/ProfesionalResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Profesionales activos y sus servicios (CU-006)",
+        "tags" : [ "Catálogo" ]
+      }
+    },
+    "/api/v1/servicios" : {
+      "get" : {
+        "operationId" : "listar_5",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/ServicioResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Servicios activos con su duración y precio",
+        "tags" : [ "Catálogo" ]
+      }
+    },
+    "/api/v1/servicios/{id}" : {
+      "get" : {
+        "operationId" : "obtener_5",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServicioResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Un servicio activo",
+        "tags" : [ "Catálogo" ]
+      }
+    }
+  },
+  "security" : [ {
+    "bearerAuth" : [ ]
+  } ],
+  "tags" : [ {
+    "description" : "Gestionar servicios y precios (CU-016)",
+    "name" : "Admin · Servicios"
+  }, {
+    "description" : "Reservar, consultar, cancelar y cambiar el estado de las citas (CU-008 a CU-012, CU-015)",
+    "name" : "Citas"
+  }, {
+    "description" : "Mi jornada y mis citas asignadas (CU-013, CU-014)",
+    "name" : "Empleado · Agenda"
+  }, {
+    "description" : "Registro, inicio y cierre de sesión y recuperación de contraseña (CU-001 a CU-004, CU-020)",
+    "name" : "Autenticación"
+  }, {
+    "description" : "Servicios y profesionales, sin iniciar sesión (CU-005, CU-006)",
+    "name" : "Catálogo"
+  }, {
+    "description" : "Configuración del negocio (RN-004, RN-006, RN-009, RN-010)",
+    "name" : "Admin · Negocio"
+  }, {
+    "description" : "Horario general y ajuste por empleado (CU-018, RN-002)",
+    "name" : "Admin · Horarios"
+  }, {
+    "description" : "Datos del usuario con sesión (CU-004) y RGPD (RNF-007)",
+    "name" : "Mi perfil"
+  }, {
+    "description" : "Todas las reservas del negocio (CU-019)",
+    "name" : "Admin · Reservas"
+  }, {
+    "description" : "Lo que consulta el empleado con sesión",
+    "name" : "Empleado"
+  }, {
+    "description" : "Festivos del negocio y vacaciones de empleados (CU-018)",
+    "name" : "Admin · Días de cierre"
+  }, {
+    "description" : "Menores a mi cargo para reservarles cita (CU-009)",
+    "name" : "Mis beneficiarios"
+  }, {
+    "description" : "Buscar al cliente para reservar en su nombre (CU-019)",
+    "name" : "Admin · Clientes"
+  }, {
+    "description" : "Gestionar empleados y sus servicios (CU-017, RN-005)",
+    "name" : "Admin · Empleados"
+  } ]
+}

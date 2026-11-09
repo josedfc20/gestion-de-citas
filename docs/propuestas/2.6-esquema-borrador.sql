@@ -1,3 +1,5 @@
+-- AVISO (fase 6): borrador aprobado en el paso 2.6. El esquema real son las
+-- migraciones backend/src/main/resources/db/migration (V1 a V7).
 -- =====================================================================
 -- GestionDeCitas · Paso 2.6 · Esquema de base de datos (BORRADOR)
 -- PostgreSQL 16. Propuesta de diseño pendiente de revisión: no ejecutar

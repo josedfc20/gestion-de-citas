@@ -63,7 +63,7 @@
 | RNF-003 | Sin reservas incompatibles, también a la vez | `ReservasTest` (dosReservasALaVezDelMismoHuecoSoloConfirmanUna, laRestriccionDeLaBaseDeDatos…), `RestriccionSolapeTest`; E2E: **`concurrencia`** (dos navegadores confirman la misma hora a la vez: uno la consigue y el otro ve "Ese horario ya no está disponible") | ✅ |
 | RNF-004 | HTTPS en el entorno desplegado | — (fase 7) | — |
 | RNF-005 | Pruebas de las funcionalidades principales | Esta matriz, la cobertura en la CI, la prueba manual (`pruebas-manuales.md`) y el informe de la fase 5 (`informe-de-pruebas.md`) | ✅ |
-| RNF-006 | Código modular | **`ArquitecturaTest`** (ArchUnit): los controllers no usan repositories ni devuelven entidades, `usuario` y `beneficiario` no dependen de `cita`, nadie lee la hora sin el `Clock` y `CalculoDisponibilidad` no depende de Spring | ✅ |
+| RNF-006 | Código modular | **`ArquitecturaTest`** (ArchUnit): los controllers no usan repositories ni devuelven entidades, `usuario` y `beneficiario` no dependen de `cita`, nadie lee la hora sin el `Clock` y `CalculoDisponibilidad` no depende de Spring. **`OpenApiActualizadoTest`** (6b): `docs/api/openapi.json` coincide con la API real | ✅ |
 | RNF-007 | RGPD y LOPDGDD | `RegistroTest` (sinAceptarLaPrivacidad…), `DatosPersonalesTest`, `BeneficiariosTest` (conCitasSeAnonimiza…), `CorreoRecuperacionListenerTest` (el token nunca va al log); web: `Cuenta.test`; E2E: `rgpd` (el JSON descargado no lleva contraseñas) | ✅ |
 | RNF-008 | Web responsive y usable en el móvil | E2E: proyecto **`movil`** (390 px) con los flujos del cliente; **`movil`** (ninguna página se sale de la pantalla y lo que se toca mide 44 × 44 px o más); **`accesibilidad`** (axe con WCAG 2.1 A y AA en 33 páginas, en modo claro y oscuro) | ✅ |
 
