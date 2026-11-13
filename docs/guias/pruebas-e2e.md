@@ -172,3 +172,21 @@ apúntalo en `docs/pruebas/registro-de-defectos.md` y búscale la causa.
 | `password authentication failed` | El `POSTGRES_PASSWORD` de tu `.env` no es el del contenedor |
 | `recuperar-password` no encuentra el correo | Mailpit no está en marcha: `docker compose up -d` |
 | `Executable doesn't exist` | Falta `npx playwright install chromium` |
+
+## 9. Capturas de la web (README y manual)
+
+Las capturas de `docs/capturas/` las saca un script aparte, que no es una
+prueba y la CI no ejecuta (paso 6c). Con lo mismo preparado que para las
+E2E (Docker en marcha y el backend compilado, pasos 1 y 3):
+
+```powershell
+cd e2e
+npm run capturas
+```
+
+Usa el perfil `demo` en una base de datos propia,
+`gestion_de_citas_capturas`, que borra y vuelve a crear cada vez con
+`docker exec gestion-de-citas-db`, y guarda las 13 imágenes en
+`docs/capturas/`. Como las citas de la demo dependen del día, las fechas de
+las capturas cambian cada vez que se regeneran. Hazlo cuando cambie una
+pantalla que sale en el README o en el manual.
