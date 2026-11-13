@@ -30,7 +30,9 @@ function proximoMiercoles(): string {
 async function capturar(page: Page, nombre: string) {
   // Que no salga nada a medio cargar.
   await expect(page.getByText('Cargando…')).toHaveCount(0)
-  await page.screenshot({ path: `${CARPETA}${nombre}.png` })
+  // `animations: 'disabled'` termina las transiciones: al pasar a oscuro, las
+  // horas salían a medio cambiar de color (fondo claro sobre página oscura).
+  await page.screenshot({ path: `${CARPETA}${nombre}.png`, animations: 'disabled' })
 }
 
 /** Horas libres de Luis para un corte de pelo, eligiendo como lo haría el usuario. */

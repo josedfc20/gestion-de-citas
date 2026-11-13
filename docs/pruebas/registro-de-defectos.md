@@ -212,3 +212,29 @@ versión y no tiene ficha aquí.
   solo se reserva para clientes con cuenta" (fallaba antes del arreglo).
 - **Lo aprendido:** una regla del negocio que limita lo que se puede hacer
   tiene que estar escrita en la pantalla donde se nota el límite.
+
+### D-8
+
+**La captura en modo oscuro sacaba las horas libres con fondo claro**
+
+- **Dónde salió:** jose, al revisar las capturas del 6c (PR #25), el
+  13/11/2026: en `horarios-oscuro.png` las horas se veían con fondo claro y
+  texto verde azulado sobre la página oscura, y costaba leerlas.
+- **Qué se vio:** el fondo de las horas era (206, 221, 219), casi el del modo
+  claro (#e6f2f0), cuando en oscuro debe ser #123a35.
+- **Causa:** no era un fallo de la web, sino del script de capturas. Primero
+  saca la captura en claro y luego cambia a oscuro con `emulateMedia` sin
+  recargar. Las horas son enlaces con `transition: background-color 0.15s`, así
+  que la captura se hacía a mitad del cambio de color. Quien abre la web en
+  modo oscuro la ve bien desde el principio: sus horas tienen fondo
+  #123a35 y texto #2dd4bf (contraste 6,7:1), y axe ya lo comprobaba en
+  `accesibilidad.spec.ts`.
+- **Solución:** `capturar` usa `page.screenshot({ animations: 'disabled' })`,
+  que termina las transiciones antes de sacar la imagen. Capturas
+  regeneradas.
+- **PR:** #25.
+- **Prueba que lo vigila:** la propia captura `horarios-oscuro.png`; el
+  color de la web en oscuro lo vigila `accesibilidad.spec.ts`.
+- **Lo aprendido:** una captura sacada justo después de cambiar algo en la
+  página puede pillar una animación a medias; las capturas se hacen siempre
+  con las animaciones desactivadas.
