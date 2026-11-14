@@ -1,0 +1,57 @@
+# Dependabot (paso 7c): cada lunes busca versiones nuevas y abre PR. Las menores y
+# de parche van juntas en un PR por carpeta; las mayores, cada una aparte, porque
+# pueden romper cosas. Cada PR pasa la CI completa: se fusionan los que salen en
+# verde. Guía: docs/guias/dependencias.md
+
+version: 2
+
+updates:
+  - package-ecosystem: maven
+    directory: /backend
+    schedule: { interval: weekly, day: monday, time: "07:00", timezone: Europe/Madrid }
+    open-pull-requests-limit: 5
+    commit-message: { prefix: "chore(deps)" }
+    groups:
+      backend-menores:
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule: { interval: weekly, day: monday, time: "07:00", timezone: Europe/Madrid }
+    open-pull-requests-limit: 5
+    commit-message: { prefix: "chore(deps)" }
+    groups:
+      web-menores:
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: /e2e
+    schedule: { interval: weekly, day: monday, time: "07:00", timezone: Europe/Madrid }
+    open-pull-requests-limit: 5
+    commit-message: { prefix: "chore(deps)" }
+    groups:
+      e2e-menores:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly, day: monday, time: "07:00", timezone: Europe/Madrid }
+    open-pull-requests-limit: 5
+    commit-message: { prefix: "chore(deps)" }
+    groups:
+      acciones:
+        patterns: ["*"]
+
+  # Imágenes base de los Dockerfile (JRE de Temurin, Node, Caddy).
+  - package-ecosystem: docker
+    directories: [/backend, /frontend]
+    schedule: { interval: weekly, day: monday, time: "07:00", timezone: Europe/Madrid }
+    open-pull-requests-limit: 5
+    commit-message: { prefix: "chore(deps)" }
+
+  # Imágenes de docker-compose.yml y docker-compose.prod.yml (PostgreSQL, Mailpit).
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule: { interval: weekly, day: monday, time: "07:00", timezone: Europe/Madrid }
+    open-pull-requests-limit: 5
+    commit-message: { prefix: "chore(deps)" }

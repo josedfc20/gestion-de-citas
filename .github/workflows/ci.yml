@@ -71,6 +71,10 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
+      # Paso 7c: falla con avisos de seguridad altos o críticos en las librerías de la web.
+      - name: Revisar las dependencias (npm audit)
+        run: npm audit --audit-level=high
+
       - name: Lint
         run: npm run lint
 
@@ -156,6 +160,7 @@ jobs:
         working-directory: e2e
         run: |
           npm ci
+          npm audit --audit-level=high
           npm run typecheck
           npx playwright install --with-deps chromium
 
@@ -311,6 +316,31 @@ jobs:
           PROD_ADMIN_EMAIL: ${{ env.ADMIN_EMAIL }}
           PROD_ADMIN_PASSWORD: ${{ env.ADMIN_PASSWORD }}
         run: npm run produccion
+
+      # Paso 7c: Trivy revisa las dos imágenes (sistema, JRE, librerías de Java y el
+      # programa Caddy). Primero el resumen con todo lo alto y crítico; después falla
+      # solo con lo que ya tiene arreglo, salvo las excepciones de .trivyignore.yaml.
+      - name: Caché de la base de datos de Trivy
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/trivy
+          key: trivy-db-${{ github.run_id }}
+          restore-keys: trivy-db-
+
+      - name: Revisar las imágenes (Trivy)
+        run: |
+          trivy() {
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+              -v "$HOME/.cache/trivy:/root/.cache/trivy" -v "$PWD/.trivyignore.yaml:/.trivyignore.yaml:ro" \
+              aquasec/trivy:0.76.2 image --quiet --scanners vuln --severity HIGH,CRITICAL "$@"
+          }
+          for imagen in backend web; do
+            nombre="ghcr.io/${{ github.repository_owner }}/gestion-de-citas-$imagen:local"
+            { echo "### Trivy: imagen $imagen"; echo; echo '```'; trivy --format table "$nombre"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          done
+          for imagen in backend web; do
+            trivy --ignore-unfixed --ignorefile /.trivyignore.yaml --exit-code 1 "ghcr.io/${{ github.repository_owner }}/gestion-de-citas-$imagen:local"
+          done
 
       - name: Guardar el informe y los logs
         if: failure()

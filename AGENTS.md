@@ -51,7 +51,7 @@ avanza a la siguiente.
 | 6    | Documentación | Registrar decisiones técnicas y preparar el README.      |
 | 7    | Despliegue    | Preparar una versión que pueda utilizarse y demostrarse. |
 
-**Fase actual: 7. Despliegue** (plan aprobado el 14/11/2026; 7b en revisión; siguiente paso: 7c)
+**Fase actual: 7. Despliegue** (plan aprobado el 14/11/2026; 7c en revisión; siguiente paso: 7d)
 
 - [x] FASE 1: Análisis
 - [x] FASE 2: Diseño
@@ -108,7 +108,7 @@ avanza a la siguiente.
   - [x] 7.0 Plan de la fase: seis pasos (7a a 7f), todo con planes gratuitos (0 €)
   - [x] 7a · Imágenes Docker y Compose de producción, perfil `prod`, D-9 y ADR-018 (`docs/propuestas/7.1-7a-produccion-docker.md`)
   - [x] 7b · HTTPS y cabeceras de la web (CSP, HSTS) con las pruebas de `e2e/produccion/` (`docs/propuestas/7.2-7b-cabeceras-web.md`)
-  - [ ] 7c · Análisis de dependencias: Dependabot, `npm audit` y Trivy en la CI
+  - [x] 7c · Análisis de dependencias: Dependabot, `npm audit`, Trivy, análisis semanal y CodeQL (`docs/propuestas/7.3-7c-analisis-dependencias.md`)
   - [ ] 7d · Correo real con Brevo
   - [ ] 7e · Guía de despliegue (`docs/guias/desplegar.md`), copias de seguridad y puesta en marcha
   - [ ] 7f · Pruebas en producción, ADR, README con la demo, `Doc.docx` y `v1.0.0`
@@ -177,6 +177,7 @@ avanza a la siguiente.
 - README y manual (6c): `README.md` y `README.en.md` dicen lo mismo, así que **un cambio en uno va también en el otro**. Licencia MIT. `docs/README.md` es el índice de la documentación y `docs/guias/manual-de-usuario.md` el manual por perfil. Las capturas de `docs/capturas/` se regeneran con `cd e2e && npm run capturas` (perfil `demo` en la base de datos `gestion_de_citas_capturas`, fuera de la CI) cuando cambia una pantalla que sale en ellos; se sacan con las animaciones desactivadas (D-8).
 - Producción (7a): `docker-compose.prod.yml` (Caddy, backend y PostgreSQL; **solo Caddy abre puertos**) con las variables de `.env.prod` (plantilla `.env.prod.example`; `.env.prod` nunca va a Git). Imágenes: `backend/Dockerfile` (JRE 21 de Temurin, usuario `app`) y `frontend/Dockerfile` (la web dentro de Caddy, configurada en `frontend/Caddyfile`); la CI las construye en cada PR y con una etiqueta `v*` las publica para Intel y ARM en `ghcr.io/josedfc20/gestion-de-citas-{backend,web}` (ADR-018). Perfil `prod` (`application-prod.yml`): sin Swagger e IP real desde `X-Forwarded-For` solo si llega de la red interna (D-9, `PerfilProduccionTest`). **Lo que dependa de quién hace la petición usa `getRemoteAddr()` y se prueba también con el perfil `prod`.** Guía: `docs/guias/desplegar.md`.
 - Cabeceras de la web (7b): las pone Caddy (`frontend/Caddyfile`): HSTS de un año sin `preload`, CSP estricta (`'self'`, sin `unsafe-inline`), `nosniff`, `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy` y sin `Server`; `/assets/*` con caché de un año e `index.html` sin caché. **La web no usa estilos ni scripts en línea (`style={{...}}`, `<script>`) ni carga nada de otra dirección**: `e2e/produccion/csp.spec.ts` recorre los cuatro perfiles y falla con una sola infracción; se arregla en la web, nunca relajando la CSP. Las pruebas de `e2e/produccion/` (`npm run produccion`, con `PROD_URL` y las cuentas en variables) prueban una aplicación ya desplegada; en la CI, el trabajo "Producción" en cada PR. Si cambia la CSP, cambia también `CSP` en `e2e/produccion/entorno.ts`.
+- Dependencias (7c): Dependabot (`.github/dependabot.yml`) abre PR cada lunes (menores y parches agrupados por carpeta, mayores aparte); **un PR de Dependabot se fusiona solo con la CI en verde**. La CI falla con `npm audit --audit-level=high` (web y `e2e/`) y con Trivy (versión fijada) sobre las dos imágenes, con avisos altos o críticos que tienen arreglo. **Una excepción va en `.trivyignore.yaml` con motivo y caducidad de 30 días**, nunca quitando o bajando el análisis. `seguridad.yml` repite el análisis cada lunes. CodeQL analiza nuestro código. Guía: `docs/guias/dependencias.md`.
 
 ## 5c. Continuidad entre hilos
 
@@ -375,3 +376,4 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 | 2026-11-14 | Paso 7.0 aprobado: seis pasos (7a a 7f) sin ningún coste. Servidor Oracle Cloud *Always Free* (plan B: Render + Neon), Caddy para el HTTPS y la web, subdominio gratuito de DuckDNS, Brevo gratuito para el correo y perfil `demo` restablecido cada noche (cuentas de cliente y empleado públicas, la de admin solo para Jose). |
 | 2026-11-14 | 7a aprobado y hecho: imágenes en GitHub Container Registry publicadas por la CI y base `eclipse-temurin:21-jre`; `docker-compose.prod.yml`, perfil `prod`, D-9 (límite de intentos por la IP del proxy) arreglado y ADR-018. Rama del hilo (`claude/project-thread-qggtz2`), porque el hilo no puede crear ramas `feature/...`. |
 | 2026-11-14 | 7a fusionado (PR #27). 7b aprobado y hecho: cabeceras de seguridad y caché en Caddy, pruebas de `e2e/produccion/` contra el Compose de producción en cada PR (trabajo "Producción") y sin receptor de avisos de la CSP. RNF-004 cubierto. |
+| 2026-11-14 | 7b fusionado (PR #28). 7c aprobado y hecho: Dependabot semanal, `npm audit` y Trivy en la CI (fallan con avisos altos o críticos que tienen arreglo), análisis semanal y CodeQL. El aviso CVE-2026-78661 dentro de Caddy 2.11.9 (aún sin versión arreglada) queda como excepción hasta el 14/12/2026. |
