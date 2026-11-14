@@ -3,3 +3,6 @@ test-results/
 playwright-report/
 blob-report/
 registros/
+test-results-produccion/
+playwright-report-produccion/
+compose-produccion.log

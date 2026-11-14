@@ -239,3 +239,90 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.nombre }}
           cache-to: type=gha,mode=max,scope=${{ matrix.nombre }}
+
+  # Paso 7b: la aplicación tal como se despliega (docker-compose.prod.yml), por HTTPS
+  # y a través de Caddy: cabeceras de seguridad, CSP en todas las páginas, paso de
+  # HTTP a HTTPS y la sesión de principio a fin (e2e/produccion/).
+  produccion:
+    name: Producción (Compose + HTTPS)
+    needs: [backend, frontend, e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DEMO_PASSWORD: demo-solo-para-la-ci-2026
+      ADMIN_EMAIL: admin-ci@pruebas.local
+      ADMIN_PASSWORD: admin-solo-para-la-ci-2026
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      # Las mismas imágenes que el trabajo "Imágenes", con su caché.
+      - name: Construir la imagen del backend
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          load: true
+          tags: ghcr.io/${{ github.repository_owner }}/gestion-de-citas-backend:local
+          cache-from: type=gha,scope=backend
+
+      - name: Construir la imagen de la web
+        uses: docker/build-push-action@v6
+        with:
+          context: frontend
+          load: true
+          tags: ghcr.io/${{ github.repository_owner }}/gestion-de-citas-web:local
+          cache-from: type=gha,scope=web
+
+      # Con DOMINIO=localhost Caddy usa su propio certificado (como en el PC).
+      - name: Arrancar docker-compose.prod.yml
+        run: |
+          cat > .env.prod <<EOF
+          DOMINIO=localhost
+          VERSION=local
+          POSTGRES_DB=gestion_de_citas
+          POSTGRES_USER=gestion_de_citas
+          POSTGRES_PASSWORD=clave-solo-para-la-ci
+          JWT_SECRET=secreto-solo-para-la-ci-de-gestion-de-citas-0123456789
+          ADMIN_EMAIL=$ADMIN_EMAIL
+          ADMIN_PASSWORD=$ADMIN_PASSWORD
+          PERFILES=prod,demo
+          DEMO_PASSWORD=$DEMO_PASSWORD
+          EOF
+          docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --wait
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+
+      - name: Instalar Playwright y Chromium
+        working-directory: e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Pruebas de producción
+        working-directory: e2e
+        env:
+          PROD_URL: https://localhost
+          PROD_DEMO_PASSWORD: ${{ env.DEMO_PASSWORD }}
+          PROD_ADMIN_EMAIL: ${{ env.ADMIN_EMAIL }}
+          PROD_ADMIN_PASSWORD: ${{ env.ADMIN_PASSWORD }}
+        run: npm run produccion
+
+      - name: Guardar el informe y los logs
+        if: failure()
+        run: docker compose -f docker-compose.prod.yml --env-file .env.prod logs --no-color > e2e/compose-produccion.log 2>&1 || true
+
+      - name: Subir el informe
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-produccion
+          path: |
+            e2e/playwright-report-produccion/
+            e2e/test-results-produccion/
+            e2e/compose-produccion.log
+          retention-days: 14

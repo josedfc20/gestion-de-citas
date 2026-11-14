@@ -79,7 +79,28 @@ docker compose -f docker-compose.prod.yml --env-file .env.prod ps
 docker compose -f docker-compose.prod.yml --env-file .env.prod logs -f backend
 ```
 
-## 3. En un servidor
+**Comprobar que está bien protegida** (cabeceras, HTTPS, CSP y sesión): con
+todo arrancado, pasa las pruebas de producción, como explica
+[`pruebas-e2e.md`, apartado 10](pruebas-e2e.md#10-pruebas-de-producción-paso-7b).
+
+## 3. Las cabeceras de seguridad (paso 7b)
+
+Caddy las pone en todas las respuestas (`frontend/Caddyfile`):
+
+| Cabecera | Qué le dice al navegador |
+|---|---|
+| `Strict-Transport-Security: max-age=31536000` | Durante un año, esta dirección solo por HTTPS |
+| `Content-Security-Policy` | Solo ejecutar y cargar lo que venga de esta dirección; nada en línea |
+| `X-Content-Type-Options: nosniff` | No adivinar el tipo de los archivos |
+| `Referrer-Policy: strict-origin-when-cross-origin` | Al salir a otra web, solo el dominio |
+| `Permissions-Policy` | Sin cámara, micrófono, ubicación, pagos ni USB |
+| `Cross-Origin-Opener-Policy: same-origin` | Otras pestañas no tocan la nuestra |
+
+Además, `/assets/*` se guarda un año en la caché del navegador (sus nombres
+cambian con cada versión) e `index.html` nunca, para que una versión nueva se
+vea al momento.
+
+## 4. En un servidor
 
 Se completa en el paso 7e: crear el servidor gratuito de Oracle Cloud, el
 subdominio de DuckDNS, el correo con Brevo, el cortafuegos, las copias de
