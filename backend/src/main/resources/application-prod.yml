@@ -18,3 +18,15 @@ spring:
   output:
     ansi:
       enabled: never # logs sin colores: se leen con docker compose logs
+
+  # Correo real (7d): Brevo por el puerto 587. El correo viaja cifrado (STARTTLS
+  # obligatorio: si el servidor no lo ofrece, no se envía) y con tiempos máximos,
+  # para que un servidor de correo que no contesta no deje el envío colgado.
+  mail:
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.starttls.required: true
+      mail.smtp.connectiontimeout: 5000
+      mail.smtp.timeout: 10000
+      mail.smtp.writetimeout: 10000
