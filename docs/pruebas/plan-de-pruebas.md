@@ -56,8 +56,13 @@ El paso 5d añade, en la misma carpeta:
   misma hora a la vez.
 - **Seguridad básica:** `seguridad.spec.ts`, la cookie del refresh, que el
   token no se guarde en el navegador, las cabeceras del backend y que ninguna
-  respuesta de la API lleve hashes. Las cabeceras de la web (CSP, HSTS) y el
-  análisis de dependencias van en la fase 7.
+  respuesta de la API lleve hashes. Las cabeceras de la web (CSP, HSTS) las
+  prueba `e2e/produccion/` desde el paso 7b; el análisis de dependencias va
+  en el 7c.
+- **Producción (7b):** `e2e/produccion/` prueba la aplicación tal como se
+  despliega (`docker-compose.prod.yml`, por HTTPS y a través de Caddy): las
+  cabeceras de seguridad y la caché, el paso de HTTP a HTTPS, que ninguna
+  página de los cuatro perfiles rompa la CSP y la sesión de principio a fin.
 
 ## 3. Cobertura
 

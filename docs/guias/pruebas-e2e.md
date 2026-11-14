@@ -190,3 +190,41 @@ Usa el perfil `demo` en una base de datos propia,
 `docs/capturas/`. Como las citas de la demo dependen del día, las fechas de
 las capturas cambian cada vez que se regeneran. Hazlo cuando cambie una
 pantalla que sale en el README o en el manual.
+
+## 10. Pruebas de producción (paso 7b)
+
+`e2e/produccion/` no arranca nada: prueba la aplicación **ya desplegada**,
+por HTTPS y a través de Caddy, con su propia configuración
+(`playwright.produccion.config.ts`). En el PC, primero arranca el Compose de
+producción (guía [`desplegar.md`](desplegar.md), apartado 2) y después:
+
+```powershell
+cd e2e
+$env:PROD_DEMO_PASSWORD = "la DEMO_PASSWORD de tu .env.prod"
+$env:PROD_ADMIN_EMAIL = "el ADMIN_EMAIL de tu .env.prod"
+$env:PROD_ADMIN_PASSWORD = "el ADMIN_PASSWORD de tu .env.prod"
+npm run produccion
+```
+
+Sin `PROD_ADMIN_EMAIL` se saltan las páginas del admin. Por defecto van a
+`https://localhost` (aceptan el certificado propio de Caddy); con
+`PROD_URL` se prueban contra otra dirección, como la pública en el 7f, y ahí
+el certificado tiene que ser válido. Hacen 4 inicios de sesión: si las
+repites seguidas, espera un minuto (límite de 5 por minuto y por IP).
+
+| Archivo | Qué prueba |
+|---|---|
+| `cabeceras.spec.ts` | HSTS, CSP, `nosniff`, `Referrer-Policy`, `Permissions-Policy` y `Cross-Origin-Opener-Policy` en la web y en la API; sin cabecera `Server`; un año de caché para `/assets/*` y ninguna para `index.html` |
+| `https.spec.ts` | `http://` responde 308 hacia `https://`; Swagger y `/actuator` no se ven desde fuera |
+| `csp.spec.ts` | Las páginas de los cuatro perfiles (con los datos de demo) sin una sola infracción de la CSP |
+| `sesion.spec.ts` | El cliente de la demo entra, sigue dentro al recargar (cookie `Secure`), reserva, cancela y sale |
+
+En la CI las pasa el trabajo **Producción (Compose + HTTPS)** en cada PR. Si
+falla, el artefacto `informe-produccion` trae el informe de Playwright y los
+logs de los tres contenedores (`compose-produccion.log`).
+
+**Si `csp.spec.ts` falla** es que la web usa algo que la CSP prohíbe: un
+estilo en línea (`style={{...}}` o el atributo `style`), un `<script>` en
+línea o algo cargado de otra dirección. Se arregla en la web (una clase de
+CSS Modules en lugar del estilo en línea), no relajando la CSP.
+

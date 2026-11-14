@@ -51,7 +51,7 @@ avanza a la siguiente.
 | 6    | Documentación | Registrar decisiones técnicas y preparar el README.      |
 | 7    | Despliegue    | Preparar una versión que pueda utilizarse y demostrarse. |
 
-**Fase actual: 7. Despliegue** (plan aprobado el 14/11/2026; 7a en revisión; siguiente paso: 7b)
+**Fase actual: 7. Despliegue** (plan aprobado el 14/11/2026; 7b en revisión; siguiente paso: 7c)
 
 - [x] FASE 1: Análisis
 - [x] FASE 2: Diseño
@@ -107,7 +107,7 @@ avanza a la siguiente.
 - [ ] FASE 7: Despliegue (plan en `docs/propuestas/7.0-plan-de-despliegue.md`)
   - [x] 7.0 Plan de la fase: seis pasos (7a a 7f), todo con planes gratuitos (0 €)
   - [x] 7a · Imágenes Docker y Compose de producción, perfil `prod`, D-9 y ADR-018 (`docs/propuestas/7.1-7a-produccion-docker.md`)
-  - [ ] 7b · HTTPS y cabeceras de la web (CSP, HSTS) con el proyecto `produccion` de Playwright
+  - [x] 7b · HTTPS y cabeceras de la web (CSP, HSTS) con las pruebas de `e2e/produccion/` (`docs/propuestas/7.2-7b-cabeceras-web.md`)
   - [ ] 7c · Análisis de dependencias: Dependabot, `npm audit` y Trivy en la CI
   - [ ] 7d · Correo real con Brevo
   - [ ] 7e · Guía de despliegue (`docs/guias/desplegar.md`), copias de seguridad y puesta en marcha
@@ -176,6 +176,7 @@ avanza a la siguiente.
 - Documentación técnica al día (6b): `docs/api/openapi.json` es la especificación de la API y **`OpenApiActualizadoTest` falla si no coincide con la API real**; un PR que cambia un endpoint o un DTO la regenera con `./mvnw test -Dtest=OpenApiActualizadoTest -Dopenapi.actualizar=true` (ADR-017). Las descripciones de Swagger (`@Tag`, `@Operation`) van en español. Una migración nueva pone al día `docs/diagramas/ER-BaseDeDatos.mmd` (y su `.png`); el diagrama de clases vive en `Clases.drawio`. Las propuestas antiguas no se reescriben: llevan un aviso que manda a lo construido.
 - README y manual (6c): `README.md` y `README.en.md` dicen lo mismo, así que **un cambio en uno va también en el otro**. Licencia MIT. `docs/README.md` es el índice de la documentación y `docs/guias/manual-de-usuario.md` el manual por perfil. Las capturas de `docs/capturas/` se regeneran con `cd e2e && npm run capturas` (perfil `demo` en la base de datos `gestion_de_citas_capturas`, fuera de la CI) cuando cambia una pantalla que sale en ellos; se sacan con las animaciones desactivadas (D-8).
 - Producción (7a): `docker-compose.prod.yml` (Caddy, backend y PostgreSQL; **solo Caddy abre puertos**) con las variables de `.env.prod` (plantilla `.env.prod.example`; `.env.prod` nunca va a Git). Imágenes: `backend/Dockerfile` (JRE 21 de Temurin, usuario `app`) y `frontend/Dockerfile` (la web dentro de Caddy, configurada en `frontend/Caddyfile`); la CI las construye en cada PR y con una etiqueta `v*` las publica para Intel y ARM en `ghcr.io/josedfc20/gestion-de-citas-{backend,web}` (ADR-018). Perfil `prod` (`application-prod.yml`): sin Swagger e IP real desde `X-Forwarded-For` solo si llega de la red interna (D-9, `PerfilProduccionTest`). **Lo que dependa de quién hace la petición usa `getRemoteAddr()` y se prueba también con el perfil `prod`.** Guía: `docs/guias/desplegar.md`.
+- Cabeceras de la web (7b): las pone Caddy (`frontend/Caddyfile`): HSTS de un año sin `preload`, CSP estricta (`'self'`, sin `unsafe-inline`), `nosniff`, `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy` y sin `Server`; `/assets/*` con caché de un año e `index.html` sin caché. **La web no usa estilos ni scripts en línea (`style={{...}}`, `<script>`) ni carga nada de otra dirección**: `e2e/produccion/csp.spec.ts` recorre los cuatro perfiles y falla con una sola infracción; se arregla en la web, nunca relajando la CSP. Las pruebas de `e2e/produccion/` (`npm run produccion`, con `PROD_URL` y las cuentas en variables) prueban una aplicación ya desplegada; en la CI, el trabajo "Producción" en cada PR. Si cambia la CSP, cambia también `CSP` en `e2e/produccion/entorno.ts`.
 
 ## 5c. Continuidad entre hilos
 
@@ -373,3 +374,4 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 | 2026-11-14 | 6d terminado (`docs/cierre-fase-6`): `Doc.docx` con la portada al día (versión 0.3, fases 5 y 6), índice de los 17 ADR y resultado de la fase; `AGENTS.md` al día. FASE 6 cerrada; la siguiente es la FASE 7 (Despliegue). |
 | 2026-11-14 | Paso 7.0 aprobado: seis pasos (7a a 7f) sin ningún coste. Servidor Oracle Cloud *Always Free* (plan B: Render + Neon), Caddy para el HTTPS y la web, subdominio gratuito de DuckDNS, Brevo gratuito para el correo y perfil `demo` restablecido cada noche (cuentas de cliente y empleado públicas, la de admin solo para Jose). |
 | 2026-11-14 | 7a aprobado y hecho: imágenes en GitHub Container Registry publicadas por la CI y base `eclipse-temurin:21-jre`; `docker-compose.prod.yml`, perfil `prod`, D-9 (límite de intentos por la IP del proxy) arreglado y ADR-018. Rama del hilo (`claude/project-thread-qggtz2`), porque el hilo no puede crear ramas `feature/...`. |
+| 2026-11-14 | 7a fusionado (PR #27). 7b aprobado y hecho: cabeceras de seguridad y caché en Caddy, pruebas de `e2e/produccion/` contra el Compose de producción en cada PR (trabajo "Producción") y sin receptor de avisos de la CSP. RNF-004 cubierto. |

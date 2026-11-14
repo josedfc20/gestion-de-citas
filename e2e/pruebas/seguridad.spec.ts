@@ -5,7 +5,8 @@ import { ADMIN_EMAIL, ADMIN_PASSWORD } from '../utilidades/entorno.ts'
 import { cerrarSesion, iniciarSesion, reservarComoCliente } from '../utilidades/web.ts'
 
 // Seguridad básica (5d), vista desde el navegador y a través del proxy de la web.
-// Las cabeceras de la propia web (CSP, HSTS) dependen del servidor de producción: fase 7.
+// Las cabeceras de la propia web (CSP, HSTS) las pone Caddy en producción: las
+// prueban e2e/produccion/cabeceras.spec.ts y csp.spec.ts (paso 7b).
 
 let escenario: Escenario
 
