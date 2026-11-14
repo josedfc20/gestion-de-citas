@@ -10,10 +10,13 @@ import java.net.http.HttpResponse;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.test.context.ActiveProfiles;
 
 /**
@@ -29,6 +32,9 @@ class PerfilProduccionTest {
 
     @LocalServerPort
     private int puerto;
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     /**
      * D-9: detrás de Caddy todas las peticiones llegan desde la IP del proxy. Sin
@@ -59,6 +65,18 @@ class PerfilProduccionTest {
     void laApiSigueFuncionando() throws Exception {
         assertThat(get("/api/v1/negocio").statusCode()).isEqualTo(200);
         assertThat(get("/actuator/health").statusCode()).isEqualTo(200);
+    }
+
+    /** 7d: el correo real (Brevo) viaja siempre cifrado y nunca deja el envío colgado. */
+    @Test
+    void elCorreoExigeStarttlsYTieneTiemposMaximos() {
+        var propiedades = ((JavaMailSenderImpl) mailSender).getJavaMailProperties();
+        assertThat(propiedades.getProperty("mail.smtp.auth")).isEqualTo("true");
+        assertThat(propiedades.getProperty("mail.smtp.starttls.enable")).isEqualTo("true");
+        assertThat(propiedades.getProperty("mail.smtp.starttls.required")).isEqualTo("true");
+        assertThat(propiedades.getProperty("mail.smtp.connectiontimeout")).isEqualTo("5000");
+        assertThat(propiedades.getProperty("mail.smtp.timeout")).isEqualTo("10000");
+        assertThat(propiedades.getProperty("mail.smtp.writetimeout")).isEqualTo("10000");
     }
 
     /** Login con un correo que no existe (siempre 401) desde la IP real {@code ip}. */

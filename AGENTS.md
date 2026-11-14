@@ -51,7 +51,7 @@ avanza a la siguiente.
 | 6    | Documentación | Registrar decisiones técnicas y preparar el README.      |
 | 7    | Despliegue    | Preparar una versión que pueda utilizarse y demostrarse. |
 
-**Fase actual: 7. Despliegue** (plan aprobado el 14/11/2026; 7c en revisión; siguiente paso: 7d)
+**Fase actual: 7. Despliegue** (plan aprobado el 14/11/2026; 7d en revisión; siguiente paso: 7e)
 
 - [x] FASE 1: Análisis
 - [x] FASE 2: Diseño
@@ -109,7 +109,7 @@ avanza a la siguiente.
   - [x] 7a · Imágenes Docker y Compose de producción, perfil `prod`, D-9 y ADR-018 (`docs/propuestas/7.1-7a-produccion-docker.md`)
   - [x] 7b · HTTPS y cabeceras de la web (CSP, HSTS) con las pruebas de `e2e/produccion/` (`docs/propuestas/7.2-7b-cabeceras-web.md`)
   - [x] 7c · Análisis de dependencias: Dependabot, `npm audit`, Trivy, análisis semanal y CodeQL (`docs/propuestas/7.3-7c-analisis-dependencias.md`)
-  - [ ] 7d · Correo real con Brevo
+  - [x] 7d · Correo real con Brevo: SMTP con STARTTLS obligatorio y tiempos máximos en el perfil `prod` (`docs/propuestas/7.4-7d-correo-real.md`)
   - [ ] 7e · Guía de despliegue (`docs/guias/desplegar.md`), copias de seguridad y puesta en marcha
   - [ ] 7f · Pruebas en producción, ADR, README con la demo, `Doc.docx` y `v1.0.0`
 
@@ -161,7 +161,7 @@ avanza a la siguiente.
 - Web, zona del empleado (B9a): rutas `/empleado/agenda` (semana de lunes a domingo, `?desde=` normalizado al lunes; 7 columnas desde 1024 px), `/empleado/citas` (filtros de estado y fechas en la URL), `/empleado/citas/:id` y `/empleado/servicios`; el empleado entra a su agenda. Los tres detalles de cita comparten `<FichaCita>` (vista `cliente` o `gestion`, con el teléfono como enlace `tel:`). `<CambioEstado>` ofrece Completada y No presentado solo desde la hora de inicio (`yaHaEmpezado`, una ayuda: decide el servidor) y Cancelar con motivo obligatorio (Zod); tras cambiar se invalidan agenda, listas, reservas y disponibilidad (`invalidarTrasGestion`).
 - Web, reservas del admin (B9b): el admin entra a `/admin/reservas` (filtros de estado, fechas, profesional y cliente en la URL; sin `desde`, de hoy en adelante) y `/mi-area` ya solo redirige a la página de inicio de cada rol. Reserva por un cliente desde `/horarios`, cuyas horas le llevan a `/admin/reservas/nueva?servicio=&profesional=&fecha=&hora=`; allí elige al cliente con `<BuscadorCliente>` (busca al pulsar, 3 letras o más) y para quién es (él o uno de sus menores; el admin no crea clientes ni menores). El detalle (`/admin/reservas/:id`) muestra el correo y el historial; cada cambio trae `realizadoPorNombre` ("Cliente", "Luis G." o "Administrador"), que calcula `AutoresDeCambios` en el backend con una consulta por cita y solo en el detalle del admin.
 - Web, panel del admin (B9c): `/admin/servicios` (también los desactivados con `?inactivos=si`; alta y edición en `/admin/servicios/nuevo` y `/:id`; la duración se elige de una lista con los múltiplos del intervalo, RN-011, y el precio admite coma), `/admin/empleados` (alta con la contraseña temporal mostrada una sola vez y nunca guardada en la web; ficha con datos, servicios, cuenta y enlace al horario; solo se asignan servicios activos; el 409 al desactivar enlaza a sus citas confirmadas), `/admin/empleados/:id/horario` y `/admin/horarios` con `<EditorSemana>` (en el horario de un empleado cada día es "como el general" o propio; `erroresDeSemana` comprueba lo básico y los solapes los decide el servidor), días de cierre (próximos y, a petición, los de los últimos 90 días) y `/admin/negocio` (cambiar el intervalo o la zona pide confirmación; al guardar se actualiza la caché de `negocio`). Las citas que quedan fuera al guardar horarios o cierres se listan con `<CitasAfectadas>`; nunca se cancelan. Menú del admin: Reservas, Servicios, Empleados, Horarios y Negocio ("Nueva reserva" está en Reservas).
-- Correo detrás de la interfaz `EnvioCorreo` (`shared/correo`); en las pruebas, buzón en memoria (`CorreosDePrueba`). El proveedor SMTP real se elige en la fase 7.
+- Correo detrás de la interfaz `EnvioCorreo` (`shared/correo`); en las pruebas, buzón en memoria (`CorreosDePrueba`). En producción, Brevo gratuito por SMTP (7d): `smtp-relay.brevo.com:587`, remitente `gestiondecitas.app@gmail.com` verificado en Brevo (sin dominio propio; nunca iCloud ni Yahoo por su DMARC). El perfil `prod` exige STARTTLS y pone tiempos máximos de 5 s y 10 s (`PerfilProduccionTest`). **La clave SMTP solo va en `.env.prod`, nunca en Git ni en un chat.** Guía: `docs/guias/desplegar.md`, "Correo".
 - Configuración técnica y secretos en `application.yml` / variables de entorno, nunca en Git.
 - El backend lee el `.env` de la raíz al arrancar; los valores del negocio están en la tabla `negocio`.
 - Migraciones Flyway en `backend/src/main/resources/db/migration`: una migración aplicada nunca se modifica, los cambios van en una nueva (V3, V4...).
@@ -377,3 +377,4 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 | 2026-11-14 | 7a aprobado y hecho: imágenes en GitHub Container Registry publicadas por la CI y base `eclipse-temurin:21-jre`; `docker-compose.prod.yml`, perfil `prod`, D-9 (límite de intentos por la IP del proxy) arreglado y ADR-018. Rama del hilo (`claude/project-thread-qggtz2`), porque el hilo no puede crear ramas `feature/...`. |
 | 2026-11-14 | 7a fusionado (PR #27). 7b aprobado y hecho: cabeceras de seguridad y caché en Caddy, pruebas de `e2e/produccion/` contra el Compose de producción en cada PR (trabajo "Producción") y sin receptor de avisos de la CSP. RNF-004 cubierto. |
 | 2026-11-14 | 7b fusionado (PR #28). 7c aprobado y hecho: Dependabot semanal, `npm audit` y Trivy en la CI (fallan con avisos altos o críticos que tienen arreglo), análisis semanal y CodeQL. El aviso CVE-2026-78661 dentro de Caddy 2.11.9 (aún sin versión arreglada) queda como excepción hasta el 14/12/2026. |
+| 2026-11-14 | 7c fusionado (PR #29). 7d aprobado y hecho: correo real con Brevo gratuito, remitente `gestiondecitas.app@gmail.com`, STARTTLS obligatorio y tiempos máximos en el perfil `prod`; guía paso a paso en `desplegar.md`. |

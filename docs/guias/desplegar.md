@@ -100,9 +100,44 @@ Además, `/assets/*` se guarda un año en la caché del navegador (sus nombres
 cambian con cada versión) e `index.html` nunca, para que una versión nueva se
 vea al momento.
 
-## 4. En un servidor
+## 4. Correo (paso 7d)
+
+El único correo que envía la aplicación es el de **recuperar la contraseña**.
+En desarrollo va a Mailpit; en producción sale por **Brevo** (plan gratuito)
+por SMTP, siempre cifrado (STARTTLS obligatorio en el perfil `prod`) y con
+tiempos máximos de 5 s para conectar y 10 s para enviar.
+
+1. **Remitente.** Una cuenta de Gmail creada solo para la aplicación
+   (la nuestra es `gestiondecitas.app@gmail.com`). No
+   uses una de iCloud ni de Yahoo: sus reglas antifraude (DMARC) piden
+   retener los correos que dicen venir de ellos y salen de otro servidor,
+   así que irían a spam.
+2. **Cuenta en Brevo.** Date de alta en [brevo.com](https://www.brevo.com)
+   con el plan *Free*.
+3. **Verificar el remitente.** En Brevo, *Senders, domains & dedicated IPs*
+   → *Senders* → *Add a sender*, con la dirección de Gmail del paso 1. Brevo
+   manda un correo a esa dirección: abre el enlace para verificarla.
+4. **Clave SMTP.** En *SMTP & API* → pestaña *SMTP* → *Generate a new SMTP
+   key*. Copia la clave en ese momento (no se vuelve a ver) y el *Login* que
+   aparece en la misma página.
+5. **`.env.prod`.** Rellena `MAIL_USERNAME` (el *Login*), `MAIL_PASSWORD`
+   (la clave SMTP) y `MAIL_FROM` (el remitente). `MAIL_HOST` y `MAIL_PORT`
+   ya vienen puestos. La clave es un secreto: nunca va a Git ni a un chat.
+6. **Probarlo.** Con tu correo personal como `ADMIN_EMAIL`, arranca el
+   Compose de producción, entra en https://localhost, pulsa "¿Has olvidado
+   tu contraseña?" y pon ese correo. Debe llegar en un minuto (mira también
+   en spam la primera vez) y el enlace debe abrir la página para elegir una
+   contraseña nueva.
+
+**Si no llega:** `docker compose -f docker-compose.prod.yml --env-file .env.prod logs backend`
+muestra "No se pudo enviar el correo de recuperación de contraseña" con el
+motivo: `Authentication failed` (el *Login* o la clave SMTP están mal),
+`sender not verified` o parecido (falta el paso 3) o un tiempo agotado (el
+servidor no llega a Brevo: revisa la red o el cortafuegos).
+
+## 5. En un servidor
 
 Se completa en el paso 7e: crear el servidor gratuito de Oracle Cloud, el
-subdominio de DuckDNS, el correo con Brevo, el cortafuegos, las copias de
+subdominio de DuckDNS, el cortafuegos, las copias de
 seguridad, el restablecimiento nocturno de la demo y cómo actualizar a una
 versión nueva.
