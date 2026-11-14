@@ -42,6 +42,8 @@ versión y no tiene ficha aquí.
 | [D-5](#d-5) | 05/11/2026 | Prueba manual, M-2 (5e) | Con el backend parado salía "error inesperado" | arreglado (PR #21) |
 | [D-6](#d-6) | 05/11/2026 | Prueba manual, M-7 (5e) | Al registrarse se perdía la hora elegida | arreglado (PR #21) |
 | [D-7](#d-7) | 05/11/2026 | Prueba manual, M-5 (5e) | "Buscar cliente" del admin no se entendía | arreglado (PR #21) |
+| [D-8](#d-8) | 13/11/2026 | Revisión de las capturas del 6c | La captura en modo oscuro salía a mitad de una transición | arreglado (PR #25) |
+| [D-9](#d-9) | 14/11/2026 | Revisión del código para la fase 7 (7.0) | Detrás del proxy, todos compartirían el límite de intentos de login | arreglado (7a) |
 
 ## Fichas
 
@@ -238,3 +240,31 @@ versión y no tiene ficha aquí.
 - **Lo aprendido:** una captura sacada justo después de cambiar algo en la
   página puede pillar una animación a medias; las capturas se hacen siempre
   con las animaciones desactivadas.
+
+### D-9
+
+**Detrás del proxy, todos los usuarios compartirían el límite de intentos**
+
+- **Dónde salió:** al revisar el código para el plan de la fase 7 (7.0), el
+  14/11/2026. No llegó a pasar en producción: se encontró antes de desplegar.
+- **Qué se vio:** `AuthController` pasa `peticion.getRemoteAddr()` al límite
+  de intentos de login (5 por minuto) y de recuperar contraseña (10 por hora
+  por IP). Detrás de Caddy, esa IP es siempre la del proxy.
+- **Qué habría pasado:** todos los usuarios compartirían el mismo límite;
+  con 5 personas equivocándose a la vez, nadie más podría iniciar sesión
+  durante un minuto. En local no se notaba porque no hay proxy.
+- **Causa:** el límite se diseñó (B2) pensando en el backend expuesto
+  directamente; el proxy llegó con el despliegue.
+- **Solución:** el perfil `prod` activa `server.forward-headers-strategy:
+  native`: Tomcat toma la IP de `X-Forwarded-For`, pero solo cuando la
+  petición llega de una red interna (Caddy, en la red de Docker). Caddy no
+  reenvía la `X-Forwarded-For` que mande el navegador, así que no se puede
+  falsear. El código de `AuthController` no cambia.
+- **PR:** el del 7a.
+- **Prueba que lo vigila:** `PerfilProduccionTest` (backend en un puerto de
+  verdad con el perfil `prod`): una IP agota sus 5 intentos y otra IP sigue
+  pudiendo entrar. Falla sin el arreglo. Comprobado también con el Compose de
+  producción: una `X-Forwarded-For` inventada por el cliente no cambia nada.
+- **Lo aprendido:** todo lo que depende de quién hace la petición (límites,
+  registros) hay que revisarlo cuando aparece un proxy delante.
+

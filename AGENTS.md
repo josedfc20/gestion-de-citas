@@ -51,7 +51,7 @@ avanza a la siguiente.
 | 6    | Documentación | Registrar decisiones técnicas y preparar el README.      |
 | 7    | Despliegue    | Preparar una versión que pueda utilizarse y demostrarse. |
 
-**Fase actual: 7. Despliegue** (aún sin plan; la fase 6 se cerró el 14/11/2026)
+**Fase actual: 7. Despliegue** (plan aprobado el 14/11/2026; 7a en revisión; siguiente paso: 7b)
 
 - [x] FASE 1: Análisis
 - [x] FASE 2: Diseño
@@ -104,7 +104,14 @@ avanza a la siguiente.
   - [x] 6c · README (español e inglés), licencia MIT, manual de usuario, índice de `docs/` y capturas (`docs/readme`, `docs/propuestas/6.3-6c-readme-y-manual.md`)
   - [x] D-8 · La captura en modo oscuro salía a mitad de una transición; las capturas se sacan con las animaciones desactivadas (PR #25)
   - [x] 6d · Cierre: `Doc.docx` (portada, índice de ADR y resultado de la fase), `AGENTS.md` y fase cerrada (`docs/cierre-fase-6`)
-- [ ] FASE 7: Despliegue
+- [ ] FASE 7: Despliegue (plan en `docs/propuestas/7.0-plan-de-despliegue.md`)
+  - [x] 7.0 Plan de la fase: seis pasos (7a a 7f), todo con planes gratuitos (0 €)
+  - [x] 7a · Imágenes Docker y Compose de producción, perfil `prod`, D-9 y ADR-018 (`docs/propuestas/7.1-7a-produccion-docker.md`)
+  - [ ] 7b · HTTPS y cabeceras de la web (CSP, HSTS) con el proyecto `produccion` de Playwright
+  - [ ] 7c · Análisis de dependencias: Dependabot, `npm audit` y Trivy en la CI
+  - [ ] 7d · Correo real con Brevo
+  - [ ] 7e · Guía de despliegue (`docs/guias/desplegar.md`), copias de seguridad y puesta en marcha
+  - [ ] 7f · Pruebas en producción, ADR, README con la demo, `Doc.docx` y `v1.0.0`
 
 ## 4. Problema y objetivo
 
@@ -168,6 +175,7 @@ avanza a la siguiente.
 - Decisiones técnicas (6a): una ficha ADR por decisión en `docs/decisiones/` (contexto, decisión, alternativas descartadas y consecuencias), con índice en `docs/decisiones/README.md`. **Una decisión técnica nueva lleva su ADR en el mismo PR.** Un ADR nunca se borra ni se reescribe: si la decisión cambia, se escribe otro y el antiguo pasa a "sustituida por". El registro de decisiones (§13) sigue siendo el diario del proyecto.
 - Documentación técnica al día (6b): `docs/api/openapi.json` es la especificación de la API y **`OpenApiActualizadoTest` falla si no coincide con la API real**; un PR que cambia un endpoint o un DTO la regenera con `./mvnw test -Dtest=OpenApiActualizadoTest -Dopenapi.actualizar=true` (ADR-017). Las descripciones de Swagger (`@Tag`, `@Operation`) van en español. Una migración nueva pone al día `docs/diagramas/ER-BaseDeDatos.mmd` (y su `.png`); el diagrama de clases vive en `Clases.drawio`. Las propuestas antiguas no se reescriben: llevan un aviso que manda a lo construido.
 - README y manual (6c): `README.md` y `README.en.md` dicen lo mismo, así que **un cambio en uno va también en el otro**. Licencia MIT. `docs/README.md` es el índice de la documentación y `docs/guias/manual-de-usuario.md` el manual por perfil. Las capturas de `docs/capturas/` se regeneran con `cd e2e && npm run capturas` (perfil `demo` en la base de datos `gestion_de_citas_capturas`, fuera de la CI) cuando cambia una pantalla que sale en ellos; se sacan con las animaciones desactivadas (D-8).
+- Producción (7a): `docker-compose.prod.yml` (Caddy, backend y PostgreSQL; **solo Caddy abre puertos**) con las variables de `.env.prod` (plantilla `.env.prod.example`; `.env.prod` nunca va a Git). Imágenes: `backend/Dockerfile` (JRE 21 de Temurin, usuario `app`) y `frontend/Dockerfile` (la web dentro de Caddy, configurada en `frontend/Caddyfile`); la CI las construye en cada PR y con una etiqueta `v*` las publica para Intel y ARM en `ghcr.io/josedfc20/gestion-de-citas-{backend,web}` (ADR-018). Perfil `prod` (`application-prod.yml`): sin Swagger e IP real desde `X-Forwarded-For` solo si llega de la red interna (D-9, `PerfilProduccionTest`). **Lo que dependa de quién hace la petición usa `getRemoteAddr()` y se prueba también con el perfil `prod`.** Guía: `docs/guias/desplegar.md`.
 
 ## 5c. Continuidad entre hilos
 
@@ -363,3 +371,5 @@ IDs fijos: nunca se reutilizan ni se renumeran; si un caso se elimina, se marca
 | 2026-11-13 | D-8: la captura `horarios-oscuro.png` salía con las horas a medio cambiar de color porque se pasaba a oscuro sin recargar y había una transición de 0,15 s; `capturar` usa `animations: 'disabled'`. La web estaba bien (contraste 6,7:1 en oscuro). |
 | 2026-11-13 | 6c fusionado (PR #25). |
 | 2026-11-14 | 6d terminado (`docs/cierre-fase-6`): `Doc.docx` con la portada al día (versión 0.3, fases 5 y 6), índice de los 17 ADR y resultado de la fase; `AGENTS.md` al día. FASE 6 cerrada; la siguiente es la FASE 7 (Despliegue). |
+| 2026-11-14 | Paso 7.0 aprobado: seis pasos (7a a 7f) sin ningún coste. Servidor Oracle Cloud *Always Free* (plan B: Render + Neon), Caddy para el HTTPS y la web, subdominio gratuito de DuckDNS, Brevo gratuito para el correo y perfil `demo` restablecido cada noche (cuentas de cliente y empleado públicas, la de admin solo para Jose). |
+| 2026-11-14 | 7a aprobado y hecho: imágenes en GitHub Container Registry publicadas por la CI y base `eclipse-temurin:21-jre`; `docker-compose.prod.yml`, perfil `prod`, D-9 (límite de intentos por la IP del proxy) arreglado y ADR-018. Rama del hilo (`claude/project-thread-qggtz2`), porque el hilo no puede crear ramas `feature/...`. |
