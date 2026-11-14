@@ -17,10 +17,10 @@ Todo lo que no es código. Si es la primera vez, sigue este orden:
 
 | Carpeta | Qué hay |
 |---|---|
-| [`decisiones/`](decisiones/README.md) | ADR-001 a ADR-017: contexto, decisión, alternativas descartadas y consecuencias |
+| [`decisiones/`](decisiones/README.md) | ADR-001 a ADR-018: contexto, decisión, alternativas descartadas y consecuencias |
 | [`diagramas/`](diagramas/) | UML y base de datos (los `.mmd` y `.drawio` son los originales; los `.png`, las imágenes) |
 | [`api/`](api/README.md) | `openapi.json`, la especificación de la API, vigilada por una prueba |
-| [`guias/`](guias/) | Cómo instalar el entorno, arrancar el backend y la web, pasar las E2E y usar la aplicación |
+| [`guias/`](guias/) | Cómo instalar el entorno, arrancar el backend y la web, pasar las E2E, usar la aplicación y desplegarla |
 | [`pruebas/`](pruebas/) | Plan, matriz de trazabilidad, pruebas manuales, registro de defectos e informe |
 | [`propuestas/`](propuestas/) | La propuesta aprobada de cada paso, de la fase 2 a la 6: la historia del proyecto |
 | [`capturas/`](capturas/) | Capturas de la web con la demo, para el README y el manual |
@@ -48,6 +48,7 @@ Todo lo que no es código. Si es la primera vez, sigue este orden:
 | [`arrancar-web.md`](guias/arrancar-web.md) | Arrancar la web con los datos de demostración |
 | [`pruebas-e2e.md`](guias/pruebas-e2e.md) | Pasar las pruebas de punta a punta en el PC |
 | [`manual-de-usuario.md`](guias/manual-de-usuario.md) | Usar la aplicación con cada perfil |
+| [`desplegar.md`](guias/desplegar.md) | Arrancar la versión de producción (en el PC y, desde el 7e, en un servidor) |
 
 ## Las propuestas y lo construido
 

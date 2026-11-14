@@ -1,0 +1,23 @@
+# Caddy en producción (paso 7a): HTTPS automático, la web y /api al backend.
+# DOMINIO llega de .env.prod. Con "localhost" Caddy usa un certificado propio
+# (el navegador avisa); con un dominio real lo pide a Let's Encrypt y lo renueva solo.
+# Las cabeceras de seguridad (CSP, HSTS...) llegan en el paso 7b.
+
+{$DOMINIO} {
+	encode zstd gzip
+
+	# La API: misma dirección que la web, así la cookie del refresh viaja sin CORS.
+	# Caddy pone la IP real del usuario en X-Forwarded-For (la que mande el
+	# navegador no se reenvía) y el backend la usa para el límite de intentos (D-9).
+	handle /api/* {
+		reverse_proxy backend:8080
+	}
+
+	# La web: si la ruta no es un archivo (/mis-citas, /admin/...), index.html y
+	# React Router decide qué página enseñar.
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}

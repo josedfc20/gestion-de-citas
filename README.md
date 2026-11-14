@@ -108,6 +108,8 @@ gestion-de-citas/
 ├── frontend/   web con React + TypeScript
 ├── e2e/        pruebas de punta a punta con Playwright
 ├── docs/       documentación: decisiones, diagramas, API, guías y pruebas
+├── docker-compose.yml       PostgreSQL y Mailpit para desarrollar
+├── docker-compose.prod.yml  producción: Caddy (HTTPS), backend y PostgreSQL
 └── AGENTS.md   reglas del proyecto para asistentes de IA
 ```
 

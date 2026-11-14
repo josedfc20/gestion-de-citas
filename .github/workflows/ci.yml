@@ -1,9 +1,11 @@
-# Compila y ejecuta las pruebas en cada push y en cada pull request.
+# Compila y ejecuta las pruebas en cada push y en cada pull request. Con una
+# etiqueta v* (v1.0.0...) publica además las imágenes de producción (paso 7a).
 name: CI
 
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
 
 permissions:
@@ -173,3 +175,67 @@ jobs:
             e2e/test-results/
             e2e/registros/
           retention-days: 14
+
+  # Paso 7a: las imágenes de producción (docker-compose.prod.yml), solo si todas las
+  # pruebas pasan. En cada PR y push a main se construyen sin publicarse, para que un
+  # Dockerfile roto se vea antes de fusionar. Con una etiqueta v* se construyen para
+  # Intel y ARM (el servidor gratuito de Oracle es ARM) y se publican en GitHub
+  # Container Registry: ghcr.io/josedfc20/gestion-de-citas-backend y -web.
+  imagenes:
+    name: Imagen ${{ matrix.nombre }}
+    needs: [backend, frontend, e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        include:
+          - nombre: backend
+            carpeta: backend
+          - nombre: web
+            carpeta: frontend
+    env:
+      PUBLICAR: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Java y la web se compilan en Intel (BUILDPLATFORM en los Dockerfile); QEMU solo
+      # hace falta para los pocos pasos de la imagen final de ARM.
+      - name: Preparar la emulación de ARM
+        if: env.PUBLICAR == 'true'
+        uses: docker/setup-qemu-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Iniciar sesión en GitHub Container Registry
+        if: env.PUBLICAR == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # v1.2.3 -> etiquetas 1.2.3 y 1.2 (VERSION en .env.prod).
+      - name: Etiquetas de la imagen
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/gestion-de-citas-${{ matrix.nombre }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=ref,event=pr
+            type=ref,event=branch
+
+      - name: Construir (y publicar con una etiqueta v*)
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.carpeta }}
+          platforms: ${{ env.PUBLICAR == 'true' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
+          push: ${{ env.PUBLICAR == 'true' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.nombre }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.nombre }}

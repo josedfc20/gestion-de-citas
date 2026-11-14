@@ -1,0 +1,109 @@
+# Producción (paso 7a): la web con Caddy (HTTPS), el backend y PostgreSQL.
+# Guía: docs/guias/desplegar.md. Variables: copia .env.prod.example como .env.prod.
+#
+#   En el PC (construye las imágenes):
+#     docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+#   En el servidor (descarga las imágenes de la versión VERSION):
+#     docker compose -f docker-compose.prod.yml --env-file .env.prod pull
+#     docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
+#   Parar todo (los datos se quedan en los volúmenes):
+#     docker compose -f docker-compose.prod.yml --env-file .env.prod down
+
+name: gestion-de-citas-prod
+
+# Logs de Docker: como mucho 3 archivos de 10 MB por servicio.
+x-logs: &logs
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: "3"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?falta POSTGRES_DB en .env.prod}
+      POSTGRES_USER: ${POSTGRES_USER:?falta POSTGRES_USER en .env.prod}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD en .env.prod}
+    # Sin "ports": la base de datos solo se ve desde la red interna de Docker.
+    volumes:
+      - datos-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    logging: *logs
+
+  backend:
+    image: ghcr.io/josedfc20/gestion-de-citas-backend:${VERSION:-local}
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${PERFILES:-prod,demo}
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?falta JWT_SECRET en .env.prod}
+      COOKIE_SECURE: "true"
+      # Web y API comparten dirección (Caddy), así que el navegador no necesita CORS.
+      APP_WEB_URL: https://${DOMINIO}
+      CORS_ALLOWED_ORIGINS: https://${DOMINIO}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?falta ADMIN_EMAIL en .env.prod}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?falta ADMIN_PASSWORD en .env.prod}
+      ADMIN_NOMBRE: ${ADMIN_NOMBRE:-Administrador}
+      MAIL_HOST: ${MAIL_HOST:-}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      DEMO_PASSWORD: ${DEMO_PASSWORD:-}
+    # Sin "ports": solo Caddy llega al backend, por la red interna.
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+    logging: *logs
+
+  web:
+    image: ghcr.io/josedfc20/gestion-de-citas-web:${VERSION:-local}
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      DOMINIO: ${DOMINIO:?falta DOMINIO en .env.prod}
+    # Lo único abierto a Internet: HTTP (solo redirige a HTTPS) y HTTPS (también HTTP/3).
+    ports:
+      - "${PUERTO_HTTP:-80}:80"
+      - "${PUERTO_HTTPS:-443}:443"
+      - "${PUERTO_HTTPS:-443}:443/udp"
+    volumes:
+      # Los certificados se guardan para no pedirlos de nuevo en cada arranque.
+      - datos-caddy:/data
+      - config-caddy:/config
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    logging: *logs
+
+volumes:
+  datos-postgres:
+  datos-caddy:
+  config-caddy:
