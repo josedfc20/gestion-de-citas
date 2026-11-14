@@ -4,7 +4,7 @@
 
 # Etapa 1: compilar la web. Los archivos que salen son los mismos para Intel y
 # ARM, así que corre en la arquitectura de quien construye (BUILDPLATFORM).
-FROM --platform=$BUILDPLATFORM node:24.22.3-alpine AS compilar
+FROM --platform=$BUILDPLATFORM node:26.13.0-alpine AS compilar
 WORKDIR /fuente
 COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci
