@@ -23,7 +23,7 @@ services:
   # Servidor de correo de pruebas (B3): recibe los correos del backend sin
   # enviarlos a Internet. Bandeja en http://localhost:8025
   mailpit:
-    image: axllent/mailpit:v1.31
+    image: axllent/mailpit:v1.33
     container_name: gestion-de-citas-correo
     restart: unless-stopped
     ports:
