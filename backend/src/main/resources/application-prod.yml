@@ -1,0 +1,20 @@
+# Perfil de producción (paso 7a). En el servidor: SPRING_PROFILES_ACTIVE=prod,demo
+# (lo pone docker-compose.prod.yml). Los secretos llegan por variables de entorno.
+
+server:
+  # D-9: detrás de Caddy, la IP del usuario sale de X-Forwarded-For (y el esquema,
+  # de X-Forwarded-Proto). Tomcat solo hace caso a esas cabeceras si la petición
+  # llega de una red interna (Caddy, en la red de Docker), nunca de Internet.
+  forward-headers-strategy: native
+
+# Sin Swagger: la especificación de la API está en docs/api/openapi.json.
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+spring:
+  output:
+    ansi:
+      enabled: never # logs sin colores: se leen con docker compose logs

@@ -1,6 +1,6 @@
 # Matriz de trazabilidad
 
-> Fase 5, paso 5a (31/10/2026); actualizada en el 5b, el 5c, el 5d, el 5e y el 5f. Relaciona cada caso de uso, regla de negocio
+> Fase 5, paso 5a (31/10/2026); actualizada en el 5b, el 5c, el 5d, el 5e, el 5f y el 7a. Relaciona cada caso de uso, regla de negocio
 > y requisito no funcional con las pruebas que lo cubren. Se actualiza en cada
 > PR que añade pruebas.
 >
@@ -16,7 +16,7 @@
 | CU | Caso de uso | Backend | Web | E2E | Estado |
 |---|---|---|---|---|---|
 | CU-001 | Registrarse | `RegistroTest`, `EdadMinimaTest`, `PoliticaPasswordTest` | `Registro.test` › registro | `cliente` | ✅ |
-| CU-002 | Iniciar sesión | `LoginTest`, `LimiteIntentosLoginTest`, `SesionTest`, `JwtServiceTest` | `Login.test` › login, `sesion.test`, `cliente.test` | `cliente` (y todas las demás) | ✅ |
+| CU-002 | Iniciar sesión | `LoginTest`, `LimiteIntentosLoginTest`, `SesionTest`, `JwtServiceTest`, `PerfilProduccionTest` (detrás del proxy cada IP real tiene su límite, D-9) | `Login.test` › login, `sesion.test`, `cliente.test` | `cliente` (y todas las demás) | ✅ |
 | CU-003 | Cerrar sesión | `SesionTest` (elLogout…) | `sesion.test` (cerrar sesión…) | `cliente` | ✅ |
 | CU-004 | Modificar perfil | `PerfilYPasswordTest` | `Cuenta.test` › perfil | `rgpd` (descargar datos y eliminar la cuenta) | ✅ |
 | CU-005 | Consultar servicios y precios | `ServiciosTest` (…SaleEnElCatalogoPublico, desactivarLoOcultaDelPublico…), `SeguridadTest` (lasConsultasDelCatalogoSonPublicas) | `ZonaPublica.test` | `cliente` | ✅ |
@@ -61,7 +61,7 @@
 | RNF-001 | Contraseñas con hash seguro | `RegistroTest` (…ConLaContrasenaEnBcrypt), `AdministradorInicialTest`, `SesionTest` (enLaBaseDeDatosSoloSeGuardaElHash…), `DatosPersonalesTest` (…SinHashes), `EnlaceRecuperacionTest` (elTokenNoApareceEnElLog); E2E: `seguridad` (ninguna respuesta de la API lleva hashes ni campos de contraseña, la cookie del refresh es `HttpOnly`, `Secure`, `SameSite=Strict` y el token no se guarda en el navegador) | ✅ |
 | RNF-002 | Permisos por rol | **`PermisosTest`**: los 54 endpoints con 5 perfiles (anónimo, cliente, empleado, empleado con contraseña temporal y admin) y la comprobación de que la tabla tiene todos los endpoints; `SeguridadTest` (tokens manipulados o caducados) y las pruebas "solo…" de cada clase (lo ajeno es 404). Web: **`Permisos.test`**, las 33 rutas con 5 perfiles y la comprobación de que la tabla tiene todas las rutas | ✅ |
 | RNF-003 | Sin reservas incompatibles, también a la vez | `ReservasTest` (dosReservasALaVezDelMismoHuecoSoloConfirmanUna, laRestriccionDeLaBaseDeDatos…), `RestriccionSolapeTest`; E2E: **`concurrencia`** (dos navegadores confirman la misma hora a la vez: uno la consigue y el otro ve "Ese horario ya no está disponible") | ✅ |
-| RNF-004 | HTTPS en el entorno desplegado | — (fase 7) | — |
+| RNF-004 | HTTPS en el entorno desplegado | 7a: `docker-compose.prod.yml` con Caddy (HTTPS automático, HTTP redirige a HTTPS), comprobado a mano en local; `PerfilProduccionTest` (perfil `prod`: IP real tras el proxy y Swagger apagado). Las pruebas automáticas del HTTPS y las cabeceras llegan en el 7b (proyecto `produccion`) y contra la dirección pública en el 7f | 🟡 |
 | RNF-005 | Pruebas de las funcionalidades principales | Esta matriz, la cobertura en la CI, la prueba manual (`pruebas-manuales.md`) y el informe de la fase 5 (`informe-de-pruebas.md`) | ✅ |
 | RNF-006 | Código modular | **`ArquitecturaTest`** (ArchUnit): los controllers no usan repositories ni devuelven entidades, `usuario` y `beneficiario` no dependen de `cita`, nadie lee la hora sin el `Clock` y `CalculoDisponibilidad` no depende de Spring. **`OpenApiActualizadoTest`** (6b): `docs/api/openapi.json` coincide con la API real | ✅ |
 | RNF-007 | RGPD y LOPDGDD | `RegistroTest` (sinAceptarLaPrivacidad…), `DatosPersonalesTest`, `BeneficiariosTest` (conCitasSeAnonimiza…), `CorreoRecuperacionListenerTest` (el token nunca va al log); web: `Cuenta.test`; E2E: `rgpd` (el JSON descargado no lleva contraseñas) | ✅ |

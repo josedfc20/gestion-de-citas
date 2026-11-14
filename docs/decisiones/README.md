@@ -32,6 +32,7 @@ alternativas, se han añadido las razonables al escribir la ficha.
 | [ADR-015](ADR-015-matrices-de-permisos-y-archunit.md) | Matrices de permisos y ArchUnit que fallan por olvido | 5 |
 | [ADR-016](ADR-016-playwright-para-e2e.md) | Playwright para las pruebas de punta a punta | 5 |
 | [ADR-017](ADR-017-openapi-versionado.md) | La especificación OpenAPI se versiona y una prueba la vigila | 6 |
+| [ADR-018](ADR-018-docker-compose-y-caddy.md) | Producción con Docker Compose y Caddy delante | 7 |
 
 ## Cómo se añade uno
 
