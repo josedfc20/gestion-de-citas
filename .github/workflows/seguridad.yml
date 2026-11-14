@@ -1,0 +1,73 @@
+# Análisis semanal de seguridad (paso 7c). Los fallos de seguridad (CVE) aparecen
+# aunque no cambie nada nuestro, así que cada lunes se revisan las librerías y las
+# dos imágenes de producción con las mismas reglas que la CI. Si falla, GitHub
+# avisa por correo. Guía: docs/guias/dependencias.md
+
+name: Seguridad semanal
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # lunes a las 6:00 UTC (7:00 en Madrid en invierno)
+  workflow_dispatch: # también a mano, desde la pestaña Actions
+
+permissions:
+  contents: read
+
+jobs:
+  dependencias:
+    name: Librerías (npm audit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Web
+        working-directory: frontend
+        run: npm audit --audit-level=high
+
+      - name: Pruebas de punta a punta
+        working-directory: e2e
+        run: npm audit --audit-level=high
+
+  imagenes:
+    name: Imágenes (Trivy)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Construir la imagen del backend
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          load: true
+          tags: gestion-de-citas-backend:semanal
+          cache-from: type=gha,scope=backend
+
+      - name: Construir la imagen de la web
+        uses: docker/build-push-action@v6
+        with:
+          context: frontend
+          load: true
+          tags: gestion-de-citas-web:semanal
+          cache-from: type=gha,scope=web
+
+      - name: Revisar las imágenes
+        run: |
+          trivy() {
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+              -v "$PWD/.trivyignore.yaml:/.trivyignore.yaml:ro" \
+              aquasec/trivy:0.76.2 image --quiet --scanners vuln --severity HIGH,CRITICAL "$@"
+          }
+          for imagen in backend web; do
+            { echo "### Trivy: imagen $imagen"; echo; echo '```'; trivy --format table "gestion-de-citas-$imagen:semanal"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          done
+          for imagen in backend web; do
+            trivy --ignore-unfixed --ignorefile /.trivyignore.yaml --exit-code 1 "gestion-de-citas-$imagen:semanal"
+          done

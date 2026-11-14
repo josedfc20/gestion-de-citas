@@ -1,0 +1,15 @@
+# Excepciones de Trivy (paso 7c). Cada una con su motivo y su fecha de caducidad:
+# al caducar, la CI y el análisis semanal vuelven a fallar y hay que revisarla
+# (quitarla si ya hay arreglo o renovarla explicando por qué).
+# Guía: docs/guias/dependencias.md
+
+vulnerabilities:
+  # Dentro del programa Caddy 2.11.9, la última versión a 14/11/2026. La librería
+  # golang.org/x/net ya está arreglada (0.62.0), pero aún no hay un Caddy que la use.
+  # Riesgo bajo: el fallo está en el analizador de HTML de Go, que Caddy solo usa
+  # en las directivas templates y markdown, y nuestro Caddyfile no las usa.
+  # Se quita cuando Dependabot proponga un Caddy con la librería arreglada.
+  - id: CVE-2026-78661
+    paths: ["usr/bin/caddy"]
+    statement: "Caddy 2.11.9 (última) aún lleva golang.org/x/net 0.60.0; no usamos templates ni markdown."
+    expired_at: 2026-12-14

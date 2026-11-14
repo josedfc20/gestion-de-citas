@@ -48,6 +48,7 @@ Todo lo que no es código. Si es la primera vez, sigue este orden:
 | [`arrancar-web.md`](guias/arrancar-web.md) | Arrancar la web con los datos de demostración |
 | [`pruebas-e2e.md`](guias/pruebas-e2e.md) | Pasar las pruebas de punta a punta en el PC |
 | [`manual-de-usuario.md`](guias/manual-de-usuario.md) | Usar la aplicación con cada perfil |
+| [`dependencias.md`](guias/dependencias.md) | Qué hacer con un PR de Dependabot o un aviso de seguridad (Trivy, `npm audit`) |
 | [`desplegar.md`](guias/desplegar.md) | Arrancar la versión de producción (en el PC y, desde el 7e, en un servidor) |
 
 ## Las propuestas y lo construido

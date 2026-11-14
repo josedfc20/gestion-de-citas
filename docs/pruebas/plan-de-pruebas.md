@@ -57,12 +57,14 @@ El paso 5d añade, en la misma carpeta:
 - **Seguridad básica:** `seguridad.spec.ts`, la cookie del refresh, que el
   token no se guarde en el navegador, las cabeceras del backend y que ninguna
   respuesta de la API lleve hashes. Las cabeceras de la web (CSP, HSTS) las
-  prueba `e2e/produccion/` desde el paso 7b; el análisis de dependencias va
-  en el 7c.
+  prueba `e2e/produccion/` desde el paso 7b.
 - **Producción (7b):** `e2e/produccion/` prueba la aplicación tal como se
   despliega (`docker-compose.prod.yml`, por HTTPS y a través de Caddy): las
   cabeceras de seguridad y la caché, el paso de HTTP a HTTPS, que ninguna
   página de los cuatro perfiles rompa la CSP y la sesión de principio a fin.
+- **Dependencias (7c):** `npm audit` (web y `e2e/`) y Trivy (las dos
+  imágenes) en cada PR y cada lunes; Dependabot propone las actualizaciones
+  y CodeQL analiza nuestro código (`docs/guias/dependencias.md`).
 
 ## 3. Cobertura
 
