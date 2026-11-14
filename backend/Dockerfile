@@ -4,7 +4,7 @@
 
 # Etapa 1: compilar el .jar. Corre en la arquitectura de quien construye
 # (BUILDPLATFORM): el .jar es el mismo para Intel y ARM, así que no se emula ARM.
-FROM --platform=$BUILDPLATFORM eclipse-temurin:21.0.13_9-jdk-noble AS compilar
+FROM --platform=$BUILDPLATFORM eclipse-temurin:24.0.2_12-jdk-noble AS compilar
 WORKDIR /fuente
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
@@ -18,7 +18,7 @@ RUN --mount=type=cache,target=/root/.m2 ./mvnw -B -q -DskipTests package \
 
 # Etapa 2: solo el JRE 21 y la aplicación, separada en capas (las librerías casi
 # nunca cambian, así que una versión nueva descarga poco).
-FROM eclipse-temurin:21.0.13_9-jre-noble
+FROM eclipse-temurin:24.0.2_12-jre-noble
 RUN groupadd --system app && useradd --system --gid app --no-create-home app
 WORKDIR /app
 COPY --from=compilar /fuente/target/capas/dependencies/ ./
